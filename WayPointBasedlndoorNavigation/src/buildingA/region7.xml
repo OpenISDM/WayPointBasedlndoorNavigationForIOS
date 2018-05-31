@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<BuildingA>
+
+
+    <region7>
+        <node id='54' name='54' region='region7' lat='25.04052996262' lon='121.51927448742' neighbor1='56' neighbor2='' neighbor3='' neighbor4='' category='Category7' nodeType='' connectPointID='' elevation='3'/>
+        <node id='55' name='55' region='region7' lat='25.04050687662' lon='121.51925302975' neighbor1='56' neighbor2='' neighbor3='' neighbor4='' category='Category7' nodeType='' connectPointID='' elevation='3'/>
+        <node id='56' name='56' region='region7' lat='25.04050748415' lon='121.51927515797' neighbor1='54' neighbor2='55' neighbor3='57' neighbor4='59' category='' nodeType='' connectPointID='' elevation='3'/>
+        <node id='57' name='57' region='region7' lat='25.04050809167' lon='121.51929661565' neighbor1='56' neighbor2='' neighbor3='' neighbor4='' category='' nodeType='1' connectPointID='7' elevation='3'/>
+        <node id='58' name='58' region='region7' lat='25.04048500567' lon='121.5192537003' neighbor1='59' neighbor2='' neighbor3='' neighbor4='' category='Category7' nodeType='' connectPointID='' elevation='3'/>
+        <node id='59' name='59' region='region7' lat='25.0404856132' lon='121.51927649908' neighbor1='56' neighbor2='58' neighbor3='60' neighbor4='61' category='' nodeType='' connectPointID='' elevation='3' />
+        <node id='60' name='60' region='region7' lat='25.04048622073' lon='121.5192986273' neighbor1='59' neighbor2='' neighbor3='' neighbor4='' category='' nodeType='2' connectPointID='8' elevation='3'/>
+        <node id='61' name='61' region='region7' lat='25.04046556483' lon='121.51927649908' neighbor1='59' neighbor2='' neighbor3='' neighbor4='' category='' nodeType='' connectPointID='' elevation='3'/>
+    </region7>
+
+
+</BuildingA>
+
+

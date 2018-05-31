@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<BuildingA>
+
+
+
+
+    <region4>
+        <node id='12' name='12' region='region4' lat='25.04052996262' lon='121.51923023097' neighbor1='14' neighbor2='' neighbor3='' neighbor4='' category='Category4' nodeType='' connectPointID='' elevation='1'/>
+        <node id='5' name='5' region='region4' lat='25.04050566157' lon='121.51918798618' neighbor1='14' neighbor2='' neighbor3='' neighbor4='' category='' nodeType='3' connectPointID='3' elevation='1'/>
+        <node id='14' name='14' region='region4' lat='25.04050626909' lon='121.51923157208' neighbor1='12' neighbor2='5' neighbor3='15' neighbor4='17' category='' nodeType='' connectPointID='' elevation='1'/>
+        <node id='15' name='15' region='region4' lat='25.04050687662' lon='121.51925302975' neighbor1='14' neighbor2='' neighbor3='' neighbor4='' category='' nodeType='3' connectPointID='5' elevation='1'/>
+        <node id='16' name='16' region='region4' lat='25.0404947261' lon='121.5192101144' neighbor1='17' neighbor2='19' neighbor3='' neighbor4='' category='' nodeType='' connectPointID='' elevation='1'/>
+        <node id='17' name='17' region='region4' lat='25.04049533362' lon='121.51923157208' neighbor1='14' neighbor2='16' neighbor3='' neighbor4='' category='' nodeType='' connectPointID='' elevation='1'/>
+        <node id='9' name='9' region='region4' lat='25.04048379062' lon='121.51918999784' neighbor1='19' neighbor2='' neighbor3='' neighbor4='' category='' nodeType='3' connectPointID='4' elevation='1'/>
+        <node id='19' name='19' region='region4' lat='25.04048379062' lon='121.51921145551' neighbor1='16' neighbor2='9' neighbor3='20' neighbor4='21' category='' nodeType='' connectPointID='' elevation='1'/>
+        <node id='20' name='20' region='region4' lat='25.04048500567' lon='121.5192537003' neighbor1='19' neighbor2='' neighbor3='' neighbor4='' category='' nodeType='3' connectPointID='6' elevation='1'/>
+        <node id='21' name='21' region='region4' lat='25.04046434978' lon='121.51921212606' neighbor1='19' neighbor2='' neighbor3='' neighbor4='' category='Category4' nodeType='' connectPointID='' elevation='1'/>
+    </region4>
+
+
+
+</BuildingA>
+
+

@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Region2>
+
+
+    <region2>
+        <node id='15' name='Stair(O)' region='region2' lat='25.04044247943' lon='121.51941865548' neighbor1='16' neighbor2='' neighbor3='' neighbor4='' category='Facility' nodeType='2' gx='0' gy='300'/>
+        <node id='16' name='P' region='region2' lat='25.04039630741' lon='121.51940524444' neighbor1='15' neighbor2='17' neighbor3='' neighbor4='' category='' nodeType='' gx='0' gy='200'/>
+        <node id='17' name='Q' region='region2' lat='25.04035378052' lon='121.51939183339' neighbor1='16' neighbor2='18' neighbor3='' neighbor4='' category='' nodeType='' gx='0' gy='100'/>
+        <node id='18' name='R' region='region2' lat='25.04034284504' lon='121.51944413647' neighbor1='17' neighbor2='19' neighbor3='22' neighbor4='' category='' nodeType='' gx='100' gy='100'/>
+        <node id='19' name='S' region='region2' lat='25.04033190955' lon='121.51949241623' neighbor1='18' neighbor2='20' neighbor3='24' neighbor4='' category='' nodeType='' gx='200' gy='100'/>
+        <node id='20' name='T' region='region2' lat='25.04031975901' lon='121.5195433782' neighbor1='19' neighbor2='21' neighbor3='26' neighbor4='' category='' nodeType='' gx='300' gy='100'/>
+        <node id='21' name='Elevator(U)' region='region2' lat='25.04031003857' lon='121.51959165797' neighbor1='20' neighbor2='' neighbor3='' neighbor4='' category='Facility' nodeType='1' gx='400' gy='100'/>
+        <node id='22' name='V' region='region2' lat='25.04030153319' lon='121.51943340763' neighbor1='18' neighbor2='23' neighbor3='' neighbor4='' category='' nodeType='' gx='100' gy='0'/>
+        <node id='23' name='Blood test1(W)' region='region2' lat='25.04031246868' lon='121.51938646898' neighbor1='22' neighbor2='' neighbor3='' neighbor4='' category='Laboratory' nodeType='' gx='0' gy='0'/>
+        <node id='24' name='X' region='region2' lat='25.0403780816' lon='121.51950448617' neighbor1='19' neighbor2='25' neighbor3='' neighbor4='' category='' nodeType='' gx='200' gy='200'/>
+        <node id='25' name='Clinic room1(Y)' region='region2' lat='25.04036593106' lon='121.51955813035' neighbor1='24' neighbor2='' neighbor3='' neighbor4='' category='Clinic room' nodeType='' gx='300' gy='200'/>
+        <node id='26' name='Clinic room2(Z)' region='region2' lat='25.04027237188' lon='121.51952996716' neighbor1='20' neighbor2='' neighbor3='' neighbor4='' category='Clinic room' nodeType='' gx='300' gy='0'/>
+    </region2>
+
+
+</Region2>

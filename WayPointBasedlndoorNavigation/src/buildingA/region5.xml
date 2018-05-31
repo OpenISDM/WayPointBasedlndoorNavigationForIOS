@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<BuildingA>
+
+
+    <region5>
+        <node id='22' name='22' region='region5' lat='25.04052996262' lon='121.51927448742' neighbor1='24' neighbor2='' neighbor3='' neighbor4='' category='Category5' nodeType='' connectPointID='' elevation='1'/>
+        <node id='15' name='15' region='region5' lat='25.04050687662' lon='121.51925302975' neighbor1='24' neighbor2='' neighbor3='' neighbor4='' category='' nodeType='3' connectPointID='5' elevation='1'/>
+        <node id='24' name='24' region='region5' lat='25.04050748415' lon='121.51927515797' neighbor1='22' neighbor2='15' neighbor3='25' neighbor4='27' category='' nodeType='' connectPointID='' elevation='1'/>
+        <node id='25' name='25' region='region5' lat='25.04050809167' lon='121.51929661565' neighbor1="24" neighbor2='' neighbor3='' neighbor4='' category='' nodeType='1' connectPointID='7' elevation='1'/>
+        <node id='20' name='20' region='region5' lat='25.04048500567' lon='121.5192537003' neighbor1='27' neighbor2='' neighbor3='' neighbor4='' category='' nodeType='3' connectPointID='6' elevation='1'/>
+        <node id='27' name='27' region='region5' lat='25.0404856132' lon='121.51927649908' neighbor1='28' neighbor2='24' neighbor3='20' neighbor4='29' category='' nodeType='' connectPointID='' elevation='1'/>
+        <node id='28' name='28' region='region5' lat='25.04048622073' lon='121.5192986273' neighbor1='27' neighbor2='' neighbor3='' neighbor4='' category='' nodeType='2' connectPointID='8' elevation='1'/>
+        <node id='29' name='29' region='region5' lat='25.04046556483' lon='121.51927649908' neighbor1='27' neighbor2='' neighbor3='' neighbor4='' category='Category5' nodeType='' connectPointID='' elevation='1'/>
+    </region5>
+
+
+
+
+</BuildingA>
+
+

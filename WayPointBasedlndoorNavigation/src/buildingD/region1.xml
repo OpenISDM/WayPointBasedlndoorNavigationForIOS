@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Region1>
+
+    <region1>
+        <node id='1' name='Stair(A)' region='region1' lat='25.04051295249' lon='121.51908874378' neighbor1='2' neighbor2='' neighbor3='' neighbor4='' category='Facility' nodeType='2' gx='0' gy='300'/>
+        <node id='2' name='B' region='region1' lat='25.04044612459' lon='121.51906326279' neighbor1='1' neighbor2='3' neighbor3='' neighbor4='' category='' nodeType='' gx='0' gy='200'/>
+        <node id='3' name='C' region='region1' lat='25.04039023214' lon='121.51904448733' neighbor1='2' neighbor2='4' neighbor3='' neighbor4='' category='' nodeType='' gx='0' gy='100'/>
+        <node id='4' name='D' region='region1' lat='25.04036957622' lon='121.51911958918' neighbor1='3' neighbor2='5' neighbor3='8' neighbor4='' category='' nodeType='' gx='100' gy='100'/>
+        <node id='5' name='E' region='region1' lat='25.04035135042' lon='121.5191853033'  neighbor1='4' neighbor2='6' neighbor3='11' neighbor4='' category='' nodeType='' gx='200' gy='100'/>
+        <node id='6' name='F' region='region1' lat='25.04033555471' lon='121.5192443119' neighbor1='5' neighbor2='7' neighbor3='13' neighbor4='14' category='' nodeType='' gx='300' gy='100'/>
+        <node id='7' name='Elevator(G)' region='region1' lat='25.0403173289' lon='121.51931002602' neighbor1='6' neighbor2='' neighbor3='' neighbor4='' category='Facility' nodeType='1' gx='400' gy='100'/>
+        <node id='8' name='H' region='region1' lat='25.0404303289' lon='121.51913836464' neighbor1='4' neighbor2='9' neighbor3='' neighbor4='' category='' nodeType='' gx='100' gy='200'/>
+        <node id='9' name='I' region='region1' lat='25.04041331815' lon='121.51920407876' neighbor1='8' neighbor2='10' neighbor3='' neighbor4='' category='' nodeType='' gx='200' gy='200'/>
+        <node id='10' name='Pharmacy(J)' region='region1' lat='25.04047771597' lon='121.51922285423' neighbor1='9' neighbor2='' neighbor3='' neighbor4='' category='Service' nodeType='' gx='200' gy='300'/>
+        <node id='11' name='K' region='region1' lat='25.04029181276' lon='121.51916518673' neighbor1='5' neighbor2='12' neighbor3='' neighbor4='' category='' nodeType='' gx='200' gy='0'/>
+        <node id='12' name='Registration(L)' region='region1' lat='25.04031125363' lon='121.51909813151' neighbor1='11' neighbor2='' neighbor3='' neighbor4='' category='Service' nodeType='' gx='100' gy='0'/>
+        <node id='13' name='M' region='region1' lat='25.04039873751' lon='121.51926308736' neighbor1='6' neighbor2='' neighbor3='' neighbor4='' category='' nodeType='' gx='300' gy='200'/>
+        <node id='14' name='N' region='region1' lat='25.04027358693' lon='121.51922419533' neighbor1='6' neighbor2='' neighbor3='' neighbor4='' category='' nodeType='' gx='300' gy='0'/>
+
+    </region1>
+
+
+
+</Region1>

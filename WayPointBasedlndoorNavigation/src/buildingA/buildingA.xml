@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<BuildingA>
+
+
+
+    <region name='region1' neighbor1='region2' neighbor2='region3' neighbor3='' neighbor4='' elevation='3'>
+        <location id='38' name='38' region='region1' category='Category1'/>
+        <location id='41' name='41' region='region1' category='Category1'/>
+        <location id='44' name='44' region='region1' category='Category1'/>
+    </region>
+
+    <region name='region2' neighbor1='region1' neighbor2='region3' neighbor3='' neighbor4='' elevation='2'>
+        <location id='30' name='30' region='region2' category='Category2'/>
+        <location id='33' name='33' region='region2' category='Category2'/>
+        <location id='36' name='36' region='region2' category='Category2'/>
+    </region>
+
+
+
+    <region name='region3' neighbor1='region1' neighbor2='region2' neighbor3='region4' neighbor4='' elevation='1'>
+        <location id='1' name='1' region='region3' category='Category3'/>
+        <location id='10' name='10' region='region3' category='Category3'/>
+        <location id='11' name='11' region='region3' category='Category3'/>
+    </region>
+
+
+    <region name='region4' neighbor1='region3' neighbor2='region5' neighbor3='' neighbor4='' elevation='1'>
+        <location id='12' name='12' region='region4' category='Category4'/>
+        <location id='21' name='21' region='region4' category='Category4'/>
+
+    </region>
+
+    <region name='region5' neighbor1='region4' neighbor2='region6' neighbor3='region7' neighbor4='' elevation='1'>
+        <location id='22' name='22' region='region5' category='Category5'/>
+        <location id='29' name='29' region='region5' category='Category5'/>
+    </region>
+
+    <region name='region6' neighbor1='region5' neighbor2='region7' neighbor3='' neighbor4='' elevation='2'>
+        <location id='46' name='46' region='region6' category='Category6'/>
+        <location id='47' name='47' region='region6' category='Category6'/>
+        <location id='50' name='50' region='region6' category='Category6'/>
+
+    </region>
+
+    <region name='region7' neighbor1='region6' neighbor2='region5' neighbor3='' neighbor4='' elevation='3'>
+        <location id='54' name='54' region='region7' category='Category7'/>
+        <location id='55' name='55' region='region7' category='Category7'/>
+        <location id='58' name='58' region='region7' category='Category7'/>
+    </region>
+
+
+</BuildingA>
+
+

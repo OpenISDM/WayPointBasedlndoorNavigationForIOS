@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<BuildingD>
+
+
+    <region name='region1' neighbor1='region2' neighbor2='' neighbor3='' neighbor4=''>
+        <location id='1' name='Stair(A)' region='region1' category='Facility'/>
+        <location id='7' name='Elevator(G)' region='region1' category='Facility'/>
+        <location id='10' name='Pharmacy(J)' region='region1' category='Service'/>
+        <location id='12' name='Registration(L)' region='region1' category='Service'/>
+    </region>
+
+
+    <region name='region2' neighbor1='region1' neighbor2='' neighbor3='' neighbor4=''>
+        <location id='15' name='Stair(O)' region='region2' category='Facility'/>
+        <location id='21' name='Elevator(U)' region='region2' category='Facility'/>
+        <location id='23' name='Blood test1(W)' region='region2' category='Laboratory'/>
+        <location id='25' name='Clinic room1(Y)' region='region2' category='Clinic room'/>
+        <location id='26' name='Clinic room2(Z)' region='region2' category='Clinic room'/>
+    </region>
+
+
+</BuildingD>
