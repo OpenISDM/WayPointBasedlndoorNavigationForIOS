@@ -112,6 +112,7 @@
                         <outlet property="destinationpButton" destination="fga-Dl-IQ7" id="fd1-3w-sDe"/>
                         <outlet property="setting" destination="10v-DH-m93" id="LQB-dv-xcH"/>
                         <outlet property="startButton" destination="OXx-on-Juy" id="oTt-3u-IhA"/>
+                        <outlet property="versionLabel" destination="TKi-YA-ak4" id="83o-LY-Ioi"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -130,7 +131,7 @@
                                 <rect key="frame" x="0.0" y="50" width="375" height="617"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="pointcell" textLabel="iDh-Zd-Z45" detailTextLabel="NQ9-yp-msG" style="IBUITableViewCellStyleValue1" id="Wdv-UU-VMi" customClass="CustomTableViewCell">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="pointcell" textLabel="iDh-Zd-Z45" detailTextLabel="NQ9-yp-msG" style="IBUITableViewCellStyleValue1" id="Wdv-UU-VMi" customClass="CustomTableViewCell">
                                         <rect key="frame" x="0.0" y="28" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Wdv-UU-VMi" id="EqO-uf-J0R">
@@ -185,7 +186,7 @@
                                 <rect key="frame" x="10" y="50" width="365" height="276"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="placecell" textLabel="zMa-LF-qjY" style="IBUITableViewCellStyleDefault" id="NdD-bj-tJg">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="placecell" textLabel="zMa-LF-qjY" style="IBUITableViewCellStyleDefault" id="NdD-bj-tJg">
                                         <rect key="frame" x="0.0" y="28" width="365" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="NdD-bj-tJg" id="pci-HI-R5u">

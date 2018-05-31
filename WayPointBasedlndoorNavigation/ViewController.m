@@ -40,10 +40,14 @@
 
 #import "ViewController.h"
 
+#define APP_VERSION @"1.0.0"
+
 @interface ViewController (){
     int settingFlag;
     Setting *setting;
 }
+
+@property (weak, nonatomic) IBOutlet UILabel *versionLabel;
 
 @end
 
@@ -53,6 +57,9 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     setting = [Setting new];
+    
+    // set version number on main page
+    self.versionLabel.text = [NSString stringWithFormat:@"version:%@",APP_VERSION];
 }
 
 
