@@ -22,32 +22,15 @@
 		A26AF851202C483F00858354 /* NavigationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A26AF850202C483F00858354 /* NavigationViewController.m */; };
 		A2CAD705205128DC00245882 /* GeoCalculation.m in Sources */ = {isa = PBXBuildFile; fileRef = A2CAD704205128DC00245882 /* GeoCalculation.m */; };
 		A2F85D422029A95500BD2824 /* PointChooseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A2F85D412029A95500BD2824 /* PointChooseViewController.m */; };
+		B15272B820C67AB50012AD06 /* PreferenceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B15272B720C67AB50012AD06 /* PreferenceViewController.m */; };
+		B152D8FF20D8FC05009C5CBD /* BoardButton.m in Sources */ = {isa = PBXBuildFile; fileRef = B152D8FE20D8FC05009C5CBD /* BoardButton.m */; };
 		B17A89602085DCFF00BAD1F9 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B17A895F2085DCFF00BAD1F9 /* AVFoundation.framework */; };
-		B17C702F20A18CC8009C5524 /* RNLSignalMeasurement.m in Sources */ = {isa = PBXBuildFile; fileRef = B17C702020A18CC7009C5524 /* RNLSignalMeasurement.m */; };
-		B17C703020A18CC8009C5524 /* RNLBeacon.m in Sources */ = {isa = PBXBuildFile; fileRef = B17C702120A18CC7009C5524 /* RNLBeacon.m */; };
-		B17C703120A18CC8009C5524 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = B17C702320A18CC7009C5524 /* LICENSE */; };
-		B17C703220A18CC8009C5524 /* RNLBeacon+Distance.m in Sources */ = {isa = PBXBuildFile; fileRef = B17C702520A18CC7009C5524 /* RNLBeacon+Distance.m */; };
-		B17C703320A18CC8009C5524 /* RNLBeaconTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = B17C702620A18CC7009C5524 /* RNLBeaconTracker.m */; };
-		B17C703420A18CC8009C5524 /* RNLBeaconParser.m in Sources */ = {isa = PBXBuildFile; fileRef = B17C702820A18CC8009C5524 /* RNLBeaconParser.m */; };
-		B17C703520A18CC8009C5524 /* RNLLocationTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = B17C702A20A18CC8009C5524 /* RNLLocationTracker.m */; };
-		B17C703620A18CC8009C5524 /* RNLBeaconScanner.m in Sources */ = {isa = PBXBuildFile; fileRef = B17C702D20A18CC8009C5524 /* RNLBeaconScanner.m */; };
-		B17EE64B20873A420042698D /* alignment_line.png in Resources */ = {isa = PBXBuildFile; fileRef = B17EE64920873A420042698D /* alignment_line.png */; };
-		B17EE64C20873A420042698D /* img_compass.png in Resources */ = {isa = PBXBuildFile; fileRef = B17EE64A20873A420042698D /* img_compass.png */; };
 		B184E19C20917605009169C8 /* buildingA in Resources */ = {isa = PBXBuildFile; fileRef = B184E19A20917605009169C8 /* buildingA */; };
 		B1938EBE2088734D001E0777 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B1938EBD2088734D001E0777 /* CoreLocation.framework */; };
+		B198010B20C532DF00FF3074 /* buildingTEST in Resources */ = {isa = PBXBuildFile; fileRef = B198010A20C532DF00FF3074 /* buildingTEST */; };
 		B1988FFD207CB02C00F08F35 /* CompassViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B1988FFC207CB02B00F08F35 /* CompassViewController.m */; };
+		B1A2DD0520DCA20E002AA94D /* DeveloperListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B1A2DD0420DCA20E002AA94D /* DeveloperListViewController.m */; };
 		B1AACDE320A4211A00E913D7 /* Region.m in Sources */ = {isa = PBXBuildFile; fileRef = B1AACDE220A4211A00E913D7 /* Region.m */; };
-		B1AF9094208DB5FC0074CEA5 /* rearleft-arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = B1AF908F208DB5FB0074CEA5 /* rearleft-arrow.png */; };
-		B1AF9095208DB5FC0074CEA5 /* frontright-arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = B1AF9090208DB5FB0074CEA5 /* frontright-arrow.png */; };
-		B1AF9096208DB5FC0074CEA5 /* rearright-arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = B1AF9091208DB5FC0074CEA5 /* rearright-arrow.png */; };
-		B1AF9097208DB5FC0074CEA5 /* compass.png in Resources */ = {isa = PBXBuildFile; fileRef = B1AF9092208DB5FC0074CEA5 /* compass.png */; };
-		B1AF9098208DB5FC0074CEA5 /* frontleft-arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = B1AF9093208DB5FC0074CEA5 /* frontleft-arrow.png */; };
-		B1B56EFA206B8B4100178984 /* left-arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = B1B56EF4206B8B4000178984 /* left-arrow.png */; };
-		B1B56EFB206B8B4100178984 /* right-arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = B1B56EF5206B8B4000178984 /* right-arrow.png */; };
-		B1B56EFC206B8B4100178984 /* elevator.png in Resources */ = {isa = PBXBuildFile; fileRef = B1B56EF6206B8B4000178984 /* elevator.png */; };
-		B1B56EFD206B8B4100178984 /* down-arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = B1B56EF7206B8B4000178984 /* down-arrow.png */; };
-		B1B56EFE206B8B4100178984 /* walking-up-stair-sign.png in Resources */ = {isa = PBXBuildFile; fileRef = B1B56EF8206B8B4100178984 /* walking-up-stair-sign.png */; };
-		B1B56EFF206B8B4100178984 /* up-arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = B1B56EF9206B8B4100178984 /* up-arrow.png */; };
 		B1C51C402071DEAA00640036 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B1C51C3F2071DEAA00640036 /* CoreBluetooth.framework */; };
 		B1DD3967209708F10027C4ED /* buildingD in Resources */ = {isa = PBXBuildFile; fileRef = B1DD3966209708F10027C4ED /* buildingD */; };
 		B1DD39AB20971A590027C4ED /* Setting.m in Sources */ = {isa = PBXBuildFile; fileRef = B1DD39AA20971A590027C4ED /* Setting.m */; };
@@ -94,41 +77,20 @@
 		A2CAD704205128DC00245882 /* GeoCalculation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GeoCalculation.m; sourceTree = "<group>"; };
 		A2F85D402029A95500BD2824 /* PointChooseViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PointChooseViewController.h; sourceTree = "<group>"; };
 		A2F85D412029A95500BD2824 /* PointChooseViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PointChooseViewController.m; sourceTree = "<group>"; };
+		B15272B620C67AB50012AD06 /* PreferenceViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PreferenceViewController.h; sourceTree = "<group>"; };
+		B15272B720C67AB50012AD06 /* PreferenceViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PreferenceViewController.m; sourceTree = "<group>"; };
+		B152D8FD20D8FC05009C5CBD /* BoardButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BoardButton.h; sourceTree = "<group>"; };
+		B152D8FE20D8FC05009C5CBD /* BoardButton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BoardButton.m; sourceTree = "<group>"; };
 		B17A895F2085DCFF00BAD1F9 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
-		B17C702020A18CC7009C5524 /* RNLSignalMeasurement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNLSignalMeasurement.m; sourceTree = "<group>"; };
-		B17C702120A18CC7009C5524 /* RNLBeacon.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNLBeacon.m; sourceTree = "<group>"; };
-		B17C702220A18CC7009C5524 /* RNLLocationTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNLLocationTracker.h; sourceTree = "<group>"; };
-		B17C702320A18CC7009C5524 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
-		B17C702420A18CC7009C5524 /* RNLSignalMeasurement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNLSignalMeasurement.h; sourceTree = "<group>"; };
-		B17C702520A18CC7009C5524 /* RNLBeacon+Distance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RNLBeacon+Distance.m"; sourceTree = "<group>"; };
-		B17C702620A18CC7009C5524 /* RNLBeaconTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNLBeaconTracker.m; sourceTree = "<group>"; };
-		B17C702720A18CC8009C5524 /* RNLBeaconParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNLBeaconParser.h; sourceTree = "<group>"; };
-		B17C702820A18CC8009C5524 /* RNLBeaconParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNLBeaconParser.m; sourceTree = "<group>"; };
-		B17C702920A18CC8009C5524 /* RNLBeaconTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNLBeaconTracker.h; sourceTree = "<group>"; };
-		B17C702A20A18CC8009C5524 /* RNLLocationTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNLLocationTracker.m; sourceTree = "<group>"; };
-		B17C702B20A18CC8009C5524 /* RNLBeacon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNLBeacon.h; sourceTree = "<group>"; };
-		B17C702C20A18CC8009C5524 /* RNLBeaconScanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNLBeaconScanner.h; sourceTree = "<group>"; };
-		B17C702D20A18CC8009C5524 /* RNLBeaconScanner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNLBeaconScanner.m; sourceTree = "<group>"; };
-		B17C702E20A18CC8009C5524 /* RNLBeacon+Distance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RNLBeacon+Distance.h"; sourceTree = "<group>"; };
-		B17EE64920873A420042698D /* alignment_line.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = alignment_line.png; sourceTree = "<group>"; };
-		B17EE64A20873A420042698D /* img_compass.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = img_compass.png; sourceTree = "<group>"; };
 		B184E19A20917605009169C8 /* buildingA */ = {isa = PBXFileReference; lastKnownFileType = folder; path = buildingA; sourceTree = "<group>"; };
 		B1938EBD2088734D001E0777 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		B198010A20C532DF00FF3074 /* buildingTEST */ = {isa = PBXFileReference; lastKnownFileType = folder; name = buildingTEST; path = "../../../WayPointBasedlndoorNavigation test 拷貝/WayPointBasedlndoorNavigation/src/buildingTEST"; sourceTree = "<group>"; };
 		B1988FFB207CB02B00F08F35 /* CompassViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CompassViewController.h; sourceTree = "<group>"; };
 		B1988FFC207CB02B00F08F35 /* CompassViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CompassViewController.m; sourceTree = "<group>"; };
+		B1A2DD0320DCA20E002AA94D /* DeveloperListViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DeveloperListViewController.h; sourceTree = "<group>"; };
+		B1A2DD0420DCA20E002AA94D /* DeveloperListViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DeveloperListViewController.m; sourceTree = "<group>"; };
 		B1AACDE120A4211A00E913D7 /* Region.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Region.h; sourceTree = "<group>"; };
 		B1AACDE220A4211A00E913D7 /* Region.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Region.m; sourceTree = "<group>"; };
-		B1AF908F208DB5FB0074CEA5 /* rearleft-arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "rearleft-arrow.png"; sourceTree = "<group>"; };
-		B1AF9090208DB5FB0074CEA5 /* frontright-arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "frontright-arrow.png"; sourceTree = "<group>"; };
-		B1AF9091208DB5FC0074CEA5 /* rearright-arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "rearright-arrow.png"; sourceTree = "<group>"; };
-		B1AF9092208DB5FC0074CEA5 /* compass.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = compass.png; sourceTree = "<group>"; };
-		B1AF9093208DB5FC0074CEA5 /* frontleft-arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "frontleft-arrow.png"; sourceTree = "<group>"; };
-		B1B56EF4206B8B4000178984 /* left-arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "left-arrow.png"; sourceTree = "<group>"; };
-		B1B56EF5206B8B4000178984 /* right-arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "right-arrow.png"; sourceTree = "<group>"; };
-		B1B56EF6206B8B4000178984 /* elevator.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = elevator.png; sourceTree = "<group>"; };
-		B1B56EF7206B8B4000178984 /* down-arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "down-arrow.png"; sourceTree = "<group>"; };
-		B1B56EF8206B8B4100178984 /* walking-up-stair-sign.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "walking-up-stair-sign.png"; sourceTree = "<group>"; };
-		B1B56EF9206B8B4100178984 /* up-arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "up-arrow.png"; sourceTree = "<group>"; };
 		B1C51C3F2071DEAA00640036 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 		B1DD3966209708F10027C4ED /* buildingD */ = {isa = PBXFileReference; lastKnownFileType = folder; path = buildingD; sourceTree = "<group>"; };
 		B1DD39A920971A590027C4ED /* Setting.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Setting.h; sourceTree = "<group>"; };
@@ -163,6 +125,8 @@
 			children = (
 				A21D6ED62068BC4400A719F8 /* CustomTableViewCell.h */,
 				A21D6ED72068BC4400A719F8 /* CustomTableViewCell.m */,
+				B152D8FD20D8FC05009C5CBD /* BoardButton.h */,
+				B152D8FE20D8FC05009C5CBD /* BoardButton.m */,
 			);
 			path = ViewClass;
 			sourceTree = "<group>";
@@ -189,7 +153,6 @@
 		A263B10B2021A14A00991C5B /* WayPointBasedlndoorNavigation */ = {
 			isa = PBXGroup;
 			children = (
-				B1B56F00206B8B5C00178984 /* Assets */,
 				A21D6ED52068AA0100A719F8 /* ViewClass */,
 				A2833DFE202416810034E493 /* src */,
 				A263B10C2021A14A00991C5B /* AppDelegate.h */,
@@ -217,7 +180,7 @@
 		A2833DFE202416810034E493 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				B17C701F20A18BC6009C5524 /* RNLBeacon */,
+				B198010A20C532DF00FF3074 /* buildingTEST */,
 				B1DD3966209708F10027C4ED /* buildingD */,
 				B184E19A20917605009169C8 /* buildingA */,
 				A2F85D402029A95500BD2824 /* PointChooseViewController.h */,
@@ -242,50 +205,12 @@
 				B1AACDE220A4211A00E913D7 /* Region.m */,
 				B1F3792020A9401300B3A7AC /* NavigationSubgraph.h */,
 				B1F3792120A9401300B3A7AC /* NavigationSubgraph.m */,
+				B15272B620C67AB50012AD06 /* PreferenceViewController.h */,
+				B15272B720C67AB50012AD06 /* PreferenceViewController.m */,
+				B1A2DD0320DCA20E002AA94D /* DeveloperListViewController.h */,
+				B1A2DD0420DCA20E002AA94D /* DeveloperListViewController.m */,
 			);
 			path = src;
-			sourceTree = "<group>";
-		};
-		B17C701F20A18BC6009C5524 /* RNLBeacon */ = {
-			isa = PBXGroup;
-			children = (
-				B17C702320A18CC7009C5524 /* LICENSE */,
-				B17C702B20A18CC8009C5524 /* RNLBeacon.h */,
-				B17C702120A18CC7009C5524 /* RNLBeacon.m */,
-				B17C702E20A18CC8009C5524 /* RNLBeacon+Distance.h */,
-				B17C702520A18CC7009C5524 /* RNLBeacon+Distance.m */,
-				B17C702720A18CC8009C5524 /* RNLBeaconParser.h */,
-				B17C702820A18CC8009C5524 /* RNLBeaconParser.m */,
-				B17C702C20A18CC8009C5524 /* RNLBeaconScanner.h */,
-				B17C702D20A18CC8009C5524 /* RNLBeaconScanner.m */,
-				B17C702920A18CC8009C5524 /* RNLBeaconTracker.h */,
-				B17C702620A18CC7009C5524 /* RNLBeaconTracker.m */,
-				B17C702220A18CC7009C5524 /* RNLLocationTracker.h */,
-				B17C702A20A18CC8009C5524 /* RNLLocationTracker.m */,
-				B17C702420A18CC7009C5524 /* RNLSignalMeasurement.h */,
-				B17C702020A18CC7009C5524 /* RNLSignalMeasurement.m */,
-			);
-			path = RNLBeacon;
-			sourceTree = "<group>";
-		};
-		B1B56F00206B8B5C00178984 /* Assets */ = {
-			isa = PBXGroup;
-			children = (
-				B1AF9092208DB5FC0074CEA5 /* compass.png */,
-				B1AF9093208DB5FC0074CEA5 /* frontleft-arrow.png */,
-				B1AF9090208DB5FB0074CEA5 /* frontright-arrow.png */,
-				B1AF908F208DB5FB0074CEA5 /* rearleft-arrow.png */,
-				B1AF9091208DB5FC0074CEA5 /* rearright-arrow.png */,
-				B17EE64920873A420042698D /* alignment_line.png */,
-				B17EE64A20873A420042698D /* img_compass.png */,
-				B1B56EF7206B8B4000178984 /* down-arrow.png */,
-				B1B56EF6206B8B4000178984 /* elevator.png */,
-				B1B56EF4206B8B4000178984 /* left-arrow.png */,
-				B1B56EF5206B8B4000178984 /* right-arrow.png */,
-				B1B56EF9206B8B4100178984 /* up-arrow.png */,
-				B1B56EF8206B8B4100178984 /* walking-up-stair-sign.png */,
-			);
-			path = Assets;
 			sourceTree = "<group>";
 		};
 		B1C51C3E2071DEAA00640036 /* Frameworks */ = {
@@ -385,25 +310,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B1B56EFF206B8B4100178984 /* up-arrow.png in Resources */,
-				B1AF9098208DB5FC0074CEA5 /* frontleft-arrow.png in Resources */,
-				B1B56EFB206B8B4100178984 /* right-arrow.png in Resources */,
 				A263B1192021A14A00991C5B /* LaunchScreen.storyboard in Resources */,
 				B184E19C20917605009169C8 /* buildingA in Resources */,
-				B1B56EFA206B8B4100178984 /* left-arrow.png in Resources */,
 				A263B1162021A14A00991C5B /* Assets.xcassets in Resources */,
-				B1AF9095208DB5FC0074CEA5 /* frontright-arrow.png in Resources */,
-				B17EE64B20873A420042698D /* alignment_line.png in Resources */,
-				B1B56EFD206B8B4100178984 /* down-arrow.png in Resources */,
-				B17EE64C20873A420042698D /* img_compass.png in Resources */,
-				B17C703120A18CC8009C5524 /* LICENSE in Resources */,
+				B198010B20C532DF00FF3074 /* buildingTEST in Resources */,
 				A263B1142021A14A00991C5B /* Main.storyboard in Resources */,
-				B1AF9096208DB5FC0074CEA5 /* rearright-arrow.png in Resources */,
-				B1AF9094208DB5FC0074CEA5 /* rearleft-arrow.png in Resources */,
-				B1B56EFE206B8B4100178984 /* walking-up-stair-sign.png in Resources */,
-				B1B56EFC206B8B4100178984 /* elevator.png in Resources */,
 				B1DD3967209708F10027C4ED /* buildingD in Resources */,
-				B1AF9097208DB5FC0074CEA5 /* compass.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -422,27 +334,23 @@
 			buildActionMask = 2147483647;
 			files = (
 				B1AACDE320A4211A00E913D7 /* Region.m in Sources */,
-				B17C703520A18CC8009C5524 /* RNLLocationTracker.m in Sources */,
-				B17C703020A18CC8009C5524 /* RNLBeacon.m in Sources */,
 				B1DD39AB20971A590027C4ED /* Setting.m in Sources */,
-				B17C703620A18CC8009C5524 /* RNLBeaconScanner.m in Sources */,
 				B1F3792220A9401300B3A7AC /* NavigationSubgraph.m in Sources */,
+				B1A2DD0520DCA20E002AA94D /* DeveloperListViewController.m in Sources */,
 				A2CAD705205128DC00245882 /* GeoCalculation.m in Sources */,
 				A263B1112021A14A00991C5B /* ViewController.m in Sources */,
 				A21D6ED82068BC4400A719F8 /* CustomTableViewCell.m in Sources */,
+				B152D8FF20D8FC05009C5CBD /* BoardButton.m in Sources */,
 				A20359CF204D3DC7004F96E9 /* Vertex.m in Sources */,
-				B17C702F20A18CC8009C5524 /* RNLSignalMeasurement.m in Sources */,
 				A2F85D422029A95500BD2824 /* PointChooseViewController.m in Sources */,
-				B17C703320A18CC8009C5524 /* RNLBeaconTracker.m in Sources */,
+				B15272B820C67AB50012AD06 /* PreferenceViewController.m in Sources */,
 				A22AA5782057A58F00C4E459 /* Edge.m in Sources */,
-				B17C703220A18CC8009C5524 /* RNLBeacon+Distance.m in Sources */,
 				A26AF851202C483F00858354 /* NavigationViewController.m in Sources */,
 				A263B11C2021A14A00991C5B /* main.m in Sources */,
 				A25DC578205679A1004E4BC0 /* NQueue.m in Sources */,
 				A21E8BE520314580004863C4 /* XMLDataParser.m in Sources */,
 				A263B10E2021A14A00991C5B /* AppDelegate.m in Sources */,
 				B1988FFD207CB02C00F08F35 /* CompassViewController.m in Sources */,
-				B17C703420A18CC8009C5524 /* RNLBeaconParser.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -596,9 +504,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YD7R3HWEP8;
 				INFOPLIST_FILE = WayPointBasedlndoorNavigation/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = OSSE.WayPointBasedlndoorNavigation;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -610,9 +520,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YD7R3HWEP8;
 				INFOPLIST_FILE = WayPointBasedlndoorNavigation/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = OSSE.WayPointBasedlndoorNavigation;
 				PRODUCT_NAME = "$(TARGET_NAME)";

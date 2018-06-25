@@ -78,7 +78,7 @@
     
     // initialize UI image and set up conpass picture on imageview
     UIImage *imageCompass = [UIImage new];
-    imageCompass = [UIImage imageNamed:@"compass.png"];
+    imageCompass = [UIImage imageNamed:@"compass"];
     self.imageViewCompass.image = imageCompass;
     
     /* set up the parameter of the rotate animation */
@@ -143,6 +143,7 @@
     
     // the storyboard go back to previous page when the present degree and the degree of the target are same value
     if ((int)degree == degreeHeader) {
+        AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
         [self.navigationController popViewControllerAnimated:YES];
     }
     

@@ -88,7 +88,38 @@
     }
 }
 
+// for UUID
+-(void)startXMLParserForUUID:(NSString *)filename{
+    
+    self.uuidData = [NSMutableDictionary new];
+    self.fileDirName = filename;
+    fileflag = NO;
+    
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"UUID" ofType:@"xml" inDirectory:filename];
+    NSFileHandle *file = [NSFileHandle fileHandleForReadingAtPath:path];
+    NSData *data = [file readDataToEndOfFile];
+    [file closeFile];
+    
+    // test the data
+    NSString *dataString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    NSLog(@"%@",dataString);
+    
+    // start parser
+    NSXMLParser *xmlParser = [[NSXMLParser alloc]initWithData:data];
+    [xmlParser setDelegate:self];
+    
+    //test the  parser start success
+    BOOL flag = [xmlParser parse];
+    if (flag) {
+        NSLog(@"UUID-xmlDataParser start");
+    }
+    else{
+        NSLog(@"UUID-xmlDataParser no start");
+    }
+    
+}
 
+// for waypoint
 -(void)startXMLParserForPoint:(NSMutableArray *)filenames{
     
     self.localArray = [[NSMutableArray alloc] init];
@@ -129,6 +160,7 @@
     
     // save attribute in array
     if ([elementName isEqualToString:@"region"]) {
+        NSLog(@"a1");
         NSString *name = [attributeDict objectForKey:@"name"];
         NSString *neighbor1 = [attributeDict objectForKey:@"neighbor1"];
         NSString *neighbor2 = [attributeDict objectForKey:@"neighbor2"];
@@ -146,7 +178,7 @@
             elevation = [[attributeDict objectForKey:@"elevation"] intValue];
         }
         rlocation = [[Region alloc] initForRegion:name Neighbors:neighbors LocationsOfRegion:nil Elevation:elevation];
-        
+        NSLog(@"a2");
     }
     else if ([elementName isEqualToString:@"location"]){
         NSString *_ID = [attributeDict objectForKey:@"id"];
@@ -188,13 +220,23 @@
         Vertex *vnode = [[Vertex alloc] initForRouteComputation:_ID Name:_name Lat:_lat Lon:_lon Neighbors:_neighbors Region:_region Category:_category NodeType:_nodetype ConnectPoint:_connectPointID];
         [navigationSubgraph.verticesInSubgraph setObject:vnode forKey:vnode.ID];
     }
+    else if ([elementName isEqualToString:@"nodeuuid"]){
+        NSString *_uuid = [attributeDict objectForKey:@"UUID"];
+        NSString *_identifier = [attributeDict objectForKey:@"Identifier"];
+        
+        if (![_uuid isEqualToString:@""] && ![_identifier isEqualToString:@""]) {
+            [self.uuidData setObject:_uuid forKey:_identifier];
+        }
+    }
     
 }
 
 -(void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName{
     if ([elementName isEqualToString:@"region"]) {
+        NSLog(@"a3");
         [rlocation LocationOfRegion:self.localArray];
         [self.regionData setObject:rlocation forKey:rlocation.Name];
+        
     }
     else if ([elementName isEqualToString:filenameFlag]){
         NSLog(@"QWER:%@",filenameFlag);
@@ -240,6 +282,9 @@
     NSLog(@"qt:%@",self.categoryData);
     return self.categoryData;}
 
+-(NSMutableDictionary *)returnUUIDData{
+    return self.uuidData;
+}
 #pragma mark - CategoryList Method
 
 -(void) clearCategoryList{

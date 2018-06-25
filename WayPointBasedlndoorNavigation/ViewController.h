@@ -44,6 +44,7 @@
 #import "PointChooseViewController.h"
 #import "NavigationViewController.h"
 #import "Setting.h"
+#import "DeveloperListViewController.h"
 
 @interface ViewController : UIViewController <InputDelegate>
 
@@ -74,8 +75,10 @@
 - (IBAction)startNavButton:(id)sender;
 // Define the preference-Setting segmented action when the chose
 - (IBAction)preferenceChange:(id)sender;
-
-
+// Define the user preference button action when the click
+- (IBAction)userPreferenceAction:(id)sender;
+// Define the developer list display when the button click
+- (IBAction)versionButtonAction:(id)sender;
 
 @end
 

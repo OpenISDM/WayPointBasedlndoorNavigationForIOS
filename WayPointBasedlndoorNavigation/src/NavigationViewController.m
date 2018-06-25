@@ -49,9 +49,6 @@
 #import "GeoCalculation.h"
 #import "CompassViewController.h"
 #import "ViewController.h"
-#import "RNLBeacon/RNLBeaconScanner.h"
-#import "RNLBeacon/RNLBeacon.h"
-#import "RNLBeacon/RNLBeacon+Distance.h"
 
 #pragma mark - Arg,Txt and Image Define
 #define NORMAL_WAYPOINT 0
@@ -61,6 +58,7 @@
 #define ARRIVED_NOTIFIER 0
 #define WRONGWAY_NOTIFIER 1
 #define MAKETURN_NOTIFIER 2
+#define ALERTVIEW_DISMISS_TIME 3.0f
 
 #define RSSI_THRESHOLD -65
 
@@ -102,18 +100,18 @@
 #define PLEASE_TAKE_ELEVATOR @"請搭電梯"
 #define PLEASE_WALK_UP_STAIR @"請走樓梯"
 
-#define IMAGE_LEFT @"left-arrow.png"
-#define IMAGE_FRONT_LEFT @"frontleft-arrow.png"
-#define IMAGE_REAR_LEFT @"rearleft-arrow.png"
+#define IMAGE_LEFT @"left-arrow"
+#define IMAGE_FRONT_LEFT @"frontleft-arrow"
+#define IMAGE_REAR_LEFT @"rearleft-arrow"
 #define IMAGE_RIGHT @"right-arrow.png"
-#define IMAGE_FRONT_RIGHT @"frontright-arrow.png"
-#define IMAGE_REAR_RIGHT @"rearright-arrow.png"
-#define IMAGE_STRAIGHT @"up-arrow.png"
+#define IMAGE_FRONT_RIGHT @"frontright-arrow"
+#define IMAGE_REAR_RIGHT @"rearright-arrow"
+#define IMAGE_STRAIGHT @"up-arrow"
 #define IMAGE_ELEVATOR @"elevator.png"
-#define IMAGE_STAIR @"walking-up-stair-sign.png"
+#define IMAGE_STAIR @"walking-up-stair-sign"
 
 
-@interface NavigationViewController ()<NSXMLParserDelegate,UITextFieldDelegate>{
+@interface NavigationViewController ()<NSXMLParserDelegate,UITextFieldDelegate,CLLocationManagerDelegate>{
 //  xml Parser method
     XMLDataParser *xml;
 
@@ -135,6 +133,8 @@
     
     CBCentralManager *blueboothCentralManager;
     double keyboardDuration;
+    
+    
 }
 
 
@@ -167,9 +167,10 @@
 @property (weak, nonatomic) IBOutlet UILabel *firstMovement;
 @property (weak, nonatomic) IBOutlet UILabel *howFarToMove;
 @property (weak, nonatomic) IBOutlet UILabel *nextTurnMovement;
-
+@property (weak, nonatomic) IBOutlet UILabel *currentMovement;
 // graphical navigational indicator
 @property (weak, nonatomic) IBOutlet UIImageView *imageTurnIndicator;
+@property (weak, nonatomic) IBOutlet UIImageView *imageCurrentIndicator;
 // end----objects used to provide voice and test navigation guidance------------------------------------
 
 
@@ -177,8 +178,14 @@
 // sring for storing currently received Lbeacon ID
 @property (strong, nonatomic) NSString *currentLBeaconID;
 
-// method for ranging Lbeacon signal
-@property (strong, nonatomic) RNLBeaconScanner *beaconScanner;
+// to store beacon data
+@property (strong, nonatomic) CLLocationManager *beaconManager;
+
+// to store beacon data at array
+@property (strong, nonatomic) NSMutableArray<CLBeacon *> *beaconList;
+
+// to stor beacon data and beacon identifier at dictionary
+@property (strong, nonatomic) NSMutableDictionary<CLBeacon *,CLBeaconRegion *> *regionForBeacon;
 
 // record time of timer
 @property int second;
@@ -194,12 +201,18 @@
 @property (weak, nonatomic) IBOutlet UITextField *pointDisplay;
 @property (weak, nonatomic) IBOutlet UIButton *nextStepBtn;
 @property (weak, nonatomic) IBOutlet UITextField *testTextField;
+@property (weak, nonatomic) IBOutlet UIStackView *simulationTestStackView;
 // end----variables created for demo purpose------------------------------------------------------------
 
 @end
 
-@implementation NavigationViewController
+@implementation NavigationViewController{
+    int stateFlag;
+    BOOL speakerOfNextStep;
+    NSString *currentAction;
+}
 
+// when view load
 #pragma mark - Main Code
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -207,8 +220,8 @@
     // display the name of distination point
     self.destinationLabel.text = self.destinationText;
     
-//  start initialization variable---------------------------
-//    self.setting = [Setting new];
+    // start initialization variable---------------------------
+    // self.setting = [Setting new];
     walkedWaypoint = 0;
     self.turnNotificationForPoput = nil;
     pathValue = 0;
@@ -218,28 +231,33 @@
     self.navigationPath = [NSMutableArray new];
     geoCalculation = [GeoCalculation new];
     pathSpeaker = [AVSpeechSynthesizer new];
-//  end initialization variable-----------------------------
+    speakerOfNextStep = NO;
+    currentAction = FRONT;
+    self.beaconList = [NSMutableArray array];
+    self.regionForBeacon = [NSMutableDictionary dictionary];
+    // end initialization variable-----------------------------
     
-//  control keyboard display and hidden----------------------------------------------------------
+    // control keyboard display and hidden----------------------------------------------------------
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
-//  control keyboard display and hidden----------------------------------------------------------
+    // control keyboard display and hidden----------------------------------------------------------
     
-
-//    self.bluetoothManger = [[CBCentralManager alloc]initWithDelegate:self queue:nil];
+    // control simulationtest stack view display
+    [self.simulationTestStackView setHidden:![[NSUserDefaults standardUserDefaults] boolForKey:@"simulationTest"]];
     
     @autoreleasepool{
         
         pathSpeaker.delegate = self;
         self.testTextField.delegate = self;
-
-//      Read the region data
+        
+        // Read the region data
         [self loadWaypointData];
 
-//      start navigat
+        
+        // start navigat
         [self startNavigation];
         
-//      display waypoint ID when demo
+        // display waypoint ID when demo
         NSString *testDisplay=[NSString new];
         for (int i = 0; i<self.navigationPath.count; i++) {
             testDisplay= [NSString stringWithFormat:@"%@%@   ",testDisplay,[[self.navigationPath objectAtIndex:i] Name]];
@@ -248,18 +266,19 @@
         NSLog(@"path line:%@",testDisplay);
         NSLog(@"setting:%d",self.setting.getMobilityValue);
         
-//      record array size of navigation path
+        // record array size of navigation path
         navpathCount = (int)self.navigationPath.count;
 
-//      draw navigation progress bar
+        // draw navigation progress bar
         [self drawNavGraph];
         
-//      navigation thread start
+        // navigation thread start
         [self navThread];
     }
     
 }
 
+// when view distory
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
@@ -275,6 +294,59 @@
     // Pass the selected object to the new view controller.
 }
 */
+
+// after view appear
+-(void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:YES];
+
+    // to check if beacon ranging is available on user device.
+    if ([CLLocationManager isRangingAvailable]) {
+        
+        // to initialize CLLocationManager and make ourselves the delegate of it
+        self.beaconManager = [CLLocationManager new];
+        self.beaconManager.delegate = self;
+        
+        // Requests permission to use location services while the app is in the foreground.
+        [self.beaconManager requestWhenInUseAuthorization];
+        
+        xml = [XMLDataParser new];
+        [xml startXMLParserForUUID:@"buildingA"];
+        
+        NSMutableDictionary *uuidData = [xml returnUUIDData];
+        NSMutableArray<CLBeaconRegion *> *beaconRegions = [NSMutableArray new];
+        
+        for(id key in uuidData){
+            [beaconRegions addObject:[[CLBeaconRegion alloc] initWithProximityUUID:[[NSUUID alloc] initWithUUIDString:[uuidData objectForKey:key]] identifier:key]];
+        }
+        
+//        NSArray<CLBeaconRegion *> *beaconRegions = @[[[CLBeaconRegion alloc] initWithProximityUUID:[[NSUUID alloc] initWithUUIDString:@"6F8ED10C-C44A-4E8F-B1bA-BDFDA881241b"] identifier:@"test1"]];
+
+        for (CLBeaconRegion *beaconRegion in beaconRegions) {
+            [self.beaconManager startRangingBeaconsInRegion:beaconRegion];
+        }
+        
+    }
+    else{
+        
+        // if ranging was unavailable, to let the user know and we go back.
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Unsupported" message:@"Beacon ranging unavailable on this device." preferredStyle:UIAlertControllerStyleAlert];
+        [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action){
+            [self.navigationController popViewControllerAnimated:YES];
+        }]];
+        
+        [self presentViewController:alert animated:YES completion:nil];
+    }
+}
+
+// when view disapper do
+-(void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:YES];
+    
+    for (CLBeaconRegion *region in self.beaconManager.rangedRegions) {
+        [self.beaconManager stopRangingBeaconsInRegion:region];
+    }
+}
+
 
 #pragma mark - Test Operational
 // when nextStep button click
@@ -313,54 +385,54 @@
 
 
 #pragma mark - LBeacon
-- (void)onBeaconServiceConnect{
-//  set time of timer
-    self.second = 3;
+
+-(void)locationManager:(CLLocationManager *)manager didRangeBeacons:(NSArray<CLBeacon *> *)beacons inRegion:(CLBeaconRegion *)region{
     
-//  start scanning for Lbeacon signal
-    self.beaconScanner = [RNLBeaconScanner sharedBeaconScanner];
-    [RNLBeacon secondsToAverage:20];
-    [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(scanTimer:) userInfo:nil repeats:YES];
-    NSArray *beaconsArray = self.beaconScanner.trackedBeacons;
-    if (beaconsArray.count > 0) {
-        for (RNLBeacon *beacon in beaconsArray) {
-            [self logBeaconData:beacon];
+    // to test beacon
+    NSMutableString *outputText = [NSMutableString stringWithFormat:@"Ranged beacons count:%i\n\n",(int)beacons.count];
+    for (CLBeacon *beacon in beacons) {
+        [outputText appendString:[beacon.description substringFromIndex:[beacon.description rangeOfString:@"major:"].location]];
+        [outputText appendString:@"\n\n"];
+    }
+    NSLog(@"%@",outputText);
+    
+    // to find same data in data of scanering
+    for (CLBeacon *beacon in beacons) {
+        NSUInteger index = [self.beaconList indexOfObjectPassingTest:^BOOL(CLBeacon * _Nonnull obj, NSUInteger idx,BOOL * _Nonnull stop){
+            BOOL match = [obj.proximityUUID.UUIDString isEqualToString:beacon.proximityUUID.UUIDString] && (obj.major.integerValue == beacon.major.integerValue) && obj.minor.integerValue == beacon.minor.integerValue;
+            
+            if (match) {
+                *stop = YES;
+            }
+            return match;
+        }];
+        
+        // when have same date to update array and disctionary
+        if (index != NSNotFound) {
+            self.regionForBeacon[self.beaconList[index]] = nil;
+            self.beaconList[index] = beacon;
+            self.regionForBeacon[beacon] = region;
+        }
+        // when have no same data to add in array and dictionary
+        else{
+            [self.beaconList addObject:beacon];
+            self.regionForBeacon[beacon] = region;
+        }
+        
+        if (beacon.rssi > RSSI_THRESHOLD) {
+            if (![self.currentLBeaconID isEqualToString:beacon.proximityUUID.UUIDString]) {
+//                self.currentLBeaconID = beacon.proximityUUID.UUIDString;
+                NSLog(@"change!!");
+                
+//                dispatch_semaphore_signal(semaphore);
+            }
         }
     }
+    
 }
 
-// load beacon ID
-- (void)logBeaconData :(RNLBeacon *)beacon{
-    if (beacon.rssi.intValue > RSSI_THRESHOLD) {
-        
-//      get site from Lbeacon ID
-        NSString *CConvX,*CConvY;
-        CConvX = beacon.id2;
-        CConvY = beacon.id3;
-//      print data to check on log
-        NSLog(@"beacon,Recieved ID: %@ Length:%d",[CConvX stringByAppendingString:CConvY],(int)[CConvX stringByAppendingString:CConvY].length);
-        
-//      update the currentLbeaconID and go to navigation thread
-        if ([self.currentLBeaconID isEqualToString:[CConvX stringByAppendingString:CConvY]]) {
-            self.currentLBeaconID = [CConvX stringByAppendingString:CConvY];
-        }
-        
-        dispatch_semaphore_signal(semaphore);
-    }
-}
 
-// Lbeacon scanning timer
-// a scanning per two sceconds
-- (void)scanTimer :(NSTimer *) timer{
-    self.second--;
-    if (self.second > 0) {
-        [self.beaconScanner stopScanningAltbeacons];
-    }
-    else{
-        self.beaconScanner = [RNLBeaconScanner new];
-        self.second = 3;
-    }
-}
+
 
 //set text and image instruction
 #pragma mark - InstructionHandler
@@ -369,6 +441,7 @@
 //  distance to the next waypoint
     int distance = 0;
     UIImage *image = [UIImage new];
+    UIImage *currentImage = [UIImage new];
     
     // if there are two or more waypoints to go
     if (self.navigationPath.count >= 2) {
@@ -378,6 +451,7 @@
     // recive a turn direction message from threadForHandleLbeaconID
     NSString *s = message;
     
+    // determine the instruction message
     if ([s isEqualToString:LEFT]) {
         if (self.turnNotificationForPoput != nil) {
             [self showPopupWindow:MAKETURN_NOTIFIER];
@@ -516,6 +590,54 @@
         walkedWaypoint = 0;
     }
     
+    // display current step
+    if ([currentAction isEqualToString:FRONT]) {
+        self.currentMovement.text = PLEASE_GO_STRAIGHT;
+        currentImage = [UIImage imageNamed:IMAGE_STRAIGHT];
+        self.imageCurrentIndicator.image = currentImage;
+    }
+    else if ([currentAction isEqualToString:LEFT]){
+        self.currentMovement.text = PLEASE_TURN_LEFT;
+        currentImage = [UIImage imageNamed:IMAGE_LEFT];
+        self.imageCurrentIndicator.image = currentImage;
+    }
+    else if ([currentAction isEqualToString:FRONT_LEFT]){
+        self.currentMovement.text = PLEASE_TURN_FRONT_LEFT;
+        currentImage = [UIImage imageNamed:IMAGE_FRONT_LEFT];
+        self.imageCurrentIndicator.image = currentImage;
+    }
+    else if ([currentAction isEqualToString:REAR_LEFT]){
+        self.currentMovement.text = PLEASE_TURN_REAR_LEFT;
+        currentImage = [UIImage imageNamed:IMAGE_REAR_LEFT];
+        self.imageCurrentIndicator.image = currentImage;
+    }
+    else if ([currentAction isEqualToString:RIGHT]){
+        self.currentMovement.text = PLEASE_TURN_RIGHT;
+        currentImage = [UIImage imageNamed:IMAGE_RIGHT];
+        self.imageCurrentIndicator.image = currentImage;
+    }
+    else if ([currentAction isEqualToString:FRONT_RIGHT]){
+        self.currentMovement.text = PLEASE_TURN_FRONT_RIGHT;
+        currentImage = [UIImage imageNamed:IMAGE_FRONT_RIGHT];
+        self.imageCurrentIndicator.image = currentImage;
+    }
+    else if ([currentAction isEqualToString:REAR_RIGHT]){
+        self.currentMovement.text = PLEASE_TURN_REAR_RIGHT;
+        currentImage = [UIImage imageNamed:IMAGE_REAR_RIGHT];
+        self.imageCurrentIndicator.image = currentImage;
+    }
+    else if ([currentAction isEqualToString:STAIR]){
+        self.currentMovement.text = PLEASE_WALK_UP_STAIR;
+        currentImage = [UIImage imageNamed:IMAGE_STAIR];
+        self.imageCurrentIndicator.image = currentImage;
+    }
+    else if ([currentAction isEqualToString:ELEVATOR]){
+        self.currentMovement.text = PLEASE_TAKE_ELEVATOR;
+        currentImage = [UIImage imageNamed:IMAGE_ELEVATOR];
+        self.imageCurrentIndicator.image = currentImage;
+    }
+    
+    
     //After the navigational instruction for current waypoint is properly given,
     //the waypoint is removed from the top of the navigationPath
     [self.navigationPath removeObjectAtIndex:0];
@@ -556,8 +678,9 @@
         while (self.navigationPath.count != 0) {
             
 //            the thread waits for beacon manager to notify it when a new Lbeacon ID is received
-            dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+            dispatch_semaphore_wait(self->semaphore, DISPATCH_TIME_FOREVER);
             
+            self->speakerOfNextStep = NO;
 //          if the received ID matches the ID of the next waypoint in the navigation path
             if ([[[self.navigationPath objectAtIndex:0] ID] isEqualToString:self.currentLBeaconID]) {
                 
@@ -575,7 +698,7 @@
 //                  if the next two waypoints are in the same region as the  current waypoint
 //                  get the turn direction  at the  next waypoint
                     if ([[[self.navigationPath objectAtIndex:0] Region] isEqualToString:[[self.navigationPath objectAtIndex:1] Region]] && [[[self.navigationPath objectAtIndex:1] Region] isEqualToString:[[self.navigationPath objectAtIndex:2] Region]]) {
-                        messageFromInstructionHandler = [geoCalculation getDirectionFromBearing:[self.navigationPath objectAtIndex:0] :[self.navigationPath objectAtIndex:1] :[self.navigationPath objectAtIndex:2]];
+                        messageFromInstructionHandler = [self->geoCalculation getDirectionFromBearing:[self.navigationPath objectAtIndex:0] :[self.navigationPath objectAtIndex:1] :[self.navigationPath objectAtIndex:2]];
                     }
                     
 //                  if the next two  waypoints are not in the same region
@@ -594,7 +717,7 @@
                             messageFromInstructionHandler = STAIR;
                         }
                         else if ([[self.navigationPath objectAtIndex:0] NodeType] == CONNECTPOINT){
-                            messageFromInstructionHandler = [geoCalculation getDirectionFromBearing:[self.navigationPath objectAtIndex:0] :[self.navigationPath objectAtIndex:1] :[self.navigationPath objectAtIndex:2]];
+                            messageFromInstructionHandler = [self->geoCalculation getDirectionFromBearing:[self.navigationPath objectAtIndex:0] :[self.navigationPath objectAtIndex:1] :[self.navigationPath objectAtIndex:2]];
                         }
                     }
                 }
@@ -615,22 +738,22 @@
                         messageFromInstructionHandler = FRONT;
                     }
                 }
-//              if there is only one waypoint left,the user arrived
+                // if there is only one waypoint left,the user arrived
                 else if (self.navigationPath.count == 1){
                     messageFromInstructionHandler = ARRIVED;
                 }
             
-//              every time the received ID is matched
-//              the user is considered to travel one more waypoint
-                walkedWaypoint++;
+                // every time the received ID is matched
+                // the user is considered to travel one more waypoint
+                self->walkedWaypoint++;
                 
                 
-//              WalkedPoint method get the message of number
-//              of waypoint hsa been travel in a region
-                messageFromWalkedPointHandle = [NSString stringWithFormat:@"%i",walkedWaypoint];
+                // WalkedPoint method get the message of number
+                // of waypoint hsa been travel in a region
+                messageFromWalkedPointHandle = [NSString stringWithFormat:@"%i",self->walkedWaypoint];
                 
                 
-//              send the newly updated message to three thread method
+                // send the newly updated message to three thread method
                 dispatch_sync(dispatch_get_main_queue(), ^{
                     [self walkedPointHandler:messageFromWalkedPointHandle];
                 });
@@ -642,10 +765,10 @@
                     [self currentPointHandler:messageFromCurrentPositionHandler];
                 });
             }
-//          if the received ID does not match the ID of waypoint in the navigation path
+            // if the received ID does not match the ID of waypoint in the navigation path
             else if (![[[self.navigationPath objectAtIndex:0] ID] isEqualToString:self.currentLBeaconID]){
                 
-//              send  a "wrong" message to the tread method
+                // send  a "wrong" message to the tread method
                 NSString *messageFromInstructionHandler;
                 messageFromInstructionHandler = WRONG;
                 dispatch_sync(dispatch_get_main_queue(), ^{
@@ -662,6 +785,11 @@
 - (void) showPopupWindow :(const int) flag{
     UIAlertController *popupWindow = [UIAlertController new];
     UIAlertAction *okAlertButton = [UIAlertAction new];
+
+    // 
+    AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
+
+    stateFlag = flag;
     
 //  set text of alert and alert button
     if (flag == ARRIVED_NOTIFIER) {
@@ -682,52 +810,86 @@
         }];
     }
     else if (flag == MAKETURN_NOTIFIER){
-        if ([self.turnNotificationForPoput isEqualToString:RIGHT]) {
-            popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TURN_RIGHT message:@"" preferredStyle:UIAlertControllerStyleAlert];
-        }
-        else if ([self.turnNotificationForPoput isEqualToString:LEFT]){
-            popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TURN_LEFT message:@"" preferredStyle:UIAlertControllerStyleAlert];
-        }
-        else if ([self.turnNotificationForPoput isEqualToString:FRONT_RIGHT]){
-            popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TURN_FRONT_RIGHT message:@"" preferredStyle:UIAlertControllerStyleAlert];
-        }
-        else if ([self.turnNotificationForPoput isEqualToString:REAR_RIGHT]){
-            popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TURN_REAR_RIGHT message:@"" preferredStyle:UIAlertControllerStyleAlert];
-        }
-        else if ([self.turnNotificationForPoput isEqualToString:FRONT_LEFT]){
-            popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TURN_FRONT_LEFT message:@"" preferredStyle:UIAlertControllerStyleAlert];
-        }
-        else if ([self.turnNotificationForPoput isEqualToString:REAR_LEFT]){
-            popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TURN_REAR_LEFT message:@"" preferredStyle:UIAlertControllerStyleAlert];
-        }
-        else if ([self.turnNotificationForPoput isEqualToString:FRONT]){
-            popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_GO_STRAIGHT message:@"" preferredStyle:UIAlertControllerStyleAlert];
-        }
-        else if ([self.turnNotificationForPoput isEqualToString:ELEVATOR]){
-            popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TAKE_ELEVATOR message:@"" preferredStyle:UIAlertControllerStyleAlert];
-        }
-        else if ([self.turnNotificationForPoput isEqualToString:STAIR]){
-            popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_WALK_UP_STAIR message:@"" preferredStyle:UIAlertControllerStyleAlert];
-        }
-        else if ([self.turnNotificationForPoput isEqualToString:ARRIVED]){
-            popupWindow = [UIAlertController alertControllerWithTitle:YOU_HAVE_ARRIVE message:@"" preferredStyle:UIAlertControllerStyleAlert];
-        }
         
+            if ([self.turnNotificationForPoput isEqualToString:RIGHT]) {
+                popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TURN_RIGHT message:@"" preferredStyle:UIAlertControllerStyleAlert];
+            }
+            else if ([self.turnNotificationForPoput isEqualToString:LEFT]){
+                popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TURN_LEFT message:@"" preferredStyle:UIAlertControllerStyleAlert];
+            }
+            else if ([self.turnNotificationForPoput isEqualToString:FRONT_RIGHT]){
+                popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TURN_FRONT_RIGHT message:@"" preferredStyle:UIAlertControllerStyleAlert];
+            }
+            else if ([self.turnNotificationForPoput isEqualToString:REAR_RIGHT]){
+                popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TURN_REAR_RIGHT message:@"" preferredStyle:UIAlertControllerStyleAlert];
+            }
+            else if ([self.turnNotificationForPoput isEqualToString:FRONT_LEFT]){
+                popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TURN_FRONT_LEFT message:@"" preferredStyle:UIAlertControllerStyleAlert];
+            }
+            else if ([self.turnNotificationForPoput isEqualToString:REAR_LEFT]){
+                popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TURN_REAR_LEFT message:@"" preferredStyle:UIAlertControllerStyleAlert];
+            }
+            else if ([self.turnNotificationForPoput isEqualToString:FRONT]){
+                popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_GO_STRAIGHT message:@"" preferredStyle:UIAlertControllerStyleAlert];
+            }
+            else if ([self.turnNotificationForPoput isEqualToString:ELEVATOR]){
+                popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TAKE_ELEVATOR message:@"" preferredStyle:UIAlertControllerStyleAlert];
+            }
+            else if ([self.turnNotificationForPoput isEqualToString:STAIR]){
+                popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_WALK_UP_STAIR message:@"" preferredStyle:UIAlertControllerStyleAlert];
+            }
+            else if ([self.turnNotificationForPoput isEqualToString:ARRIVED]){
+                popupWindow = [UIAlertController alertControllerWithTitle:YOU_HAVE_ARRIVE message:@"" preferredStyle:UIAlertControllerStyleAlert];
+            }
+            currentAction = self.turnNotificationForPoput;
+       
 //      the speech manager start when button on alert click
         okAlertButton = [UIAlertAction actionWithTitle:@"確認" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){
-            NSString *navtxt = [NSString stringWithFormat:@"%@%@%@",self.firstMovement.text,self.howFarToMove.text,self.nextTurnMovement.text];
-            [self navTxtSpeaker:navtxt];
+            if (self->speakerOfNextStep == NO) {
+                NSString *navtxt = [NSString stringWithFormat:@"%@%@%@",self.firstMovement.text,self.howFarToMove.text,self.nextTurnMovement.text];
+                [self navTxtSpeaker:navtxt];
+            }
+            self->speakerOfNextStep = YES;
         }];
         
     }
     
-//  the alert button add alert
-    [popupWindow addAction:okAlertButton];
+    // display alert and the speech manager start
+    [self presentViewController:popupWindow animated:YES completion:^(void){
+        NSString *navtxt = popupWindow.title;
+        [self navTxtSpeaker:navtxt];
+    }];
+    
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"alertviewButton"] == YES) {
+        // the alert button add alert
+        [popupWindow addAction:okAlertButton];
+    }
+    else if([[NSUserDefaults standardUserDefaults] boolForKey:@"alertviewButton"] == NO){
+        // call automatic clase alertview
+        [self performSelector:@selector(dismissAlert:) withObject:popupWindow afterDelay:ALERTVIEW_DISMISS_TIME];
+    }
+}
 
-//  display alert and the speech manager start
-    [self presentViewController:popupWindow animated:YES completion:nil];
-    NSString *navtxt = popupWindow.message;
-    [self navTxtSpeaker:navtxt];
+// automatic close alertview method
+-(void) dismissAlert:(UIAlertController*) alertView {
+    
+    if (stateFlag == ARRIVED_NOTIFIER) {
+        [self.navigationController dismissViewControllerAnimated:YES completion:NULL];
+        [self.navigationController popToRootViewControllerAnimated:YES];
+    }
+    else if (stateFlag == WRONGWAY_NOTIFIER){
+        [self.navigationController dismissViewControllerAnimated:YES completion:NULL];
+        [self.navigationController popToRootViewControllerAnimated:YES];
+    }
+    else if (stateFlag == MAKETURN_NOTIFIER){
+        
+        if (speakerOfNextStep == NO) {
+            NSString *navtxt = [NSString stringWithFormat:@"%@%@%@",self.firstMovement.text,self.howFarToMove.text,self.nextTurnMovement.text];
+            [self navTxtSpeaker:navtxt];
+        }
+        speakerOfNextStep = YES;
+        [alertView dismissViewControllerAnimated:NO completion:nil];
+    }
 }
 
 #pragma mark - Get Navigation Path
@@ -812,25 +974,25 @@
 //  navigation between several regions
     else{
         
-//      compute N-1 navigation paths for each region,
-//      where N is the number of region to travel
+        // compute N-1 navigation paths for each region,
+        // where N is the number of region to travel
         
         for (int i = 0; i < self.navigationGraph.count-1; i++) {
             
-//          a destination vertex for each region
+            // a destination vertex for each region
             Vertex *destinationOfARegion = nil;
             
-//          the source vertex becomes a normal waypoint
+            // the source vertex becomes a normal waypoint
             [[[[self.navigationGraph objectAtIndex:i] verticesInSubgraph] objectForKey:self.startID] NodeType:NORMAL_WAYPOINT];
             
-//          if  the elevation of the next region to travel is same as current region
+            // if  the elevation of the next region to travel is same as current region
             if ([[self.regionPath objectAtIndex:i] Elevation] == [[self.regionPath objectAtIndex:i+1] Elevation]) {
               
-//              compute a path to a transfer point of current region
-//              return the transfer point
+                // compute a path to a transfer point of current region
+                // return the transfer point
                 destinationOfARegion = [self computePathToTraversePoint:[[[self.navigationGraph objectAtIndex:i] verticesInSubgraph] objectForKey:self.startID] SameElevator:YES NextRegion:i+1];
                 
-//              startID is updated with the ID of transfer node for the next computation
+                // startID is updated with the ID of transfer node for the next computation
 //              since the transfer node has the same ID in the same elevation
                 self.startID = destinationOfARegion.ID;
                 

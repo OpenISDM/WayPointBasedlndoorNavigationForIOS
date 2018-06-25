@@ -40,6 +40,7 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
+@import AudioToolbox;
 
 @interface CompassViewController : UIViewController<CLLocationManagerDelegate>
 

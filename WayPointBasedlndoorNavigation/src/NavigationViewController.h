@@ -39,10 +39,12 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <AVFoundation/AVSpeechSynthesis.h>
+@import AVFoundation;
 #import "Vertex.h"
 #import <CoreBluetooth/CoreBluetooth.h>
 #import "Setting.h"
+@import AudioToolbox;
+@import CoreLocation;
 
 @protocol XMLDetailParserDelegate <NSObject>
 @optional

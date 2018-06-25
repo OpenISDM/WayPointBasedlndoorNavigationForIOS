@@ -40,18 +40,21 @@
 
 #import "ViewController.h"
 
-#define APP_VERSION @"1.0.0"
 
 @interface ViewController (){
     int settingFlag;
-    Setting *setting;
+    NSMutableDictionary *clickTimestep;
+    
 }
 
-@property (weak, nonatomic) IBOutlet UILabel *versionLabel;
+@property (weak, nonatomic) IBOutlet UIButton *versionButton;
 
 @end
 
 @implementation ViewController
+Setting *setting;
+int clickCount;
+
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -59,7 +62,20 @@
     setting = [Setting new];
     
     // set version number on main page
-    self.versionLabel.text = [NSString stringWithFormat:@"version:%@",APP_VERSION];
+
+    [self.versionButton setTitle:[NSString stringWithFormat:@"Version:%@",[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]] forState:UIControlStateNormal];
+    
+
+    clickCount = 0;
+    clickTimestep = [[NSMutableDictionary alloc] initWithCapacity:7];
+    
+    // initialize user preference
+    // NSUserDefaults *initialuserDefault = [NSUserDefaults standardUserDefaults];
+    NSUserDefaults *initialuserDefault = [NSKeyedUnarchiver unarchiveObjectWithFile:@"userDefaults.archive"];
+    [initialuserDefault setBool:NO forKey:@"alertviewButton"];
+    [initialuserDefault setBool:NO forKey:@"simulationTest"];
+    [initialuserDefault synchronize];
+    
 }
 
 
@@ -106,11 +122,13 @@
         // store the Region of the destination point
         self.destinationRegion = [self.ctrlArray objectAtIndex:3];
     }
+    
 }
 
 #pragma mark - the action when button click
 /* when start point button click */
-- (IBAction)startpbtnAction:(id)sender {
+- (IBAction)startpbtnAction:(id)sender
+{
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
     PointChooseViewController *inputStartValue = [storyboard instantiateViewControllerWithIdentifier:@"ChoosePointPage"];
     
@@ -200,4 +218,52 @@
             break;
     }
 }
+
+// when userPreference Button click
+- (IBAction)userPreferenceAction:(id)sender {
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
+    NavigationViewController *preferencePage = [storyboard instantiateViewControllerWithIdentifier:@"PreferencePage"];
+    
+    [self.navigationController pushViewController:preferencePage animated:YES];
+}
+
+// when version number button been clicked seven times
+- (IBAction)versionButtonAction:(id)sender {
+    
+    [clickTimestep setObject:[NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]*100] forKey:[NSNumber numberWithInt:clickCount]];
+    
+    // when clicking counter equals seven
+    if (clickCount == 6)
+    {
+        // when the final object in the timestep minus the first object in the timestep is less than two seconds
+        if ([[clickTimestep objectForKey:[NSNumber numberWithInt:6]] doubleValue] - [[clickTimestep objectForKey:[NSNumber numberWithInt:0]] doubleValue] < 200)
+        {
+            // empty timestep
+            [clickTimestep removeAllObjects];
+            // reset click counter
+            clickCount = 0;
+            
+            // push next view
+            UIStoryboard *storyBoard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
+            DeveloperListViewController *developerPage = [storyBoard instantiateViewControllerWithIdentifier:@"DeveloperPage"];
+            [self.navigationController pushViewController:developerPage animated:YES];
+        }
+    }
+    // when the current object in the timestep minus the first object in the timestep is more than two seconds
+    else if ([[clickTimestep objectForKey:[NSNumber numberWithInt:clickCount-1]] doubleValue] - [[clickTimestep objectForKey:[NSNumber numberWithInt:0]] doubleValue] >=200)
+    {
+        // enpty timestep
+        [clickTimestep removeAllObjects];
+        
+        // reset click counter
+        clickCount = 0;
+    }
+    else
+    {
+        // add times of counter
+        clickCount++;
+    }
+    
+}
+
 @end
