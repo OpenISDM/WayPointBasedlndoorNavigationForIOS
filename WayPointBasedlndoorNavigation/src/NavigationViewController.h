@@ -46,15 +46,8 @@
 @import AudioToolbox;
 @import CoreLocation;
 
-@protocol XMLDetailParserDelegate <NSObject>
-@optional
-- (void) returnDataItems:(NSMutableArray*)Array;
-@end
-
 
 @interface NavigationViewController : UIViewController <NSXMLParserDelegate,AVSpeechSynthesizerDelegate,CBPeripheralDelegate>
-
-@property (weak, nonatomic) id<XMLDetailParserDelegate> xmldelegate;
 
 // Variables used to record important values--------------------------
 // IDs ,Names and Regions of source and destination input by user on home screen
@@ -67,7 +60,4 @@
 @property (strong, nonatomic) Setting *setting;
 
 //@property (strong, nonatomic) CLLocationManager *locationmanager;
-
-- (NSString *) returnstartText;
-- (NSString *) returndestinationText;
 @end

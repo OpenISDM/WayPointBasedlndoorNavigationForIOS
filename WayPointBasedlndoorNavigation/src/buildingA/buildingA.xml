@@ -4,7 +4,7 @@
 
 
     <region name='region1' neighbor1='region2' neighbor2='region3' neighbor3='' neighbor4='' elevation='3'>
-        <location id='38' name='38' region='region1' category='Category1'/>
+        <location id='6f8ed10c-c44a-4e8f-b1ba-bdfda881241b' name='38' region='region1' category='Category1'/>
         <location id='41' name='41' region='region1' category='Category1'/>
         <location id='44' name='44' region='region1' category='Category1'/>
     </region>

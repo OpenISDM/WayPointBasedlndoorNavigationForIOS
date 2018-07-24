@@ -49,6 +49,8 @@
 }
 // define simulation switch
 @property (weak, nonatomic) IBOutlet UISwitch *simulationTestSwitch;
+@property (weak, nonatomic) IBOutlet UITextField *rssi0MMinTextField;
+@property (weak, nonatomic) IBOutlet UITextField *rssi1MMinTextField;
 
 @end
 
@@ -61,6 +63,7 @@
     // initialize userdefaults
     userDefaults = [NSUserDefaults standardUserDefaults];
     [self initSimulationTestSwitch];
+    [self initRssiTextField];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -68,15 +71,33 @@
     // Dispose of any resources that can be recreated.
 }
 
-/*
+-(void)viewWillDisappear:(BOOL)animated{
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString *filePath = [documentsDirectory stringByAppendingPathComponent:@"SettingPList.plist"];
+    NSMutableDictionary *rssiPlist = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
+    [[[rssiPlist objectForKey:@"RSSIValue"] objectForKey:@"0M"] setObject:self.rssi0MMinTextField.text forKey:@"Min"];
+    [[[rssiPlist objectForKey:@"RSSIValue"] objectForKey:@"1M"] setObject:self.rssi1MMinTextField.text forKey:@"Min"];
+//    [rssiPlist writeToFile:filePath atomically:YES];
+    if ([rssiPlist writeToFile:filePath atomically:YES]) {
+        NSLog(@"store:%@",rssiPlist);
+    }
+    
+}
+
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
+    NSMutableDictionary *rssiPlist = [[NSMutableDictionary alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"SettingPList" ofType:@"plist"]];
+    [[[rssiPlist objectForKey:@"RSSIValue"] objectForKey:@"0M"] setObject:self.rssi0MMinTextField.text forKey:@"Min"];
+    [[[rssiPlist objectForKey:@"RSSIValue"] objectForKey:@"1M"] setObject:self.rssi1MMinTextField.text forKey:@"Min"];
+    [rssiPlist writeToFile:[[NSBundle mainBundle] pathForResource:@"SettingPList" ofType:@"plist"] atomically:YES];
+    
 }
-*/
+
 
 -(void)initSimulationTestSwitch{
     
@@ -91,6 +112,16 @@
         [self.simulationTestSwitch setOn:NO];
     }
     
+}
+
+-(void)initRssiTextField{
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString *filePath = [documentsDirectory stringByAppendingPathComponent:@"SettingPList.plist"];
+    NSMutableDictionary *rssiPlist = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
+    NSLog(@"%@",[[[rssiPlist objectForKey:@"RSSIValue"] objectForKey:@"0M"] objectForKey:@"Min"]);
+    self.rssi0MMinTextField.text = [NSString stringWithFormat:@"%@",[[[rssiPlist objectForKey:@"RSSIValue"] objectForKey:@"0M"] objectForKey:@"Min"]];
+    self.rssi1MMinTextField.text = [NSString stringWithFormat:@"%@",[[[rssiPlist objectForKey:@"RSSIValue"] objectForKey:@"1M"] objectForKey:@"Min"]];
 }
 
 - (IBAction)SimulationTestSwitchChange:(id)sender {

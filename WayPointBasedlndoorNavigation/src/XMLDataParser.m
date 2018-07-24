@@ -45,11 +45,23 @@
     Vertex *vlocation;
     BOOL fileflag;
     NSString *filenameFlag;
+    BOOL allDataFlag;
 }
 @property (strong, nonatomic) NSString *fileDirName;
 @end
 
 @implementation XMLDataParser
+
+-(instancetype)init{
+    if (self = [super init]) {
+        self.regionData = [NSMutableDictionary new];
+        self.routingData = [NSMutableArray new];
+        navigationSubgraph = [NavigationSubgraph new];
+        self.categoryList = [NSMutableArray new];
+        self.categoryData = [NSMutableDictionary new];
+    }
+    return self;
+}
 
 #pragma mark -Do XML Parser
 - (void)startXMLParser: (NSString*) filename{
@@ -64,11 +76,7 @@
     NSFileHandle *file = [NSFileHandle fileHandleForReadingAtPath:path];
     NSData *data = [file readDataToEndOfFile];
     [file closeFile];
-    self.regionData = [NSMutableDictionary new];
-    self.routingData = [NSMutableArray new];
-    navigationSubgraph = [NavigationSubgraph new];
-    self.categoryList = [NSMutableArray new];
-    self.categoryData = [NSMutableDictionary new];
+    
     
     //test the data
     NSString *dataString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -120,39 +128,73 @@
 }
 
 // for waypoint
--(void)startXMLParserForPoint:(NSMutableArray *)filenames{
+-(void)startXMLParserForPoint:(nullable NSMutableArray *)filenames fileName: (nullable NSString *) filename{
     
-    self.localArray = [[NSMutableArray alloc] init];
-    self.regionData = [[NSMutableDictionary alloc] init];
     fileflag = NO;
+    allDataFlag = NO;
     
-    for (NSString *s in filenames) {
-        
-        filenameFlag = s;
-        NSString *path = [[NSBundle mainBundle] pathForResource:s ofType:@"xml" inDirectory:self.fileDirName];
+    if (filenames.count == 0) {
+        NSArray *opaths = [[NSBundle mainBundle] pathsForResourcesOfType:@"xml" inDirectory:filename];
 
-        NSFileHandle *file = [NSFileHandle fileHandleForReadingAtPath:path];
-        NSData *data = [file readDataToEndOfFile];
-        [file closeFile];
-
-        //test the data
-        NSString *dataString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        NSLog(@"%@",dataString);
-        
-        //start parser
-        NSXMLParser *xmlParser = [[NSXMLParser alloc] initWithData:data];
-        [xmlParser setDelegate:self];
-        
-        //test the parser start success
-        BOOL flag = [xmlParser parse];
-        if (flag){
-            NSLog(@"xmlDataParser start");
+        for (NSString *path in opaths) {
+            if ([path containsString:@"region"]) {
+                filenameFlag = [[path lastPathComponent] stringByDeletingPathExtension];
+                allDataFlag = YES;
+                NSFileHandle *file = [NSFileHandle fileHandleForReadingAtPath:path];
+                NSData *data = [file readDataToEndOfFile];
+                [file closeFile];
+                
+                //test the data
+                NSString *dataString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                NSLog(@"%@",dataString);
+                
+                //start parser
+                NSXMLParser *xmlParser = [[NSXMLParser alloc] initWithData:data];
+                [xmlParser setDelegate:self];
+                
+                //test the parser start success
+                BOOL flag = [xmlParser parse];
+                if (flag){
+                    NSLog(@"xmlAllDataParser start");
+                }
+                else{
+                    NSLog(@"xmlDataParser no start");
+                }
+            }
         }
-        else{
-            NSLog(@"xmlDataParser no start");
-        }
-
     }
+    else{
+        for (NSString *s in filenames) {
+            
+            filenameFlag = s;
+            NSString *path = [[NSBundle mainBundle] pathForResource:s ofType:@"xml" inDirectory:self.fileDirName];
+            allDataFlag = NO;
+            
+            NSFileHandle *file = [NSFileHandle fileHandleForReadingAtPath:path];
+            NSData *data = [file readDataToEndOfFile];
+            [file closeFile];
+            
+            //test the data
+            NSString *dataString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            NSLog(@"%@",dataString);
+            
+            //start parser
+            NSXMLParser *xmlParser = [[NSXMLParser alloc] initWithData:data];
+            [xmlParser setDelegate:self];
+            
+            //test the parser start success
+            BOOL flag = [xmlParser parse];
+            if (flag){
+                NSLog(@"xmlDataParser start");
+            }
+            else{
+                NSLog(@"xmlDataParser no start");
+            }
+            
+        }
+    }
+    
+    
 }
 
 // get the attributeDict content
@@ -217,8 +259,15 @@
         if (![[attributeDict objectForKey:@"connectPointID"] isEqualToString:@""]){_connectPointID = [[attributeDict objectForKey:@"connectPointID"] intValue];}
         if (![[attributeDict objectForKey:@"elevation"] isEqualToString:@""]){_elevation = [[attributeDict objectForKey:@"elevation"] intValue];}
         
-        Vertex *vnode = [[Vertex alloc] initForRouteComputation:_ID Name:_name Lat:_lat Lon:_lon Neighbors:_neighbors Region:_region Category:_category NodeType:_nodetype ConnectPoint:_connectPointID];
-        [navigationSubgraph.verticesInSubgraph setObject:vnode forKey:vnode.ID];
+        if (allDataFlag) {
+            Vertex *vnode = [[Vertex alloc] initForUIDisplay:_ID Name:_name Region:_region Category:_category];
+            [self.routingData addObject:vnode];
+        }
+        else{
+            Vertex *vnode = [[Vertex alloc] initForRouteComputation:_ID Name:_name Lat:_lat Lon:_lon Neighbors:_neighbors Region:_region Category:_category NodeType:_nodetype ConnectPoint:_connectPointID];
+            [navigationSubgraph.verticesInSubgraph setObject:vnode forKey:vnode.ID];
+        }
+        
     }
     else if ([elementName isEqualToString:@"nodeuuid"]){
         NSString *_uuid = [attributeDict objectForKey:@"UUID"];
@@ -238,10 +287,11 @@
         [self.regionData setObject:rlocation forKey:rlocation.Name];
         
     }
-    else if ([elementName isEqualToString:filenameFlag]){
+    else if ([elementName isEqualToString:filenameFlag] && !allDataFlag){
         NSLog(@"QWER:%@",filenameFlag);
         [navigationSubgraph addEdge];
         [self.routingData addObject:navigationSubgraph];
+        NSLog(@"t6:%@ %@",filenameFlag,navigationSubgraph);
         navigationSubgraph = [NavigationSubgraph new];
     }
 }

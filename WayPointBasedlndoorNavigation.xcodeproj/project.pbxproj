@@ -34,6 +34,8 @@
 		B1C51C402071DEAA00640036 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B1C51C3F2071DEAA00640036 /* CoreBluetooth.framework */; };
 		B1DD3967209708F10027C4ED /* buildingD in Resources */ = {isa = PBXBuildFile; fileRef = B1DD3966209708F10027C4ED /* buildingD */; };
 		B1DD39AB20971A590027C4ED /* Setting.m in Sources */ = {isa = PBXBuildFile; fileRef = B1DD39AA20971A590027C4ED /* Setting.m */; };
+		B1DE015C20FC412F007B2805 /* NavigatorFunction.m in Sources */ = {isa = PBXBuildFile; fileRef = B1DE015B20FC412F007B2805 /* NavigatorFunction.m */; };
+		B1DE015E20FC4D0B007B2805 /* SettingPList.plist in Resources */ = {isa = PBXBuildFile; fileRef = B1DE015D20FC4D0B007B2805 /* SettingPList.plist */; };
 		B1F3792220A9401300B3A7AC /* NavigationSubgraph.m in Sources */ = {isa = PBXBuildFile; fileRef = B1F3792120A9401300B3A7AC /* NavigationSubgraph.m */; };
 /* End PBXBuildFile section */
 
@@ -95,6 +97,9 @@
 		B1DD3966209708F10027C4ED /* buildingD */ = {isa = PBXFileReference; lastKnownFileType = folder; path = buildingD; sourceTree = "<group>"; };
 		B1DD39A920971A590027C4ED /* Setting.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Setting.h; sourceTree = "<group>"; };
 		B1DD39AA20971A590027C4ED /* Setting.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Setting.m; sourceTree = "<group>"; };
+		B1DE015A20FC412F007B2805 /* NavigatorFunction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NavigatorFunction.h; sourceTree = "<group>"; };
+		B1DE015B20FC412F007B2805 /* NavigatorFunction.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NavigatorFunction.m; sourceTree = "<group>"; };
+		B1DE015D20FC4D0B007B2805 /* SettingPList.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = SettingPList.plist; sourceTree = "<group>"; };
 		B1F3792020A9401300B3A7AC /* NavigationSubgraph.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NavigationSubgraph.h; sourceTree = "<group>"; };
 		B1F3792120A9401300B3A7AC /* NavigationSubgraph.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NavigationSubgraph.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -209,6 +214,9 @@
 				B15272B720C67AB50012AD06 /* PreferenceViewController.m */,
 				B1A2DD0320DCA20E002AA94D /* DeveloperListViewController.h */,
 				B1A2DD0420DCA20E002AA94D /* DeveloperListViewController.m */,
+				B1DE015A20FC412F007B2805 /* NavigatorFunction.h */,
+				B1DE015B20FC412F007B2805 /* NavigatorFunction.m */,
+				B1DE015D20FC4D0B007B2805 /* SettingPList.plist */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -314,6 +322,7 @@
 				B184E19C20917605009169C8 /* buildingA in Resources */,
 				A263B1162021A14A00991C5B /* Assets.xcassets in Resources */,
 				B198010B20C532DF00FF3074 /* buildingTEST in Resources */,
+				B1DE015E20FC4D0B007B2805 /* SettingPList.plist in Resources */,
 				A263B1142021A14A00991C5B /* Main.storyboard in Resources */,
 				B1DD3967209708F10027C4ED /* buildingD in Resources */,
 			);
@@ -346,6 +355,7 @@
 				B15272B820C67AB50012AD06 /* PreferenceViewController.m in Sources */,
 				A22AA5782057A58F00C4E459 /* Edge.m in Sources */,
 				A26AF851202C483F00858354 /* NavigationViewController.m in Sources */,
+				B1DE015C20FC412F007B2805 /* NavigatorFunction.m in Sources */,
 				A263B11C2021A14A00991C5B /* main.m in Sources */,
 				A25DC578205679A1004E4BC0 /* NQueue.m in Sources */,
 				A21E8BE520314580004863C4 /* XMLDataParser.m in Sources */,

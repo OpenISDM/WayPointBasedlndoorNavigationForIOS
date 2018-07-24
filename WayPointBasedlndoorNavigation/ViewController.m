@@ -64,7 +64,6 @@ int clickCount;
     // set version number on main page
 
     [self.versionButton setTitle:[NSString stringWithFormat:@"Version:%@",[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]] forState:UIControlStateNormal];
-    
 
     clickCount = 0;
     clickTimestep = [[NSMutableDictionary alloc] initWithCapacity:7];
@@ -75,7 +74,7 @@ int clickCount;
     [initialuserDefault setBool:NO forKey:@"alertviewButton"];
     [initialuserDefault setBool:NO forKey:@"simulationTest"];
     [initialuserDefault synchronize];
-    
+
 }
 
 

@@ -44,11 +44,6 @@
 #import "Region.h"
 #import "NavigationSubgraph.h"
 
-//creat a protocol of delegate
-@protocol XMLFileParserDelegate <NSObject>
-@optional
-- (void) returnedDataItems:(NSMutableArray*)Array;
-@end
 
 @interface XMLDataParser : NSObject <NSXMLParserDelegate>
 
@@ -61,12 +56,11 @@
 @property (strong, nonatomic) NSMutableArray *routingData;
 @property (strong, nonatomic) NSMutableArray *Adjacencies;
 @property (strong, nonatomic) NSMutableDictionary *uuidData;
-//def the xmlparser's delegate
-@property (weak, nonatomic) id<XMLFileParserDelegate> xmldelegate;
+
 
 - (void)startXMLParser: (NSString*) filename;
 
-- (void)startXMLParserForPoint: (NSMutableArray*) filenames;
+- (void)startXMLParserForPoint: (nullable NSMutableArray*) filenames fileName: (nullable NSString *) filename;
 
 - (void)startXMLParserForUUID: (NSString*) filename;
 

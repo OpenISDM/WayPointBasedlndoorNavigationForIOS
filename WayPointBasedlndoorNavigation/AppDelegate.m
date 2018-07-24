@@ -35,6 +35,8 @@
 - (void)applicationDidEnterBackground:(UIApplication *)application {
     // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+    
+    // store userDefaults data when application does not on the view.
     [NSKeyedArchiver archiveRootObject:[NSUserDefaults standardUserDefaults] toFile:@"userDefaults.archive"];
     NSLog(@"close");
 }

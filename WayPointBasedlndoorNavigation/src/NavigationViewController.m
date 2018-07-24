@@ -49,6 +49,7 @@
 #import "GeoCalculation.h"
 #import "CompassViewController.h"
 #import "ViewController.h"
+#import "NavigatorFunction.h"
 
 #pragma mark - Arg,Txt and Image Define
 #define NORMAL_WAYPOINT 0
@@ -60,6 +61,7 @@
 #define MAKETURN_NOTIFIER 2
 #define ALERTVIEW_DISMISS_TIME 3.0f
 
+#define FILENAME @"buildingA"
 #define RSSI_THRESHOLD -65
 
 #define FRONT @"front"
@@ -75,7 +77,7 @@
 #define WRONG @"wrong"
 
 #define GO_STRAIGHT_ABOUT @"直走約"
-#define THEN_GO_STRAIGHT @"然後直走"
+#define THEN_GO_STRAIGHT @"繼續直走"
 #define THEN_TURN_LEFT @"然後向左轉"
 #define THEN_TURN_RIGHT @"然後向右轉"
 #define THEN_TURN_FRONT_LEFT @"然後向左前方轉"
@@ -131,6 +133,8 @@
 //  siri speaker
     AVSpeechSynthesizer *pathSpeaker;
     
+    BOOL resetFlag;
+    
     CBCentralManager *blueboothCentralManager;
     double keyboardDuration;
     
@@ -150,6 +154,9 @@
 
 // An array of Vertex object representing a navigation path
 @property (strong, nonatomic) NSMutableArray *navigationPath;
+
+// An array of Location object representing a location data
+@property (strong, nonatomic) NSMutableArray *locationData;
 // end----Variables used to store routing data----------------------------------------------------------
 
 
@@ -209,7 +216,11 @@
 @implementation NavigationViewController{
     int stateFlag;
     BOOL speakerOfNextStep;
+    BOOL currentDisplayFlag;
     NSString *currentAction;
+    NavigatorFunction *navigatorFunction;
+    NSMutableDictionary *contextOfpath;
+    NavigatorFunction *getPath;
 }
 
 // when view load
@@ -232,9 +243,14 @@
     geoCalculation = [GeoCalculation new];
     pathSpeaker = [AVSpeechSynthesizer new];
     speakerOfNextStep = NO;
+    currentDisplayFlag = NO;
     currentAction = FRONT;
     self.beaconList = [NSMutableArray array];
     self.regionForBeacon = [NSMutableDictionary dictionary];
+    self.locationData = [NSMutableArray new];
+    resetFlag = NO;
+    navigatorFunction = [NavigatorFunction new];
+    getPath = [[NavigatorFunction alloc] initForNavigationPathWithPreferenceSetting:self.setting];
     // end initialization variable-----------------------------
     
     // control keyboard display and hidden----------------------------------------------------------
@@ -251,12 +267,19 @@
         self.testTextField.delegate = self;
         
         // Read the region data
-        [self loadWaypointData];
-
+        [getPath readBuildingWaypointDataForBuildingName:@"buildingA" SourceRegion:self.starRegion DestinationRegion:self.destinationRegion];
+        NSLog(@"t1");
         
         // start navigat
-        [self startNavigation];
+        [getPath computeNavigationPathForSourceID:self.startID DestinationID:self.DestinationID];
+        NSLog(@"t2");
+        self.regionData = getPath.regionData;
+        self.regionPath = getPath.regionPath;
+        self.navigationGraph = getPath.navigationGraph;
+        self.navigationPath = getPath.navigationPath;
+        self.locationData = getPath.locationData;
         
+        NSLog(@"NavPath2:%@",self.navigationPath);
         // display waypoint ID when demo
         NSString *testDisplay=[NSString new];
         for (int i = 0; i<self.navigationPath.count; i++) {
@@ -273,7 +296,8 @@
         [self drawNavGraph];
         
         // navigation thread start
-        [self navThread];
+//        [self navThread];
+        [self threadNavigator];
     }
     
 }
@@ -353,6 +377,7 @@
 - (IBAction)nextStepBtnAction:(id)sender {
     
     self.currentLBeaconID = self.testTextField.text;
+    [getPath setCurrentLBeaconID:self.currentLBeaconID];
     [self drawNowPointGraph:pathValue];
     pathValue++;
     dispatch_semaphore_signal(semaphore);
@@ -391,8 +416,10 @@
     // to test beacon
     NSMutableString *outputText = [NSMutableString stringWithFormat:@"Ranged beacons count:%i\n\n",(int)beacons.count];
     for (CLBeacon *beacon in beacons) {
+        [outputText appendString:beacon.proximityUUID.UUIDString];
         [outputText appendString:[beacon.description substringFromIndex:[beacon.description rangeOfString:@"major:"].location]];
         [outputText appendString:@"\n\n"];
+        
     }
     NSLog(@"%@",outputText);
     
@@ -418,14 +445,24 @@
             [self.beaconList addObject:beacon];
             self.regionForBeacon[beacon] = region;
         }
-        
-        if (beacon.rssi > RSSI_THRESHOLD) {
-            if (![self.currentLBeaconID isEqualToString:beacon.proximityUUID.UUIDString]) {
-//                self.currentLBeaconID = beacon.proximityUUID.UUIDString;
-                NSLog(@"change!!");
-                
-//                dispatch_semaphore_signal(semaphore);
+        NSInteger distance = [navigatorFunction RSSIJudgment:beacon];
+        NSLog(@"t10:%i",(int)distance);
+        if (distance == 0) {
+            if (!currentDisplayFlag) {
+                currentDisplayFlag = YES;
             }
+            
+        }
+        else if (distance == 1){
+            NSLog(@"t10");
+            if (![self.currentLBeaconID isEqualToString:beacon.proximityUUID.UUIDString]) {
+                self.currentLBeaconID = beacon.proximityUUID.UUIDString;
+                [getPath setCurrentLBeaconID:self.currentLBeaconID];
+                currentDisplayFlag = NO;
+                dispatch_semaphore_signal(semaphore);
+                // 轉彎提示
+            }
+            
         }
     }
     
@@ -586,6 +623,10 @@
     
     else if ([s isEqualToString:WRONG]){
         self.turnNotificationForPoput = nil;
+        self.startID = self.currentLBeaconID;
+        self.starRegion = [getPath resetNavigationPathWithFileName:FILENAME SourceID:self.startID];
+        resetFlag = YES;
+        dispatch_semaphore_signal(self->semaphore);
         [self showPopupWindow:WRONGWAY_NOTIFIER];
         walkedWaypoint = 0;
     }
@@ -670,115 +711,42 @@
 
 #pragma mark - navigation Thread
 // Create a thread  to handle the currently recevied Lbeacon ID
-- (void) navThread{
-    
+-(void)threadNavigator{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        
-        //while the navigation path is not finished yet
         while (self.navigationPath.count != 0) {
-            
-//            the thread waits for beacon manager to notify it when a new Lbeacon ID is received
+            // the thread waits for beacon manager to notify it when a new Lbeacon ID is reseived
             dispatch_semaphore_wait(self->semaphore, DISPATCH_TIME_FOREVER);
-            
             self->speakerOfNextStep = NO;
-//          if the received ID matches the ID of the next waypoint in the navigation path
-            if ([[[self.navigationPath objectAtIndex:0] ID] isEqualToString:self.currentLBeaconID]) {
-                
-//              three string store message to corresponding handlers
-                NSString *messageFromInstructionHandler;
-                NSString *messageFromCurrentPositionHandler;
-                NSString *messageFromWalkedPointHandle;
-                
-//              CurrentPointionHandler get the message of currently matched waypoint name
-                messageFromCurrentPositionHandler = [[self.navigationPath objectAtIndex:0] Name];
-                
-//              if the navigation path has more  than three waypoint to travel
-                if (self.navigationPath.count >= 3) {
-                    
-//                  if the next two waypoints are in the same region as the  current waypoint
-//                  get the turn direction  at the  next waypoint
-                    if ([[[self.navigationPath objectAtIndex:0] Region] isEqualToString:[[self.navigationPath objectAtIndex:1] Region]] && [[[self.navigationPath objectAtIndex:1] Region] isEqualToString:[[self.navigationPath objectAtIndex:2] Region]]) {
-                        messageFromInstructionHandler = [self->geoCalculation getDirectionFromBearing:[self.navigationPath objectAtIndex:0] :[self.navigationPath objectAtIndex:1] :[self.navigationPath objectAtIndex:2]];
-                    }
-                    
-//                  if the next two  waypoints are not in the same region
-//                  means that the next waypoint is the last waypoint of the region travel
-                    else if (![[[self.navigationPath objectAtIndex:1] Region] isEqualToString:[[self.navigationPath objectAtIndex:2] Region]]){
-                        messageFromInstructionHandler = FRONT;
-                    }
-                    
-//                  if the current waypoint and the next waypoint are not in the same region
-//                  transfer through elevator or stairwell
-                    else if (![[[self.navigationPath objectAtIndex:0] Region] isEqualToString:[[self.navigationPath objectAtIndex:1] Region]]){
-                        if ([[self.navigationPath objectAtIndex:0] NodeType] == ELEVATOR_WAYPOINT) {
-                            messageFromInstructionHandler = ELEVATOR;
-                        }
-                        else if ([[self.navigationPath objectAtIndex:0] NodeType] == STAIRWELL_WAYPOINT){
-                            messageFromInstructionHandler = STAIR;
-                        }
-                        else if ([[self.navigationPath objectAtIndex:0] NodeType] == CONNECTPOINT){
-                            messageFromInstructionHandler = [self->geoCalculation getDirectionFromBearing:[self.navigationPath objectAtIndex:0] :[self.navigationPath objectAtIndex:1] :[self.navigationPath objectAtIndex:2]];
-                        }
-                    }
-                }
-//              if there are two waypoints left in the navigation path
-                else if (self.navigationPath.count == 2){
-                    
-//                  if the current waypoint and the next waypoint are not in the same region
-                    if (![[[self.navigationPath objectAtIndex:0] Region] isEqualToString:[[self.navigationPath objectAtIndex:1] Region]]) {
-                        if ([[self.navigationPath objectAtIndex:0] NodeType] == ELEVATOR_WAYPOINT) {
-                            messageFromInstructionHandler = ELEVATOR;
-                        }
-                        else if ([[self.navigationPath objectAtIndex:0] NodeType] == STAIRWELL_WAYPOINT){
-                            messageFromInstructionHandler = STAIR;
-                        }
-                    }
-//                  else go strainght to final waypoint
-                    else{
-                        messageFromInstructionHandler = FRONT;
-                    }
-                }
-                // if there is only one waypoint left,the user arrived
-                else if (self.navigationPath.count == 1){
-                    messageFromInstructionHandler = ARRIVED;
-                }
-            
-                // every time the received ID is matched
-                // the user is considered to travel one more waypoint
-                self->walkedWaypoint++;
-                
-                
-                // WalkedPoint method get the message of number
-                // of waypoint hsa been travel in a region
-                messageFromWalkedPointHandle = [NSString stringWithFormat:@"%i",self->walkedWaypoint];
-                
-                
+            NSLog(@"current:%@vs%@",self.currentLBeaconID,[[self.navigationPath objectAtIndex:0] ID]);
+            // when resetFlag is "YES",the thread ends
+            if (self->resetFlag) {
+                break;
+            }
+            [self->getPath navigation];
+            self->walkedWaypoint = [self->getPath walkWaypoint];
+            if (![[self->getPath messageFromWalkedPointHandle] isEqualToString:@""] && ![[self->getPath messageFromCurrentPositionHandler] isEqualToString:@""]) {
                 // send the newly updated message to three thread method
                 dispatch_sync(dispatch_get_main_queue(), ^{
-                    [self walkedPointHandler:messageFromWalkedPointHandle];
+                    [self walkedPointHandler:[self->getPath messageFromWalkedPointHandle]];
                 });
                 
                 dispatch_sync(dispatch_get_main_queue(), ^{
-                    [self instructionHandler:messageFromInstructionHandler];
+                    [self instructionHandler:[self->getPath messageFromInstructionHandler]];
                 });
                 dispatch_sync(dispatch_get_main_queue(), ^{
-                    [self currentPointHandler:messageFromCurrentPositionHandler];
+                    [self currentPointHandler:[self->getPath messageFromCurrentPositionHandler]];
                 });
             }
-            // if the received ID does not match the ID of waypoint in the navigation path
-            else if (![[[self.navigationPath objectAtIndex:0] ID] isEqualToString:self.currentLBeaconID]){
-                
-                // send  a "wrong" message to the tread method
-                NSString *messageFromInstructionHandler;
-                messageFromInstructionHandler = WRONG;
+            else{
                 dispatch_sync(dispatch_get_main_queue(), ^{
-                    [self instructionHandler:messageFromInstructionHandler];
+                    [self instructionHandler:[self->getPath messageFromInstructionHandler]];
                 });
-
             }
+            self.navigationPath = [self->getPath navigationPath];
         }
     });
 }
+
 
 #pragma mark - Notifiction Alert
 // popup window for turn direction notification
@@ -805,8 +773,13 @@
         popupWindow = [UIAlertController alertControllerWithTitle:GET_LOST message:@"" preferredStyle:UIAlertControllerStyleAlert];
 //      View back to home page when button on alert click
         okAlertButton = [UIAlertAction actionWithTitle:@"重新導航" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){
+//            [self.navigationController dismissViewControllerAnimated:YES completion:NULL];
+//            [self.navigationController popToRootViewControllerAnimated:YES];
+           
+            
             [self.navigationController dismissViewControllerAnimated:YES completion:NULL];
-            [self.navigationController popToRootViewControllerAnimated:YES];
+            NSLog(@"reSTART=>Start:%@,Destination:%@",self.startID,self.DestinationID);
+            [self viewDidLoad];
         }];
     }
     else if (flag == MAKETURN_NOTIFIER){
@@ -878,8 +851,16 @@
         [self.navigationController popToRootViewControllerAnimated:YES];
     }
     else if (stateFlag == WRONGWAY_NOTIFIER){
+        
+
+        self.startID = self.currentLBeaconID;
+        self.starRegion = [getPath resetNavigationPathWithFileName:FILENAME SourceID:self.startID];
+        resetFlag = YES;
+        dispatch_semaphore_signal(semaphore);
         [self.navigationController dismissViewControllerAnimated:YES completion:NULL];
-        [self.navigationController popToRootViewControllerAnimated:YES];
+        NSLog(@"reSTART=>Start:%@,Destination:%@",self.startID,self.DestinationID);
+        [self viewDidLoad];
+        
     }
     else if (stateFlag == MAKETURN_NOTIFIER){
         
@@ -890,246 +871,6 @@
         speakerOfNextStep = YES;
         [alertView dismissViewControllerAnimated:NO completion:nil];
     }
-}
-
-#pragma mark - Get Navigation Path
-// load waypoint data
-- (void) loadWaypointData{
-    xml = [[XMLDataParser alloc] init];
-    [xml startXMLParser:@"buildingA"];
-    
-//  load region data from region graph
-    self.regionData = [xml returnRegionData];
-
-//  regionPath for storing Region objects represent the regions
-//  that the user passes by from source to destination
-    self.regionPath = [self getRegionPath:self.starRegion DestinationRegion:self.destinationRegion];
-    
-//  an array of string of region name in regionPath
-    NSMutableArray *regionPathID = [NSMutableArray new];
-    
-    for (int i = 0; i < self.regionPath.count; i++) {
-        [regionPathID  addObject:[[self.regionPath objectAtIndex:i] Name]];
-    }
-    
-//  load waypoint  data from the  navigation subgraphs according to the regionPathID
-    [xml startXMLParserForPoint:regionPathID];
-    self.navigationGraph = [xml returnRoutingData];
-    
-}
-
-// get the region path, which means the travels order of region,
-// by performing shortest path algorithm on an unweighted connected graph (Region Graph)
-- (NSMutableArray *)getRegionPath :(NSString*) sourceRegion DestinationRegion:(NSString*) destinationRegion{
-    NQueue *queue = [NQueue new];
-    NSMutableDictionary *path = [NSMutableDictionary new];
-    [queue add:[self.regionData objectForKey:sourceRegion]];
-    [path setObject:@"" forKey:[[self.regionData objectForKey:sourceRegion] Name]];
-    [[self.regionData objectForKey:sourceRegion] Visited:YES];
-    
-    while (!queue.isEmpty) {
-        Region *regionNode = queue.poll;
-        for (int i = 0; i < regionNode.Neighbors.count; i++) {
-            NSString *nameOfNeighbor = [regionNode.Neighbors objectAtIndex:i];
-            if ([self.regionData objectForKey:nameOfNeighbor] != nil && ![[self.regionData objectForKey:nameOfNeighbor] Visited]) {
-                [queue add:[self.regionData objectForKey:nameOfNeighbor]];
-                [path setObject:regionNode forKey:[[self.regionData objectForKey:nameOfNeighbor] Name]];
-                
-                [[self.regionData objectForKey:nameOfNeighbor] Visited:YES];
-            }
-        }
-    }
-    NSMutableArray *shortestRegionPath = [NSMutableArray new];
-   
-    while (true) {
-        [shortestRegionPath addObject:[self.regionData objectForKey:destinationRegion]];
-        
-        if (![[[self.regionData objectForKey:destinationRegion] Name] isEqualToString:sourceRegion]) {
-            destinationRegion = [[path objectForKey:[[self.regionData objectForKey:destinationRegion] Name]] Name];
-        }
-        else {break;}
-    }
-    shortestRegionPath = [NSMutableArray arrayWithArray:[[shortestRegionPath reverseObjectEnumerator] allObjects]];
-    return shortestRegionPath;
-}
-
-
-- (void)startNavigation{
-    
-//  get the two Vertex objects that represent starting point and destination
-    Vertex *startVertex = [[[self.navigationGraph objectAtIndex:0] verticesInSubgraph] objectForKey:self.startID];
-    Vertex *endVertex = [[[self.navigationGraph objectAtIndex:self.navigationGraph.count-1] verticesInSubgraph] objectForKey:self.DestinationID];
-    
-//  temporary variable to record connectPointID
-    int connectPointID;
-    
-//  if navigation in the same region
-    if (self.navigationGraph.count == 1) {
-    
-//      preform typical dijkstra's algorithm with two given Vertex objects
-        self.navigationPath = [self computeDijkstraShortestPath:startVertex :endVertex];
-
-    }
-    
-//  navigation between several regions
-    else{
-        
-        // compute N-1 navigation paths for each region,
-        // where N is the number of region to travel
-        
-        for (int i = 0; i < self.navigationGraph.count-1; i++) {
-            
-            // a destination vertex for each region
-            Vertex *destinationOfARegion = nil;
-            
-            // the source vertex becomes a normal waypoint
-            [[[[self.navigationGraph objectAtIndex:i] verticesInSubgraph] objectForKey:self.startID] NodeType:NORMAL_WAYPOINT];
-            
-            // if  the elevation of the next region to travel is same as current region
-            if ([[self.regionPath objectAtIndex:i] Elevation] == [[self.regionPath objectAtIndex:i+1] Elevation]) {
-              
-                // compute a path to a transfer point of current region
-                // return the transfer point
-                destinationOfARegion = [self computePathToTraversePoint:[[[self.navigationGraph objectAtIndex:i] verticesInSubgraph] objectForKey:self.startID] SameElevator:YES NextRegion:i+1];
-                
-                // startID is updated with the ID of transfer node for the next computation
-//              since the transfer node has the same ID in the same elevation
-                self.startID = destinationOfARegion.ID;
-                
-            }
-            
-//          if the elevation of the next region to  travel is different from the current region
-            else if ([[self.regionPath objectAtIndex:i] Elevation] != [[self.regionPath objectAtIndex:i+1] Elevation]){
-                
-//              compute a path to a transfer point (elevator or stairwell) of current region
-//              return the transfer point
-                destinationOfARegion = [self computePathToTraversePoint:[[[self.navigationGraph objectAtIndex:i] verticesInSubgraph] objectForKey:self.startID] SameElevator:NO NextRegion:0];
-                
-//              get the connectPointID of the transfer node
-                connectPointID = destinationOfARegion.ConnectPointID;
-                
-//              find the transfer node with the sam connectPointID in the next region
-//              where elevation is different from the current region
-                for (id key in [[self.navigationGraph objectAtIndex:i+1] verticesInSubgraph]) {
-                    
-                    Vertex *v = [[[self.navigationGraph objectAtIndex:i+1] verticesInSubgraph] objectForKey:key];
-                    
-                    if (v.ConnectPointID == connectPointID) {
-                        NSLog(@"got2-10:%@",v.ID);
-                        self.startID = v.ID;
-                        break;
-                    }
-                }
-            }
-            
-//          add up all the navigation paths into one
-            [self.navigationPath addObjectsFromArray:[self getShortestPathToDestination:destinationOfARegion]];
-        }
-        
-//      compute navigation path in the last region
-        NSMutableArray *pathInLastRegion = [self computeDijkstraShortestPath:[[[self.navigationGraph objectAtIndex:self.navigationGraph.count-1] verticesInSubgraph] objectForKey:self.startID] :endVertex];
-        
-//       complete the navigation path
-        [self.navigationPath addObjectsFromArray:pathInLastRegion];
-        
-//      remove duplicated waypoints which are used ada connecting points in the same elevation
-        for (int i = 1; i < self.navigationPath.count; i++) {
-            
-            if ([[[self.navigationPath objectAtIndex:i] ID] isEqualToString:[[self.navigationPath objectAtIndex:i-1] ID]]) {
-                
-                [self.navigationPath removeObjectAtIndex:i];
-            }
-        }
-    }
-    
-//  record the number of the waypoint on the navigation path
-    navpathCount = (int)self.navigationPath.count;
-}
-
-//compute a shortest path with given starting point  and destination
-- (NSMutableArray*) computeDijkstraShortestPath :(Vertex*) source :(Vertex*) destination{
-    [source MinDistance:0];
-    NQueue *queue = [[NQueue alloc] init];
-    [queue add:source];
-    
-    while (!queue.isEmpty) {
-        Vertex *v = [queue poll];
-//      stop searching when reach the destination node
-        if ([[v ID] isEqualToString:[destination ID]]) {
-            break;
-        }
-//      visit each edge that is adjacent to v
-        for (Edge *e in v.Adjacencies) {
-            Vertex *a = [e Target];
-            double weight = e.Weight;
-            double distanceThroughU = v.MinDistance +weight;
-            if (distanceThroughU < a.MinDistance) {
-                [queue remove:a];
-                [a MinDistance:distanceThroughU];
-                [a Previous:v];
-                [queue add:a];
-            }
-        }
-    }
-    return [self getShortestPathToDestination:destination];
-}
-
-// compute a shortest path from a given starting point to a transfer node (e.g. elevator, stairwell)
-- (Vertex*) computePathToTraversePoint :(Vertex*) source SameElevator:(BOOL) sameElevator NextRegion:(int) nextRegion{
-    
-    [source MinDistance:0];
-    NQueue *queue = [NQueue new];
-    [queue add:source];
-    
-    while (!queue.isEmpty) {
-        Vertex *u = [queue poll];
-        
-//      visite each edge exiting u
-        for (Edge *e in u.Adjacencies) {
-            Vertex *v = e.Target;
-            double weight = e.Weight;
-            double distanceThroughU = u.MinDistance + weight;
-            if (distanceThroughU < v.MinDistance) {
-                [queue remove:v];
-                
-                [v MinDistance:distanceThroughU];
-                [v Previous:u];
-                [queue add:v];
-            }
-            
-            if (sameElevator == YES && v.NodeType == CONNECTPOINT) {
-                if ([[[self.navigationGraph objectAtIndex:nextRegion] verticesInSubgraph] objectForKey:v.ID] != nil) {
-                    return v;
-                }
-            }
-            
-            else if(sameElevator == NO && v.NodeType == self.setting.getMobilityValue ){
-                return v;
-            }
-        }
-        
-    }
-    return source;
-}
-
-// get shorteset path by traversing previous waypoint back to the source
-- (NSMutableArray*) getShortestPathToDestination :(Vertex*) destination{
-    NSMutableArray *path = [NSMutableArray new];
-    for (Vertex *vertex = destination; vertex != nil; vertex = vertex.Previous) {
-        [path addObject:vertex];
-    }
-    
-//  reverse path to get correct order
-    path = [NSMutableArray arrayWithArray:[[path reverseObjectEnumerator] allObjects]];
-    return path;
-}
-
-
-- (NSString *) returnstartText{
-    return self.startText;
-}
-- (NSString *) returndestinationText{
-    return  self.destinationText;
 }
 
 #pragma mark - DrawProgressBar
@@ -1145,7 +886,7 @@
 //      set start point and end point for drawing the bar
         CGPoint startp = CGPointMake(self.view.bounds.size.width*0.05, self.navGraph.frame.size.height/2);
         CGPoint endp = CGPointMake(self.view.bounds.size.width*0.95, self.navGraph.frame.size.height/2);
-        
+        NSLog(@"NavGraphHeight1:%.2f",self.navGraph.bounds.size.height/2);
         //  draw navigation progress bar line
         [navLine moveToPoint:startp];
         [navLine addLineToPoint:endp];
@@ -1184,7 +925,7 @@
         CGPoint startp = CGPointMake(self.view.bounds.size.width*0.05, self.navGraph.frame.size.height/2);
         CGPoint endp = CGPointMake(self.view.bounds.size.width*0.95, self.navGraph.frame.size.height/2);
         double spacing = (endp.x-startp.x)/navpathCount;
-        
+        NSLog(@"NavGraphHeight2:%.2f",self.navGraph.bounds.size.height/2);
 //      avoid draw over the rang of the progress bar
         if (site<navpathCount) {
             
