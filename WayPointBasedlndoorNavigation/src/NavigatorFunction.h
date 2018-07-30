@@ -1,3 +1,36 @@
+/*
+   Copyright (c) 2018 Academia Sinica, Institute of Information Science
+ 
+   License:
+ 
+        GPL 3.0 : The content of this file is subject to the terms and
+        conditions defined in file 'COPYING.txt', which is part of this source
+        code package.
+ 
+   Project Name:
+ 
+        WayPointBasedIndoorNavigationForIOS
+ 
+   File Description:
+ 
+        This is the header file containing the function declarations and
+        variables used in the NavigatorFunction.m file.
+ 
+   File Name:
+ 
+        NavigatorFunction.h
+ 
+   Abstract:
+ 
+          The WayPointBasedIndoorNavigationForIOS is smartphone UI for
+          iOS user.
+ 
+   Authors:
+ 
+        Wendy Lu, wendylu@iis.sinica.edu.tw
+ 
+*/
+
 //
 //  NavigatorFunction.h
 //  WayPointBasedlndoorNavigation
@@ -41,6 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
 // A string of LBeacon ID object representing current site.
 @property (strong, nonatomic) NSString *currentLBeaconID;
 
+// The strings of message recode the instruction, current position, and walkedpoint.
 @property (strong, nonatomic) NSString *messageFromInstructionHandler;
 @property (strong, nonatomic) NSString *messageFromCurrentPositionHandler;
 @property (strong, nonatomic) NSString *messageFromWalkedPointHandle;
@@ -59,6 +93,7 @@ NS_ASSUME_NONNULL_BEGIN
 -(NSString*)resetNavigationPathWithFileName:(NSString*) fileName SourceID:(NSString*) sourceID;
 // match the current point and the waypoint of navigation path
 -(void)navigation;
+
 #pragma mark - RSSI
 -(NSInteger)RSSIJudgment :(CLBeacon *) beacon;
 @end

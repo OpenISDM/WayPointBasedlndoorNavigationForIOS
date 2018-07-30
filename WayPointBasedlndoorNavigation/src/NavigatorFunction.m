@@ -1,3 +1,36 @@
+/*
+   Copyright (c) 2018 Academia Sinica, Institute of Information Science
+ 
+   License:
+ 
+        GPL 3.0 : The content of this file is subject to the terms and
+        conditions defined in file 'COPYING.txt', which is part of this source
+        code package.
+ 
+   Project Name:
+ 
+        WayPointBasedIndoorNavigationForIOS
+ 
+   File Description:
+ 
+        This file contains the program to navigation operation and distance
+        judgment from rssi value
+ 
+   File Name:
+ 
+        NavigatorFunction.m
+ 
+   Abstract:
+ 
+          The WayPointBasedIndoorNavigationForIOS is smartphone UI for
+          iOS user.
+ 
+   Authors:
+ 
+        Wendy Lu, wendylu@iis.sinica.edu.tw
+ 
+*/
+
 //
 //  NavigatorFunction.m
 //  WayPointBasedlndoorNavigation
@@ -36,7 +69,7 @@
     //*****************************
 }
 
-
+// initialize the objects
 -(instancetype)init{
     if (self = [super init]) {
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -118,7 +151,6 @@
     // obtain the Vertex objects that represent source point and destination point
     Vertex *sourceVertex = [[[self.navigationGraph objectAtIndex:0] verticesInSubgraph] objectForKey:sourceID];
     Vertex *destinationVertex = [[[self.navigationGraph objectAtIndex:self.navigationGraph.count-1] verticesInSubgraph] objectForKey:destinationID];
-    NSLog(@"t2-1:%@",sourceVertex.ID);
     //  temporary variable to record connectPointID
     int connectPointID;
     
@@ -126,23 +158,18 @@
     if (self.navigationGraph.count == 1) {
         // preform typical dijkstra's algorithm with two given Vertex objects
         self.navigationPath = [self computeDijkstraShortestPathWithSourceVertex:sourceVertex DestinaitonVertex:destinationVertex];
-        NSLog(@"t2-2");
     }
     // navigation between several regions
     else{
-        NSLog(@"t2-3");
         // compute N-1 navigation paths for each regioni,where N is the number of  region to travel
         for (int i = 0; i < self.navigationGraph.count-1; i++) {
-            NSLog(@"t2-3-1");
             // a destination vertex for each region
             Vertex *destinationOfARegion = nil;
             
             // the source vertex becomes a normal waypoint
             [[[[self.navigationGraph objectAtIndex:i] verticesInSubgraph] objectForKey:sourceID] NodeType:NORMAL_WAYPOINT];
-            NSLog(@"t2-3-1-1:%@",self.regionPath);
             // if the elevation of the next region to travel is same as current region
             if ([[self.regionPath objectAtIndex:i] Elevation] == [[self.regionPath objectAtIndex:i+1] Elevation]) {
-                NSLog(@"t2-3-1-2");
                 // compute a path to a transfer point of current region return the transfer point
                 destinationOfARegion = [self computePathToTraversePointWithSourceVertex:[[[self.navigationGraph objectAtIndex:i] verticesInSubgraph] objectForKey:sourceID] SameElevator:YES NextRegion:i+1];
               
@@ -151,7 +178,6 @@
             }
             // if the elevation of the next region to travel is different from the current region
             else if ([[self.regionPath objectAtIndex:i] Elevation] != [[self.regionPath objectAtIndex:i+1] Elevation]){
-                NSLog(@"t2-3-2");
                 // compute a path to a transfer point (elevator or stairwell) of current region return the transfer point
                 destinationOfARegion = [self computePathToTraversePointWithSourceVertex:[[[self.navigationGraph objectAtIndex:i] verticesInSubgraph] objectForKey:sourceID] SameElevator:NO NextRegion:0];
                 // get the connectPointID of the transfer node
@@ -389,6 +415,7 @@
 
 #pragma mark - RSSI
 
+// Preprocessor---------------------------------------------------------------------------
 /* Store the thresholds of RSSI from "SettingPList.plist" file
    The distance from beacon to user phone:
     0m = -40 ~ -49
@@ -407,17 +434,20 @@
 #define RSSI_3_MAX [[[[settingPList objectForKey:@"RSSIValue"] objectForKey:@"3M"] objectForKey:@"Max"] intValue]
 #define RSSI_3_MIN [[[[settingPList objectForKey:@"RSSIValue"] objectForKey:@"3M"] objectForKey:@"Min"] intValue]
 #define RSSI_4 [[[[settingPList objectForKey:@"RSSIValue"] objectForKey:@"4M"] objectForKey:@"Max"] intValue]
+// ---------------------------------------------------------------------------------------
 
 // use RSSI value to judgment distance
 -(NSInteger)RSSIJudgment:(CLBeacon *)beacon{
     NSInteger rssi = [beacon rssi];
     NSInteger distance = 4;
-    NSLog(@"t9:%i",(int)RSSI_0_MIN);
+    
+    // if rssi > the 0M rssi minimum thresholds
     if (rssi >= (int)RSSI_0_MIN) {
         NSLog(@"t11");
         distance = 0;
     }
-    else if (rssi >= (int)RSSI_1_MIN && rssi <= (int)RSSI_1_MAX){
+    // if rssi > the 1M rssi minimum thresholds
+    else if (rssi >= (int)RSSI_1_MIN ){
         NSLog(@"t12");
         distance = 1;
     }

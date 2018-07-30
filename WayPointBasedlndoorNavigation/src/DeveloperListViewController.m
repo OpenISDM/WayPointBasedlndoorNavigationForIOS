@@ -1,36 +1,36 @@
 /*
- * Copyright (c) 2018 Academia Sinica, Institute of Information Science
- *
- * License:
- *
- *      GPL 3.0 : The content of this file is subject to the terms and
- *      conditions defined in file 'COPYING.txt', which is part of this source
- *      code package.
- *
- * Project Name:
- *
- *      WayPointBasedIndoorNavigationForIOS
- *
- * File Description:
- *
- *      This module works as follow:
- *      1. Provides a UI for navigational guidance
- *      2. set up and store developer preference
- *
- * File Name:
- *
- *      DeveloperListViewController.m
- *
- * Abstract:
- *
- *        The WayPointBasedIndoorNavigationForIOS is smartphone UI for
- *        iOS user.
- *
- * Authors:
- *
- *      Wendy Lu, wendylu@iis.sinica.edu.tw
- *
- */
+   Copyright (c) 2018 Academia Sinica, Institute of Information Science
+ 
+   License:
+ 
+        GPL 3.0 : The content of this file is subject to the terms and
+        conditions defined in file 'COPYING.txt', which is part of this source
+        code package.
+ 
+   Project Name:
+ 
+        WayPointBasedIndoorNavigationForIOS
+ 
+   File Description:
+ 
+        This module works as follow:
+        1. Provides a UI for developer setting of navigator
+        2. set up and store developer preference
+ 
+   File Name:
+ 
+        DeveloperListViewController.m
+ 
+   Abstract:
+ 
+          The WayPointBasedIndoorNavigationForIOS is smartphone UI for
+          iOS user.
+ 
+   Authors:
+ 
+        Wendy Lu, wendylu@iis.sinica.edu.tw
+ 
+*/
 
 //
 //  DeveloperListViewController.m
@@ -71,6 +71,7 @@
     // Dispose of any resources that can be recreated.
 }
 
+// when the view will disappear, the view do it.
 -(void)viewWillDisappear:(BOOL)animated{
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
@@ -78,27 +79,25 @@
     NSMutableDictionary *rssiPlist = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
     [[[rssiPlist objectForKey:@"RSSIValue"] objectForKey:@"0M"] setObject:self.rssi0MMinTextField.text forKey:@"Min"];
     [[[rssiPlist objectForKey:@"RSSIValue"] objectForKey:@"1M"] setObject:self.rssi1MMinTextField.text forKey:@"Min"];
-//    [rssiPlist writeToFile:filePath atomically:YES];
+
     if ([rssiPlist writeToFile:filePath atomically:YES]) {
         NSLog(@"store:%@",rssiPlist);
     }
     
 }
 
+/*
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
-    NSMutableDictionary *rssiPlist = [[NSMutableDictionary alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"SettingPList" ofType:@"plist"]];
-    [[[rssiPlist objectForKey:@"RSSIValue"] objectForKey:@"0M"] setObject:self.rssi0MMinTextField.text forKey:@"Min"];
-    [[[rssiPlist objectForKey:@"RSSIValue"] objectForKey:@"1M"] setObject:self.rssi1MMinTextField.text forKey:@"Min"];
-    [rssiPlist writeToFile:[[NSBundle mainBundle] pathForResource:@"SettingPList" ofType:@"plist"] atomically:YES];
     
 }
+*/
 
-
+// set initialize switch of simulation input
 -(void)initSimulationTestSwitch{
     
     // when  the value of "simulationTest" in userdefaults is YES(true)
@@ -114,6 +113,7 @@
     
 }
 
+// set initialize the TextField of setting the RSSI minimum threshold
 -(void)initRssiTextField{
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
@@ -124,6 +124,7 @@
     self.rssi1MMinTextField.text = [NSString stringWithFormat:@"%@",[[[rssiPlist objectForKey:@"RSSIValue"] objectForKey:@"1M"] objectForKey:@"Min"]];
 }
 
+// when switch mode change
 - (IBAction)SimulationTestSwitchChange:(id)sender {
     
     if ([[NSUserDefaults standardUserDefaults] boolForKey:@"simulationTest"] == YES) {

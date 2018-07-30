@@ -1,35 +1,35 @@
 /*
- * Copyright (c) 2018 Academia Sinica, Institute of Information Science
- *
- * License:
- *
- *      GPL 3.0 : The content of this file is subject to the terms and
- *      conditions defined in file 'COPYING.txt', which is part of this source
- *      code package.
- *
- * Project Name:
- *
- *      WayPointBasedIndoorNavigationForIOS
- *
- * File Description:
- *
- *      This module works as follow:
- *      1. Provides a UI for navigational guidance
- *      2. set up and store user preference
- *
- * File Name:
- *
- *      PreferenceViewController.m
- *
- * Abstract:
- *
- *        The WayPointBasedIndoorNavigationForIOS is smartphone UI for
- *        iOS user.
- *
- * Authors:
- *
- *      Wendy Lu, wendylu@iis.sinica.edu.tw
- *
+   Copyright (c) 2018 Academia Sinica, Institute of Information Science
+ 
+   License:
+ 
+        GPL 3.0 : The content of this file is subject to the terms and
+        conditions defined in file 'COPYING.txt', which is part of this source
+        code package.
+ 
+   Project Name:
+ 
+        WayPointBasedIndoorNavigationForIOS
+ 
+   File Description:
+ 
+        This module works as follow:
+        1. Provides a UI for user setting of navigator
+        2. set up and store user preference
+ 
+   File Name:
+ 
+        PreferenceViewController.m
+ 
+   Abstract:
+ 
+          The WayPointBasedIndoorNavigationForIOS is smartphone UI for
+          iOS user.
+ 
+   Authors:
+ 
+        Wendy Lu, wendylu@iis.sinica.edu.tw
+ 
  */
 
 //

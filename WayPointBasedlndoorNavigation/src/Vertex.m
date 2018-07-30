@@ -1,33 +1,33 @@
 /*
- * Copyright (c) 2018 Academia Sinica, Institute of Information Science
- *
- * License:
- *
- *      GPL 3.0 : The content of this file is subject to the terms and
- *      conditions defined in file 'COPYING.txt', which is part of this source
- *      code package.
- *
- * Project Name:
- *
- *      WayPointBasedIndoorNavigationForIOS
- *
- * File Description:
- *
- *      This module construct an object represents information of a waypoint.
- *
- * File Name:
- *
- *      Vertex.m
- *
- * Abstract:
- *
- *        The WayPointBasedIndoorNavigationForIOS is smartphone UI for
- *        iOS user.
- *
- * Authors:
- *
- *      Wendy Lu, wendylu@iis.sinica.edu.tw
- *
+   Copyright (c) 2018 Academia Sinica, Institute of Information Science
+ 
+   License:
+ 
+        GPL 3.0 : The content of this file is subject to the terms and
+        conditions defined in file 'COPYING.txt', which is part of this source
+        code package.
+ 
+   Project Name:
+ 
+        WayPointBasedIndoorNavigationForIOS
+ 
+   File Description:
+ 
+        This module construct an object represents information of a waypoint.
+ 
+   File Name:
+ 
+        Vertex.m
+ 
+   Abstract:
+ 
+          The WayPointBasedIndoorNavigationForIOS is smartphone UI for
+          iOS user.
+ 
+   Authors:
+ 
+        Wendy Lu, wendylu@iis.sinica.edu.tw
+ 
  */
 
 //
