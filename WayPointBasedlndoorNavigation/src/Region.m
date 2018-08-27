@@ -52,6 +52,7 @@
 
 @implementation Region
 
+// Initialize basis
 -(instancetype)init{
     if (self = [super init]) {
         self.name = [NSString new];
@@ -62,6 +63,7 @@
     return self;
 }
 
+// Initialize the object with Region information
 -(instancetype)initForRegion :(NSString *)name Neighbors:(NSMutableArray *)neighbors LocationsOfRegion:(NSMutableArray *)locationOfRegion Elevation:(int)elevation{
    
         self.name = name;
@@ -73,16 +75,23 @@
     return self;
 }
 
+// Get Name
 -(NSString *)Name{return self.name;}
 
+// Get Neighbors array
 -(NSMutableArray *)Neighbors{return self.neighbors;}
 
+// Get Location Of Region
 -(NSMutableArray *)LocationOfRegion{return self.locationOfRegion;}
+// Set Location Of Region
 -(void)LocationOfRegion:(NSMutableArray *)locationOfRegion{self.locationOfRegion = locationOfRegion;}
 
+// Get Elevation
 -(int)Elevation{return self.elevation;}
 
+// Get Visited
 -(BOOL)Visited{return self.visited;}
+// Set Visited
 -(void)Visited:(BOOL)visited{self.visited = visited;}
 
 @end

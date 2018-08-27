@@ -76,7 +76,8 @@
     return (int)rint(bearingFromAToB);
 }
 
-// get the turn direction at Vertex B, when moving from Vertex A to Vertex B to Vertex C
+// get the turn direction at Vertex B, when moving from Vertex A to Vertex B to
+// Vertex C
 -(NSString *)getDirectionFromBearing:(Vertex *)A :(Vertex *)B :(Vertex *)C{
     
     // direction result

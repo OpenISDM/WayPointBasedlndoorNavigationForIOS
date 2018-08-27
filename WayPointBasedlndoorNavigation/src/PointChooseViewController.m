@@ -89,7 +89,8 @@
 
 /*
 #pragma mark - Navigation
-// In a storyboard-based application, you will often want to do a little preparation before navigation
+// In a storyboard-based application, you will often want to do a little
+// preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
@@ -183,7 +184,8 @@
         NSString *inputRegion = cell.detailTextLabel.text;
         NSString *inputID = cell.idPoint.text;
         
-        // store the content of button tag and point name that pass the home page
+        // store the content of button tag and point name that pass the home
+        // page
         [self.inputArray replaceObjectAtIndex:0 withObject:self.btnFlag];
         [self.inputArray replaceObjectAtIndex:1 withObject:self.intputValue];
         [self.inputArray addObject:inputID];

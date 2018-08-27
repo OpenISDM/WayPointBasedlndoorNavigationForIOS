@@ -42,7 +42,8 @@
 
 @class PointChooseViewController;
 
-/* Creat the delegate protocal that when back home page, pass the land mark name to home page */
+/* Creat the delegate protocal that when back home page, pass the land mark
+   name to home page */
 @protocol InputDelegate <NSObject>
 - (void) backWithPoint:(NSMutableArray *) str;
 @end

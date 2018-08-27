@@ -82,7 +82,7 @@
 
 
 #pragma mark - Navigator
-// public function----------------------------------------------------------------------------
+// public function--------------------------------------------------------------
 // initialize the objects for computing path of navigation
 -(instancetype)initForNavigationPathWithPreferenceSetting:(Setting*) preferenceSetting{
     if (self = [super init]) {
@@ -103,7 +103,7 @@
     return self;
 }
 
-// Preprocessor---------------------------------------------------------------------------
+// Preprocessor-----------------------------------------------------------------
 #define NORMAL_WAYPOINT 0
 #define ELEVATOR_WAYPOINT 1
 #define STAIRWELL_WAYPOINT 2
@@ -117,10 +117,12 @@
 #define FRONT_RIGHT @"frontRight"
 #define REAR_RIGHT @"rearRight"
 #define ELEVATOR @"elevator"
+#define ELEVATORING @"elevatoring"
 #define STAIR @"stair"
+#define STAIRING @"stairing"
 #define ARRIVED @"arrived"
 #define WRONG @"wrong"
-// ---------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 // load the infomation data from building map file
 -(void)readBuildingWaypointDataForBuildingName:(NSString*) buildingName SourceRegion:(NSString*) sourceRegion DestinationRegion:(NSString*) destinationRegion{
@@ -132,7 +134,8 @@
     // load location data from region graph
     self.locationData = [xmlDataPerser returnLocalData];
     
-    // regionPath for storing Region objects represent the regions that the user passes by from source to destination
+    // regionPath for storing Region objects represent the regions that the
+    //user passes by from source to destination
     self.regionPath = [self getRegionPathWithSourceRegion:sourceRegion DestinationRegion:destinationRegion];
     // an array of string of region name in regionPath
     NSMutableArray *regionPathID = [NSMutableArray new];
@@ -141,14 +144,16 @@
         [regionPathID addObject:[[self.regionPath objectAtIndex:i] Name]];
     }
     
-    // load waypoint  data from the  navigation subgraphs according to the regionPathID
+    // load waypoint  data from the  navigation subgraphs according to the
+    // regionPathID
     [xmlDataPerser startXMLParserForPoint:regionPathID fileName:nil];
     self.navigationGraph = [xmlDataPerser returnRoutingData];
 }
 
 // compute navigation path with the IDs of source point and destination point
 -(void)computeNavigationPathForSourceID:(NSString*) sourceID DestinationID:(NSString*) destinationID{
-    // obtain the Vertex objects that represent source point and destination point
+    // obtain the Vertex objects that represent source point and destination
+    // point
     Vertex *sourceVertex = [[[self.navigationGraph objectAtIndex:0] verticesInSubgraph] objectForKey:sourceID];
     Vertex *destinationVertex = [[[self.navigationGraph objectAtIndex:self.navigationGraph.count-1] verticesInSubgraph] objectForKey:destinationID];
     //  temporary variable to record connectPointID
@@ -161,29 +166,37 @@
     }
     // navigation between several regions
     else{
-        // compute N-1 navigation paths for each regioni,where N is the number of  region to travel
+        // compute N-1 navigation paths for each regioni,where N is the number
+        // of  region to travel
         for (int i = 0; i < self.navigationGraph.count-1; i++) {
             // a destination vertex for each region
             Vertex *destinationOfARegion = nil;
             
             // the source vertex becomes a normal waypoint
             [[[[self.navigationGraph objectAtIndex:i] verticesInSubgraph] objectForKey:sourceID] NodeType:NORMAL_WAYPOINT];
-            // if the elevation of the next region to travel is same as current region
+            // if the elevation of the next region to travel is same as current
+            // region
             if ([[self.regionPath objectAtIndex:i] Elevation] == [[self.regionPath objectAtIndex:i+1] Elevation]) {
-                // compute a path to a transfer point of current region return the transfer point
+                // compute a path to a transfer point of current region return
+                // the transfer point
                 destinationOfARegion = [self computePathToTraversePointWithSourceVertex:[[[self.navigationGraph objectAtIndex:i] verticesInSubgraph] objectForKey:sourceID] SameElevator:YES NextRegion:i+1];
               
-                // sourceID is updated with the ID of transfer node for the next computation since the transfer point
+                // sourceID is updated with the ID of transfer node for the next
+                //computation since the transfer point
                 sourceID = destinationOfARegion.ID;
             }
-            // if the elevation of the next region to travel is different from the current region
+            // if the elevation of the next region to travel is different from
+            // the current region
             else if ([[self.regionPath objectAtIndex:i] Elevation] != [[self.regionPath objectAtIndex:i+1] Elevation]){
-                // compute a path to a transfer point (elevator or stairwell) of current region return the transfer point
+                // compute a path to a transfer point (elevator or stairwell)
+                // of current region return the transfer point
                 destinationOfARegion = [self computePathToTraversePointWithSourceVertex:[[[self.navigationGraph objectAtIndex:i] verticesInSubgraph] objectForKey:sourceID] SameElevator:NO NextRegion:0];
                 // get the connectPointID of the transfer node
                 connectPointID = destinationOfARegion.ConnectPointID;
                 
-                // find the transfer node with the same connectPointID in the next region where elevation is different from the current region
+                // find the transfer node with the same connectPointID in the
+                // next region where elevation is different from the current
+                // region
                 for (id key in [[self.navigationGraph objectAtIndex:i+1] verticesInSubgraph]) {
                     Vertex *v = [[[self.navigationGraph objectAtIndex:i+1] verticesInSubgraph] objectForKey:key];
                     
@@ -201,7 +214,8 @@
         // complete the navigation path
         [self.navigationPath addObjectsFromArray:pathInLastRegion];
         
-        // remove duplicated waypoints which are used connecting points in same elevation
+        // remove duplicated waypoints which are used connecting points in same
+        // elevation
         for (int i =1; i < self.navigationPath.count; i++) {
             if ([[[self.navigationPath objectAtIndex:i] ID] isEqualToString:[[self.navigationPath objectAtIndex:i-1] ID]]) {
                 [self.navigationPath removeObjectAtIndex:i];
@@ -231,28 +245,46 @@
 // navigation thread
 -(void)navigation{
             
-    // if the received ID matches the ID of the next waypoint in the navigation path
+    // if the received ID matches the ID of the next waypoint in the navigation
+    // path
     if ([[[self.navigationPath objectAtIndex:0] ID] caseInsensitiveCompare:self.currentLBeaconID] == NSOrderedSame) {
-        // CurrentPositionHandler get the message of currently matched waypoint name
+        // CurrentPositionHandler get the message of currently matched waypoint
+        // name
         self.messageFromCurrentPositionHandler = [[self.navigationPath objectAtIndex:0] Name];
         
         // if the navigation path has more than three waypoints to travel
         if (self.navigationPath.count >= 3) {
-            // if the next two waypoints are in the same region as the current waypoint get the turn direction at the next waypoint
+            // if the next two waypoints are in the same region as the current
+            // waypoint get the turn direction at the next waypoint
             if ([[[self.navigationPath objectAtIndex:0] Region] isEqualToString:[[self.navigationPath objectAtIndex:1] Region]] && [[[self.navigationPath objectAtIndex:1] Region] isEqualToString:[[self.navigationPath objectAtIndex:2] Region]]) {
+                NSLog(@"testtoelevator1");
+
                 self.messageFromInstructionHandler = [self->geoCalculation getDirectionFromBearing:[self.navigationPath objectAtIndex:0] :[self.navigationPath objectAtIndex:1] :[self.navigationPath objectAtIndex:2]];
             }
-            // if the next two waypoints are not in the same regioin means that the next waypoint is the last waypoint of the region travel
+            // if the next two waypoints are not in the same regioin means that
+            // the next waypoint is the last waypoint of the region travel
             else if (![[[self.navigationPath objectAtIndex:1] Region] isEqualToString:[[self.navigationPath objectAtIndex:2] Region]]){
-                self.messageFromInstructionHandler = FRONT;
-            }
-            // if the current waypoint and the next waypoint are not in the same region transfeer through elevator or stairwell
-            else if (![[[self.navigationPath objectAtIndex:0] Region] isEqualToString:[[self.navigationPath objectAtIndex:1] Region]]){
-                if ([[self.navigationPath objectAtIndex:0] NodeType] == ELEVATOR_WAYPOINT) {
+                NSLog(@"testtoelevator2");
+                if ([[self.navigationPath objectAtIndex:1] NodeType] == ELEVATOR_WAYPOINT && [[self.navigationPath objectAtIndex:2] NodeType] == ELEVATOR_WAYPOINT) {
                     self.messageFromInstructionHandler = ELEVATOR;
                 }
-                else if ([[self.navigationPath objectAtIndex:0] NodeType] == STAIRWELL_WAYPOINT){
+                else if ([[self.navigationPath objectAtIndex:1] NodeType] == STAIRWELL_WAYPOINT && [[self.navigationPath objectAtIndex:2] NodeType] == STAIRWELL_WAYPOINT){
                     self.messageFromInstructionHandler = STAIR;
+                }
+                else{
+                    self.messageFromInstructionHandler = FRONT;
+                }
+            }
+            // if the current waypoint and the next waypoint are not in the
+            // same region transfeer through elevator or stairwell
+            else if (![[[self.navigationPath objectAtIndex:0] Region] isEqualToString:[[self.navigationPath objectAtIndex:1] Region]]){
+                NSLog(@"testtoelevator3");
+                if ([[self.navigationPath objectAtIndex:0] NodeType] == ELEVATOR_WAYPOINT) {
+                     NSLog(@"elevator comming2");
+                    self.messageFromInstructionHandler = ELEVATORING;
+                }
+                else if ([[self.navigationPath objectAtIndex:0] NodeType] == STAIRWELL_WAYPOINT){
+                    self.messageFromInstructionHandler = STAIRING;
                 }
                 else if ([[self.navigationPath objectAtIndex:0] NodeType] == CONNECTPOINT){
                     self.messageFromInstructionHandler = [self->geoCalculation getDirectionFromBearing:[self.navigationPath objectAtIndex:0] :[self.navigationPath objectAtIndex:1] :[self.navigationPath objectAtIndex:2]];
@@ -261,7 +293,8 @@
         }
         // if there are two waypoints left in the navigation path
         else if (self.navigationPath.count == 2){
-            // if the current waypoint and the next waypoint are not in the same region
+            // if the current waypoint and the next waypoint are not in the
+            // same region
             if (![[[self.navigationPath objectAtIndex:0] Region] isEqualToString:[[self.navigationPath objectAtIndex:1] Region]]) {
                 if ([[self.navigationPath objectAtIndex:0] NodeType] == ELEVATOR_WAYPOINT) {
                     self.messageFromInstructionHandler = ELEVATOR;
@@ -280,22 +313,26 @@
             self.messageFromInstructionHandler = ARRIVED;
         }
         
-        // every time the received ID is match the user is considered to travel one more waypoint
+        // every time the received ID is match the user is considered to travel
+        // one more waypoint
         self.walkWaypoint++;
-        // "WalkedPoint"  method  get the message of number of waypoint has been travel in a region
+        // "WalkedPoint"  method  get the message of number of waypoint has
+        // been travel in a region
         self.messageFromWalkedPointHandle = [NSString stringWithFormat:@"%i",self.walkWaypoint];
     }
-    // if the received ID does not match the ID of waypoint in the navigation path
+    // if the received ID does not match the ID of waypoint in the navigation
+    // path
     else if ([[[self.navigationPath objectAtIndex:0] ID] caseInsensitiveCompare:self.currentLBeaconID] != NSOrderedSame){
         // set "wrong" to the "messageFromInstructionHandler" object
         self.messageFromInstructionHandler = WRONG;
     }
 }
 
-// private function-------------------------------------------------------------------------
+// private function-------------------------------------------------------------
 
 // get the region path, which means the travels order of region,
-// by performing shortest path algorithm on an unweighted connected graph (Region Graph)
+// by performing shortest path algorithm on an unweighted connected graph
+// (Region Graph)
 -(NSMutableArray*)getRegionPathWithSourceRegion:(NSString*) sourceRegion DestinationRegion:(NSString*) destinationRegion{
     
     // to def and initialize a object for queue
@@ -363,7 +400,8 @@
     return [self getShortertPathWithDestination:destinationVertex];
 }
 
-// compute a shortest path from a given source point to a transfer node(e.g. elevator, stairwell)
+// compute a shortest path from a given source point to a transfer node(e.g.
+// elevator, stairwell)
 -(Vertex*) computePathToTraversePointWithSourceVertex:(Vertex*) sourceVertex SameElevator:(BOOL) sameElevatorFlag NextRegion:(int) nextRegion{
     [sourceVertex MinDistance:0];
     NQueue *queue = [NQueue new];
@@ -415,7 +453,7 @@
 
 #pragma mark - RSSI
 
-// Preprocessor---------------------------------------------------------------------------
+// Preprocessor-----------------------------------------------------------------
 /* Store the thresholds of RSSI from "SettingPList.plist" file
    The distance from beacon to user phone:
     0m = -40 ~ -49
@@ -434,7 +472,7 @@
 #define RSSI_3_MAX [[[[settingPList objectForKey:@"RSSIValue"] objectForKey:@"3M"] objectForKey:@"Max"] intValue]
 #define RSSI_3_MIN [[[[settingPList objectForKey:@"RSSIValue"] objectForKey:@"3M"] objectForKey:@"Min"] intValue]
 #define RSSI_4 [[[[settingPList objectForKey:@"RSSIValue"] objectForKey:@"4M"] objectForKey:@"Max"] intValue]
-// ---------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 // use RSSI value to judgment distance
 -(NSInteger)RSSIJudgment:(CLBeacon *)beacon{
@@ -442,12 +480,12 @@
     NSInteger distance = 4;
     
     // if rssi > the 0M rssi minimum thresholds
-    if (rssi >= (int)RSSI_0_MIN) {
+    if (rssi >= (int)RSSI_0_MIN && rssi != 0) {
         NSLog(@"t11");
         distance = 0;
     }
     // if rssi > the 1M rssi minimum thresholds
-    else if (rssi >= (int)RSSI_1_MIN ){
+    else if (rssi >= (int)RSSI_1_MIN && rssi != 0){
         NSLog(@"t12");
         distance = 1;
     }

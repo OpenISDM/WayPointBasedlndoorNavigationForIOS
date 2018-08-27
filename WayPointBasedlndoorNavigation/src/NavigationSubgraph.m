@@ -45,6 +45,7 @@
 
 @implementation NavigationSubgraph
 
+// Initialize basis
 -(instancetype)init{
     if (self = [super init]) {
         self.verticesInSubgraph = [NSMutableDictionary new];
@@ -52,6 +53,7 @@
     return self;
 }
 
+// All vertices are added with edge(s) to list their neighbors
 -(void)addEdge{
     for ( id key in self.verticesInSubgraph) {
         Vertex *vertex = [self.verticesInSubgraph objectForKey:key];

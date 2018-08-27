@@ -15,7 +15,8 @@
  
         This module works as follow:
         1. Provides a UI for home page of the app
-        2. The relay station that waypoint informations did transported two unconnected page
+        2. The relay station that waypoint informations did transported two
+           unconnected page
  
    File Name:
  
@@ -160,7 +161,7 @@ int clickCount;
 /* when start navigation button click */
 - (IBAction)startNavButton:(id)sender {
     
-    /* if user doesn't input starting and destination point,the alertview shows. */
+    // if user doesn't input starting and destination point,the alertview shows.
     if ([self.startButton.titleLabel.text isEqualToString:@"Choose a start point"] || [self.destinationpButton.titleLabel.text isEqualToString:@"Choose a destination"]){
         
         //Creat the error alert view
@@ -176,7 +177,7 @@ int clickCount;
         [self presentViewController:errorAlert animated:YES completion:nil];
     }
     
-    /* if user input starting and destination point,starting navigation page */
+    // if user input starting and destination point,starting navigation page
     else{
         UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
         NavigationViewController *startNavPage = [storyboard instantiateViewControllerWithIdentifier:@"StartNavPage"];
@@ -236,7 +237,8 @@ int clickCount;
     // when clicking counter equals seven
     if (clickCount == 6)
     {
-        // when the final object in the timestep minus the first object in the timestep is less than two seconds
+        // When the final object in the timestep minus the first object in the
+        // timestep is less than two seconds
         if ([[clickTimestep objectForKey:[NSNumber numberWithInt:6]] doubleValue] - [[clickTimestep objectForKey:[NSNumber numberWithInt:0]] doubleValue] < 200)
         {
             // empty timestep
@@ -250,7 +252,8 @@ int clickCount;
             [self.navigationController pushViewController:developerPage animated:YES];
         }
     }
-    // when the current object in the timestep minus the first object in the timestep is more than two seconds
+    // when the current object in the timestep minus the first object in the
+    // timestep is more than two seconds
     else if ([[clickTimestep objectForKey:[NSNumber numberWithInt:clickCount-1]] doubleValue] - [[clickTimestep objectForKey:[NSNumber numberWithInt:0]] doubleValue] >=200)
     {
         // enpty timestep

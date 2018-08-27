@@ -89,7 +89,8 @@
 /*
 #pragma mark - Navigation
 
-// In a storyboard-based application, you will often want to do a little preparation before navigation
+// In a storyboard-based application, you will often want to do a little
+// preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
@@ -118,8 +119,14 @@
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
     NSString *filePath = [documentsDirectory stringByAppendingPathComponent:@"SettingPList.plist"];
-    NSMutableDictionary *rssiPlist = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
-    NSLog(@"%@",[[[rssiPlist objectForKey:@"RSSIValue"] objectForKey:@"0M"] objectForKey:@"Min"]);
+    NSMutableDictionary *rssiPlist;
+    
+    // if no entity file 
+    if ((rssiPlist = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath]) == NULL) {
+        NSMutableDictionary *tempPlist = [[NSMutableDictionary alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"SettingPList" ofType:@"plist"]];
+        [tempPlist writeToFile:filePath atomically:YES];
+    }
+    rssiPlist = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
     self.rssi0MMinTextField.text = [NSString stringWithFormat:@"%@",[[[rssiPlist objectForKey:@"RSSIValue"] objectForKey:@"0M"] objectForKey:@"Min"]];
     self.rssi1MMinTextField.text = [NSString stringWithFormat:@"%@",[[[rssiPlist objectForKey:@"RSSIValue"] objectForKey:@"1M"] objectForKey:@"Min"]];
 }

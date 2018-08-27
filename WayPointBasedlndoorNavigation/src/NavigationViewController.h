@@ -49,7 +49,7 @@
 
 @interface NavigationViewController : UIViewController <NSXMLParserDelegate,AVSpeechSynthesizerDelegate,CBPeripheralDelegate>
 
-// Variables used to record important values--------------------------
+// Variables used to record important values------------------------------------
 // IDs ,Names and Regions of source and destination input by user on home screen
 @property (strong, nonatomic) NSString *startText;
 @property (strong, nonatomic) NSString *destinationText;

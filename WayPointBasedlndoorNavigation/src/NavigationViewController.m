@@ -71,7 +71,10 @@
 #define FRONT_RIGHT @"frontRight"
 #define REAR_RIGHT @"rearRight"
 #define ELEVATOR @"elevator"
+#define ELEVATORING @"elevatoring"
+#define ELEVATORED @"elevatored"
 #define STAIR @"stair"
+#define STAIRING @"stairing"
 #define ARRIVED @"arrived"
 #define WRONG @"wrong"
 
@@ -86,9 +89,12 @@
 #define THEN_TAKE_ELEVATOR @"然後搭電梯"
 #define THEN_WALK_UP_STAIR @"然後走樓梯"
 #define WAIT_FOR_ELEVATOR @"電梯中請稍候"
+#define TAKE_ELEVATOR_TO(i) [NSString stringWithFormat:@"%@ %@ %@",@"搭至",i,@"樓層"]
+#define OUT_OF_ELEVATOR @"出電梯"
 #define WALK_UP_STAIR @"爬樓梯中"
 
 #define YOU_HAVE_ARRIVE @"抵達目的地"
+#define YOU_WILL_ARRIVE @"即將地達目的地"
 #define GET_LOST @"你走錯路了"
 #define METERS(i) [NSString stringWithFormat:@"%d %@",i,@"公尺"]
 #define PLEASE_GO_STRAIGHT @"請直走"
@@ -99,6 +105,7 @@
 #define PLEASE_TURN_REAR_LEFT @"請向左後方轉"
 #define PLEASE_TURN_REAR_RIGHT @"請向右後方轉"
 #define PLEASE_TAKE_ELEVATOR @"請搭電梯"
+#define PLEASE_OUT_OF_ELEVATOR @"請出電梯"
 #define PLEASE_WALK_UP_STAIR @"請走樓梯"
 
 #define IMAGE_LEFT @"left-arrow"
@@ -110,6 +117,7 @@
 #define IMAGE_STRAIGHT @"up-arrow"
 #define IMAGE_ELEVATOR @"elevator.png"
 #define IMAGE_STAIR @"walking-up-stair-sign"
+#define IMAGE_ARRIVAL @"arrival"
 
 
 @interface NavigationViewController ()<NSXMLParserDelegate,UITextFieldDelegate,CLLocationManagerDelegate>{
@@ -136,16 +144,17 @@
     
     CBCentralManager *blueboothCentralManager;
     double keyboardDuration;
-    
+    BOOL startFlag;
     
 }
 
 
-// start----Variables used to store routing data--------------------------------------------------------
+// start----Variables used to store routing data--------------------------------
 // Dictionary for storing region data
 @property (strong, nonatomic) NSMutableDictionary *regionData;
 
-// An array of Region object storing the information of region that will be traveled through
+// An array of Region object storing the information of region that will be
+// traveled through
 @property (strong, nonatomic) NSMutableArray *regionPath;
 
 // An array of NavigationSubgraph object representing a Navigation Graph
@@ -156,10 +165,10 @@
 
 // An array of Location object representing a location data
 @property (strong, nonatomic) NSMutableArray *locationData;
-// end----Variables used to store routing data----------------------------------------------------------
+// end----Variables used to store routing data----------------------------------
 
 
-// start----objects used to provide voice and test navigation guidance----------------------------------
+// start----objects used to provide voice and test navigation guidance----------
 // Indicator for popupwindow notifying user to make a turn at each waypoint
 @property (strong, nonatomic) NSString *turnNotificationForPoput;
 
@@ -177,10 +186,13 @@
 // graphical navigational indicator
 @property (weak, nonatomic) IBOutlet UIImageView *imageTurnIndicator;
 @property (weak, nonatomic) IBOutlet UIImageView *imageCurrentIndicator;
-// end----objects used to provide voice and test navigation guidance------------------------------------
+
+// view of display the next step information
+@property (weak, nonatomic) IBOutlet UIView *nextStepView;
+// end----objects used to provide voice and test navigation guidance------------
 
 
-// start----objects of Lbeacon--------------------------------------------------------------------------
+// start----objects of Lbeacon--------------------------------------------------
 // sring for storing currently received Lbeacon ID
 @property (strong, nonatomic) NSString *currentLBeaconID;
 
@@ -195,7 +207,7 @@
 
 // record time of timer
 @property int second;
-// end----objects of Lbeacon----------------------------------------------------------------------------
+// end----objects of Lbeacon----------------------------------------------------
 
 
 // view for display navigation progress bar
@@ -203,12 +215,12 @@
 
 
 
-// start----variables created for demo purpose----------------------------------------------------------
+// start----variables created for demo purpose----------------------------------
 @property (weak, nonatomic) IBOutlet UITextField *pointDisplay;
 @property (weak, nonatomic) IBOutlet UIButton *nextStepBtn;
 @property (weak, nonatomic) IBOutlet UITextField *testTextField;
 @property (weak, nonatomic) IBOutlet UIStackView *simulationTestStackView;
-// end----variables created for demo purpose------------------------------------------------------------
+// end----variables created for demo purpose------------------------------------
 
 @end
 
@@ -218,7 +230,6 @@
     BOOL currentDisplayFlag;
     NSString *currentAction;
     NavigatorFunction *navigatorFunction;
-    NSMutableDictionary *contextOfpath;
     NavigatorFunction *getPath;
 }
 
@@ -230,7 +241,7 @@
     // display the name of distination point
     self.destinationLabel.text = self.destinationText;
     
-    // start initialization variable---------------------------
+    // start initialization variable--------------------------------------------
     // self.setting = [Setting new];
     walkedWaypoint = 0;
     self.turnNotificationForPoput = nil;
@@ -243,6 +254,7 @@
     pathSpeaker = [AVSpeechSynthesizer new];
     speakerOfNextStep = NO;
     currentDisplayFlag = NO;
+    startFlag = YES;
     currentAction = FRONT;
     self.beaconList = [NSMutableArray array];
     self.regionForBeacon = [NSMutableDictionary dictionary];
@@ -250,12 +262,12 @@
     resetFlag = NO;
     navigatorFunction = [NavigatorFunction new];
     getPath = [[NavigatorFunction alloc] initForNavigationPathWithPreferenceSetting:self.setting];
-    // end initialization variable-----------------------------
+    // end initialization variable----------------------------------------------
     
-    // control keyboard display and hidden----------------------------------------------------------
+    // control keyboard display and hidden--------------------------------------
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
-    // control keyboard display and hidden----------------------------------------------------------
+    // control keyboard display and hidden--------------------------------------
     
     // control simulationtest stack view display
     [self.simulationTestStackView setHidden:![[NSUserDefaults standardUserDefaults] boolForKey:@"simulationTest"]];
@@ -267,17 +279,15 @@
         
         // Read the region data
         [getPath readBuildingWaypointDataForBuildingName:@"buildingA" SourceRegion:self.starRegion DestinationRegion:self.destinationRegion];
-        NSLog(@"t1");
         
         // start navigat
         [getPath computeNavigationPathForSourceID:self.startID DestinationID:self.DestinationID];
-        NSLog(@"t2");
         self.regionData = getPath.regionData;
         self.regionPath = getPath.regionPath;
         self.navigationGraph = getPath.navigationGraph;
         self.navigationPath = getPath.navigationPath;
         self.locationData = getPath.locationData;
-        
+        NSLog(@"startflag:%d",startFlag);
         NSLog(@"NavPath2:%@",self.navigationPath);
         // display waypoint ID when demo
         NSString *testDisplay=[NSString new];
@@ -311,7 +321,8 @@
 /*
 #pragma mark - Navigation
 
-// In a storyboard-based application, you will often want to do a little preparation before navigation
+// In a storyboard-based application, you will often want to do a little
+// preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
@@ -329,7 +340,8 @@
         self.beaconManager = [CLLocationManager new];
         self.beaconManager.delegate = self;
         
-        // Requests permission to use location services while the app is in the foreground.
+        // Requests permission to use location services while the app is in the
+        // foreground.
         [self.beaconManager requestWhenInUseAuthorization];
         
         xml = [XMLDataParser new];
@@ -342,7 +354,6 @@
             [beaconRegions addObject:[[CLBeaconRegion alloc] initWithProximityUUID:[[NSUUID alloc] initWithUUIDString:[uuidData objectForKey:key]] identifier:key]];
         }
         
-//        NSArray<CLBeaconRegion *> *beaconRegions = @[[[CLBeaconRegion alloc] initWithProximityUUID:[[NSUUID alloc] initWithUUIDString:@"6F8ED10C-C44A-4E8F-B1bA-BDFDA881241b"] identifier:@"test1"]];
 
         for (CLBeaconRegion *beaconRegion in beaconRegions) {
             [self.beaconManager startRangingBeaconsInRegion:beaconRegion];
@@ -378,6 +389,9 @@
     self.currentLBeaconID = self.testTextField.text;
     [getPath setCurrentLBeaconID:self.currentLBeaconID];
     [self drawNowPointGraph:pathValue];
+    if (startFlag) {
+        startFlag = NO;
+    }
     pathValue++;
     dispatch_semaphore_signal(semaphore);
 }
@@ -420,7 +434,11 @@
         [outputText appendString:@"\n\n"];
         
     }
-    NSLog(@"%@",outputText);
+    if (beacons.count != 0) {
+        NSLog(@"%@",outputText);
+        NSLog(@"startflag2:%d",startFlag);
+    }
+    
     
     // to find same data in data of scanering
     for (CLBeacon *beacon in beacons) {
@@ -445,23 +463,48 @@
             self.regionForBeacon[beacon] = region;
         }
         NSInteger distance = [navigatorFunction RSSIJudgment:beacon];
-        NSLog(@"t10:%i",(int)distance);
-        if (distance == 0) {
-            if (!currentDisplayFlag) {
+        
+        // when user at the 1st waypoint
+        if (startFlag) {
+            if (![self.currentLBeaconID isEqualToString:beacon.proximityUUID.UUIDString] && (distance == 1 || distance == 0)){
+                NSLog(@"t14");
                 currentDisplayFlag = YES;
+                self.currentLBeaconID = beacon.proximityUUID.UUIDString;
+                [getPath setCurrentLBeaconID:self.currentLBeaconID];
+                [self drawNowPointGraph:pathValue];
+                pathValue++;
+                dispatch_semaphore_signal(semaphore);
             }
-            
         }
-        else if (distance == 1){
-            NSLog(@"t10");
-            if (![self.currentLBeaconID isEqualToString:beacon.proximityUUID.UUIDString]) {
+        else{
+            if (distance == 1 && ![self.currentLBeaconID isEqualToString:beacon.proximityUUID.UUIDString]) {
+                NSLog(@"t10");
                 self.currentLBeaconID = beacon.proximityUUID.UUIDString;
                 [getPath setCurrentLBeaconID:self.currentLBeaconID];
                 currentDisplayFlag = NO;
+                self.firstMovement.hidden = NO;
+                self.howFarToMove.hidden = NO;
+                [self drawNowPointGraph:pathValue];
+                pathValue++;
                 dispatch_semaphore_signal(semaphore);
-                // 轉彎提示
             }
-            
+            else if (distance == 0 ){
+                if (!currentDisplayFlag && [self.currentLBeaconID isEqualToString:beacon.proximityUUID.UUIDString]) {
+                    NSLog(@"t10:%i",(int)distance);
+                    currentDisplayFlag = YES;
+                    AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
+                    
+                    if (self.navigationPath.count == 0) {
+                        [self showPopupWindow:ARRIVED_NOTIFIER];
+                    }
+                    else{
+                        self.imageCurrentIndicator.image = [UIImage imageNamed:IMAGE_STRAIGHT];
+                        self.currentMovement.text = [NSString stringWithFormat:@"%@%@",self.firstMovement.text,self.howFarToMove.text];
+                    }
+                    self.firstMovement.hidden = YES;
+                    self.howFarToMove.hidden = YES;
+                }
+            }
         }
     }
     
@@ -477,7 +520,6 @@
 //  distance to the next waypoint
     int distance = 0;
     UIImage *image = [UIImage new];
-    UIImage *currentImage = [UIImage new];
     
     // if there are two or more waypoints to go
     if (self.navigationPath.count >= 2) {
@@ -495,9 +537,7 @@
         self.turnNotificationForPoput = LEFT;
         self.firstMovement.text = GO_STRAIGHT_ABOUT;
         self.howFarToMove.text = METERS(distance);
-        if ([[self.navigationPath objectAtIndex:1] NodeType] == 1) {self.nextTurnMovement.text = THEN_TAKE_ELEVATOR;}
-        else if ([[self.navigationPath objectAtIndex:1] NodeType] == 2){self.nextTurnMovement.text = THEN_WALK_UP_STAIR;}
-        else {self.nextTurnMovement.text = THEN_TURN_LEFT;}
+        self.nextTurnMovement.text = THEN_TURN_LEFT;
         image = [UIImage imageNamed:IMAGE_LEFT];
         self.imageTurnIndicator.image = image;
     }
@@ -509,9 +549,7 @@
         self.turnNotificationForPoput = FRONT_LEFT;
         self.firstMovement.text = GO_STRAIGHT_ABOUT;
         self.howFarToMove.text = METERS(distance);
-        if ([[self.navigationPath objectAtIndex:1] NodeType] == 1) {self.nextTurnMovement.text = THEN_TAKE_ELEVATOR;}
-        else if ([[self.navigationPath objectAtIndex:1] NodeType] == 2){self.nextTurnMovement.text = THEN_WALK_UP_STAIR;}
-        else {self.nextTurnMovement.text = THEN_TURN_FRONT_LEFT;}
+        self.nextTurnMovement.text = THEN_TURN_FRONT_LEFT;
         image = [UIImage imageNamed:IMAGE_FRONT_LEFT];
         self.imageTurnIndicator.image = image;
     }
@@ -523,9 +561,7 @@
         self.turnNotificationForPoput = REAR_LEFT;
         self.firstMovement.text = GO_STRAIGHT_ABOUT;
         self.howFarToMove.text = METERS(distance);;
-        if ([[self.navigationPath objectAtIndex:1] NodeType] == 1) {self.nextTurnMovement.text = THEN_TAKE_ELEVATOR;}
-        else if ([[self.navigationPath objectAtIndex:1] NodeType] == 2){self.nextTurnMovement.text = THEN_WALK_UP_STAIR;}
-        else {self.nextTurnMovement.text = THEN_TURN_REAR_LEFT;}
+        self.nextTurnMovement.text = THEN_TURN_REAR_LEFT;
         image = [UIImage imageNamed:IMAGE_REAR_LEFT];
         self.imageTurnIndicator.image = image;
     }
@@ -534,13 +570,12 @@
         if (self.turnNotificationForPoput != nil) {
             [self showPopupWindow:MAKETURN_NOTIFIER];
         }
-        self.turnNotificationForPoput = RIGHT;
         self.firstMovement.text = GO_STRAIGHT_ABOUT;
         self.howFarToMove.text = METERS(distance);;
-        if ([[self.navigationPath objectAtIndex:1] NodeType] == 1) {self.nextTurnMovement.text = THEN_TAKE_ELEVATOR;}
-        else if ([[self.navigationPath objectAtIndex:1] NodeType] == 2){self.nextTurnMovement.text = THEN_WALK_UP_STAIR;}
-        else {self.nextTurnMovement.text = THEN_TURN_RIGHT;}
+        self.turnNotificationForPoput = RIGHT;
+        self.nextTurnMovement.text = THEN_TURN_RIGHT;
         image = [UIImage imageNamed:IMAGE_RIGHT];
+        NSLog(@"turnpop:%@",self.turnNotificationForPoput);
         self.imageTurnIndicator.image = image;
     }
     
@@ -551,9 +586,7 @@
         self.turnNotificationForPoput = FRONT_RIGHT;
         self.firstMovement.text = GO_STRAIGHT_ABOUT;
         self.howFarToMove.text = METERS(distance);;
-        if ([[self.navigationPath objectAtIndex:1] NodeType] == 1) {self.nextTurnMovement.text = THEN_TAKE_ELEVATOR;}
-        else if ([[self.navigationPath objectAtIndex:1] NodeType] == 2){self.nextTurnMovement.text = THEN_WALK_UP_STAIR;}
-        else {self.nextTurnMovement.text = THEN_TURN_FRONT_RIGHT;}
+        self.nextTurnMovement.text = THEN_TURN_FRONT_RIGHT;
         image = [UIImage imageNamed:IMAGE_FRONT_RIGHT];
         self.imageTurnIndicator.image = image;
     }
@@ -564,10 +597,8 @@
         }
         self.turnNotificationForPoput = REAR_RIGHT;
         self.firstMovement.text = GO_STRAIGHT_ABOUT;
-        self.howFarToMove.text = METERS(distance);;
-        if ([[self.navigationPath objectAtIndex:1] NodeType] == 1) {self.nextTurnMovement.text = THEN_TAKE_ELEVATOR;}
-        else if ([[self.navigationPath objectAtIndex:1] NodeType] == 2){self.nextTurnMovement.text = THEN_WALK_UP_STAIR;}
-        else {self.nextTurnMovement.text = THEN_TURN_REAR_RIGHT;}
+        self.howFarToMove.text = METERS(distance);
+        self.nextTurnMovement.text = THEN_TURN_REAR_RIGHT;
         image = [UIImage imageNamed:IMAGE_REAR_RIGHT];
         self.imageTurnIndicator.image = image;
     }
@@ -576,18 +607,32 @@
         if (self.turnNotificationForPoput != nil) {
             [self showPopupWindow:MAKETURN_NOTIFIER];
         }
-        self.turnNotificationForPoput = FRONT;
+        
         self.firstMovement.text = GO_STRAIGHT_ABOUT;
         self.howFarToMove.text = METERS(distance);;
-        if ([[self.navigationPath objectAtIndex:1] NodeType] == 1) {self.nextTurnMovement.text = THEN_TAKE_ELEVATOR;}
-        else if ([[self.navigationPath objectAtIndex:1] NodeType] == 2){self.nextTurnMovement.text = THEN_WALK_UP_STAIR;}
-        else {self.nextTurnMovement.text = THEN_GO_STRAIGHT;}
+        self.turnNotificationForPoput = FRONT;
+        self.nextTurnMovement.text = THEN_GO_STRAIGHT;
         image = [UIImage imageNamed:IMAGE_STRAIGHT];
         self.imageTurnIndicator.image = image;
+        NSLog(@"turnpop:%@",self.turnNotificationForPoput);
         
     }
     
     else if ([s isEqualToString:STAIR]){
+        if (self.turnNotificationForPoput != nil) {
+            [self showPopupWindow:MAKETURN_NOTIFIER];
+        }
+        self.turnNotificationForPoput = STAIR;
+        self.firstMovement.text = WALK_UP_STAIR;
+        self.howFarToMove.text = @"";
+        self.nextTurnMovement.text = @"";
+        image = [UIImage imageNamed:IMAGE_STAIR];
+        self.imageTurnIndicator.image = image;
+        walkedWaypoint = 0;
+        self.startID = [[self.navigationPath objectAtIndex:1] ID];
+    }
+    
+    else if ([s isEqualToString:STAIRING]){
         if (self.turnNotificationForPoput != nil) {
             [self showPopupWindow:MAKETURN_NOTIFIER];
         }
@@ -606,17 +651,31 @@
             [self showPopupWindow:MAKETURN_NOTIFIER];
         }
         self.turnNotificationForPoput = ELEVATOR;
-        self.firstMovement.text = WAIT_FOR_ELEVATOR;
-        self.howFarToMove.text = @"";
-        self.nextTurnMovement.text = @"";
+        self.firstMovement.text = GO_STRAIGHT_ABOUT;
+        self.howFarToMove.text = METERS(distance);
+        self.nextTurnMovement.text = THEN_TAKE_ELEVATOR;
         image = [UIImage imageNamed:IMAGE_ELEVATOR];
         self.imageTurnIndicator.image = image;
         walkedWaypoint = 0;
         self.startID = [[self.navigationPath objectAtIndex:1] ID];
     }
     
-    else if ([s isEqualToString:ARRIVED]){
-        [self showPopupWindow:ARRIVED_NOTIFIER];
+    else if ([s isEqualToString:ELEVATORING]){
+        if (self.turnNotificationForPoput != nil) {
+            [self showPopupWindow:MAKETURN_NOTIFIER];
+        }
+        NSString *npRegion = [[self.navigationPath objectAtIndex:2] Region];
+        self.turnNotificationForPoput = ELEVATORING;
+        self.firstMovement.text = TAKE_ELEVATOR_TO(npRegion);
+        self.howFarToMove.text = @"";
+        self.nextTurnMovement.text = OUT_OF_ELEVATOR;
+        image = [UIImage imageNamed:IMAGE_ELEVATOR];
+        self.imageTurnIndicator.image = image;
+        walkedWaypoint = 0;
+        self.startID = [[self.navigationPath objectAtIndex:1] ID];
+    }
+    
+    else if ([s isEqualToString:ARRIVED] ){
         walkedWaypoint = 0;
     }
     
@@ -630,63 +689,107 @@
         walkedWaypoint = 0;
     }
     
-    // display current step
-    if ([currentAction isEqualToString:FRONT]) {
-        self.currentMovement.text = PLEASE_GO_STRAIGHT;
-        currentImage = [UIImage imageNamed:IMAGE_STRAIGHT];
-        self.imageCurrentIndicator.image = currentImage;
+    if (self.navigationPath.count == 2) {
+        self.nextTurnMovement.text = YOU_HAVE_ARRIVE;
+        self.imageTurnIndicator.image = [UIImage imageNamed:IMAGE_ARRIVAL];
     }
-    else if ([currentAction isEqualToString:LEFT]){
-        self.currentMovement.text = PLEASE_TURN_LEFT;
-        currentImage = [UIImage imageNamed:IMAGE_LEFT];
-        self.imageCurrentIndicator.image = currentImage;
+    
+    // determine the first object in navigation path
+    if (startFlag) {
+        startFlag = NO;
+        self.imageCurrentIndicator.image = [UIImage imageNamed:IMAGE_STRAIGHT];
+        self.currentMovement.text = [NSString stringWithFormat:@"%@%@",self.firstMovement.text,self.howFarToMove.text];
+        NSLog(@"%@",self.currentMovement.text);
+        self.firstMovement.hidden = YES;
+        self.howFarToMove.hidden = YES;
     }
-    else if ([currentAction isEqualToString:FRONT_LEFT]){
-        self.currentMovement.text = PLEASE_TURN_FRONT_LEFT;
-        currentImage = [UIImage imageNamed:IMAGE_FRONT_LEFT];
-        self.imageCurrentIndicator.image = currentImage;
+    
+    else{
+        // display current step
+        [self currentStepInfor];
     }
-    else if ([currentAction isEqualToString:REAR_LEFT]){
-        self.currentMovement.text = PLEASE_TURN_REAR_LEFT;
-        currentImage = [UIImage imageNamed:IMAGE_REAR_LEFT];
-        self.imageCurrentIndicator.image = currentImage;
-    }
-    else if ([currentAction isEqualToString:RIGHT]){
-        self.currentMovement.text = PLEASE_TURN_RIGHT;
-        currentImage = [UIImage imageNamed:IMAGE_RIGHT];
-        self.imageCurrentIndicator.image = currentImage;
-    }
-    else if ([currentAction isEqualToString:FRONT_RIGHT]){
-        self.currentMovement.text = PLEASE_TURN_FRONT_RIGHT;
-        currentImage = [UIImage imageNamed:IMAGE_FRONT_RIGHT];
-        self.imageCurrentIndicator.image = currentImage;
-    }
-    else if ([currentAction isEqualToString:REAR_RIGHT]){
-        self.currentMovement.text = PLEASE_TURN_REAR_RIGHT;
-        currentImage = [UIImage imageNamed:IMAGE_REAR_RIGHT];
-        self.imageCurrentIndicator.image = currentImage;
-    }
-    else if ([currentAction isEqualToString:STAIR]){
-        self.currentMovement.text = PLEASE_WALK_UP_STAIR;
-        currentImage = [UIImage imageNamed:IMAGE_STAIR];
-        self.imageCurrentIndicator.image = currentImage;
-    }
-    else if ([currentAction isEqualToString:ELEVATOR]){
-        self.currentMovement.text = PLEASE_TAKE_ELEVATOR;
-        currentImage = [UIImage imageNamed:IMAGE_ELEVATOR];
-        self.imageCurrentIndicator.image = currentImage;
-    }
+    
     
     
     //After the navigational instruction for current waypoint is properly given,
     //the waypoint is removed from the top of the navigationPath
     [self.navigationPath removeObjectAtIndex:0];
+    NSLog(@"nextmove:%@",s);
+    NSLog(@"剩下%d",(int)self.navigationPath.count);
+}
+
+// Display Current step information
+-(void)currentStepInfor{
+    UIImage *currentImage = [UIImage new];
+    NSLog(@"currentMove:%@",currentAction);
+    // when user at the final waypoint
+    if (self.navigationPath.count == 1) {
+        AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
+        self.currentMovement.text = YOU_WILL_ARRIVE;
+        currentImage = [UIImage imageNamed:IMAGE_ARRIVAL];
+        self.imageCurrentIndicator.image = currentImage;
+        self.nextStepView.hidden = YES;
+    }
+    else if (!currentDisplayFlag) {
+        // display current step
+        if ([currentAction isEqualToString:FRONT]) {
+            self.currentMovement.text = PLEASE_GO_STRAIGHT;
+            currentImage = [UIImage imageNamed:IMAGE_STRAIGHT];
+            self.imageCurrentIndicator.image = currentImage;
+        }
+        else if ([currentAction isEqualToString:LEFT]){
+            self.currentMovement.text = PLEASE_TURN_LEFT;
+            currentImage = [UIImage imageNamed:IMAGE_LEFT];
+            self.imageCurrentIndicator.image = currentImage;
+        }
+        else if ([currentAction isEqualToString:FRONT_LEFT]){
+            self.currentMovement.text = PLEASE_TURN_FRONT_LEFT;
+            currentImage = [UIImage imageNamed:IMAGE_FRONT_LEFT];
+            self.imageCurrentIndicator.image = currentImage;
+        }
+        else if ([currentAction isEqualToString:REAR_LEFT]){
+            self.currentMovement.text = PLEASE_TURN_REAR_LEFT;
+            currentImage = [UIImage imageNamed:IMAGE_REAR_LEFT];
+            self.imageCurrentIndicator.image = currentImage;
+        }
+        else if ([currentAction isEqualToString:RIGHT]){
+            self.currentMovement.text = PLEASE_TURN_RIGHT;
+            currentImage = [UIImage imageNamed:IMAGE_RIGHT];
+            self.imageCurrentIndicator.image = currentImage;
+        }
+        else if ([currentAction isEqualToString:FRONT_RIGHT]){
+            self.currentMovement.text = PLEASE_TURN_FRONT_RIGHT;
+            currentImage = [UIImage imageNamed:IMAGE_FRONT_RIGHT];
+            self.imageCurrentIndicator.image = currentImage;
+        }
+        else if ([currentAction isEqualToString:REAR_RIGHT]){
+            self.currentMovement.text = PLEASE_TURN_REAR_RIGHT;
+            currentImage = [UIImage imageNamed:IMAGE_REAR_RIGHT];
+            self.imageCurrentIndicator.image = currentImage;
+        }
+        else if ([currentAction isEqualToString:STAIR]){
+            self.currentMovement.text = PLEASE_WALK_UP_STAIR;
+            currentImage = [UIImage imageNamed:IMAGE_STAIR];
+            self.imageCurrentIndicator.image = currentImage;
+        }
+        else if ([currentAction isEqualToString:ELEVATOR]){
+            self.currentMovement.text = PLEASE_TAKE_ELEVATOR;
+            currentImage = [UIImage imageNamed:IMAGE_ELEVATOR];
+            self.imageCurrentIndicator.image = currentImage;
+        }
+        else if ([currentAction isEqualToString:ELEVATORING]){
+            self.currentMovement.text = OUT_OF_ELEVATOR;
+            currentImage = [UIImage imageNamed:IMAGE_ELEVATOR];
+            self.imageCurrentIndicator.image = currentImage;
+        }
+    }
+    
 }
 
 // Setting current location on UI
 -(void)currentPointHandler:(NSString *)message{
     NSString *currentLocation = message;
-//    NSLog(@"%@",currentLocation);
+    NSLog(@"nowat:%@",currentLocation);
     self.nowatLabel.text = currentLocation;
 }
 
@@ -703,7 +806,7 @@
         UIStoryboard *storyBoard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
         CompassViewController *compassPage = [storyBoard instantiateViewControllerWithIdentifier:@"CompassPage"];
         compassPage.passedDegree = [geoCalculation getBearingFromCoordinate:[self.navigationPath objectAtIndex:0] :[self.navigationPath objectAtIndex:1]];
-        [self.navigationController pushViewController:compassPage animated:YES];
+//        [self.navigationController pushViewController:compassPage animated:YES];
         
     }
 }
@@ -713,7 +816,8 @@
 -(void)threadNavigator{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         while (self.navigationPath.count != 0) {
-            // the thread waits for beacon manager to notify it when a new Lbeacon ID is reseived
+            // the thread waits for beacon manager to notify it when a new
+            // Lbeacon ID is reseived
             dispatch_semaphore_wait(self->semaphore, DISPATCH_TIME_FOREVER);
             self->speakerOfNextStep = NO;
             NSLog(@"current:%@vs%@",self.currentLBeaconID,[[self.navigationPath objectAtIndex:0] ID]);
@@ -753,16 +857,16 @@
     UIAlertController *popupWindow = [UIAlertController new];
     UIAlertAction *okAlertButton = [UIAlertAction new];
 
-    // 
+
     AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
 
     stateFlag = flag;
     
-//  set text of alert and alert button
+    // set text of alert and alert button
     if (flag == ARRIVED_NOTIFIER) {
         popupWindow = [UIAlertController alertControllerWithTitle:YOU_HAVE_ARRIVE message:@"" preferredStyle:UIAlertControllerStyleAlert];
         
-//      View back to home page when button on alert click
+        // View back to home page when button on alert click
         okAlertButton = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){
             [self.navigationController dismissViewControllerAnimated:YES completion:NULL];
             [self.navigationController popToRootViewControllerAnimated:YES];
@@ -770,10 +874,9 @@
     }
     else if (flag == WRONGWAY_NOTIFIER){
         popupWindow = [UIAlertController alertControllerWithTitle:GET_LOST message:@"" preferredStyle:UIAlertControllerStyleAlert];
-//      View back to home page when button on alert click
+        // View back to home page when button on alert click
         okAlertButton = [UIAlertAction actionWithTitle:@"重新導航" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){
-//            [self.navigationController dismissViewControllerAnimated:YES completion:NULL];
-//            [self.navigationController popToRootViewControllerAnimated:YES];
+
            
             
             [self.navigationController dismissViewControllerAnimated:YES completion:NULL];
@@ -783,37 +886,43 @@
     }
     else if (flag == MAKETURN_NOTIFIER){
         
-            if ([self.turnNotificationForPoput isEqualToString:RIGHT]) {
-                popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TURN_RIGHT message:@"" preferredStyle:UIAlertControllerStyleAlert];
-            }
-            else if ([self.turnNotificationForPoput isEqualToString:LEFT]){
-                popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TURN_LEFT message:@"" preferredStyle:UIAlertControllerStyleAlert];
-            }
-            else if ([self.turnNotificationForPoput isEqualToString:FRONT_RIGHT]){
-                popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TURN_FRONT_RIGHT message:@"" preferredStyle:UIAlertControllerStyleAlert];
-            }
-            else if ([self.turnNotificationForPoput isEqualToString:REAR_RIGHT]){
-                popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TURN_REAR_RIGHT message:@"" preferredStyle:UIAlertControllerStyleAlert];
-            }
-            else if ([self.turnNotificationForPoput isEqualToString:FRONT_LEFT]){
-                popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TURN_FRONT_LEFT message:@"" preferredStyle:UIAlertControllerStyleAlert];
-            }
-            else if ([self.turnNotificationForPoput isEqualToString:REAR_LEFT]){
-                popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TURN_REAR_LEFT message:@"" preferredStyle:UIAlertControllerStyleAlert];
-            }
-            else if ([self.turnNotificationForPoput isEqualToString:FRONT]){
-                popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_GO_STRAIGHT message:@"" preferredStyle:UIAlertControllerStyleAlert];
-            }
-            else if ([self.turnNotificationForPoput isEqualToString:ELEVATOR]){
-                popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TAKE_ELEVATOR message:@"" preferredStyle:UIAlertControllerStyleAlert];
-            }
-            else if ([self.turnNotificationForPoput isEqualToString:STAIR]){
-                popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_WALK_UP_STAIR message:@"" preferredStyle:UIAlertControllerStyleAlert];
-            }
-            else if ([self.turnNotificationForPoput isEqualToString:ARRIVED]){
-                popupWindow = [UIAlertController alertControllerWithTitle:YOU_HAVE_ARRIVE message:@"" preferredStyle:UIAlertControllerStyleAlert];
-            }
-            currentAction = self.turnNotificationForPoput;
+        if ([self.turnNotificationForPoput isEqualToString:RIGHT]) {
+            popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TURN_RIGHT message:@"" preferredStyle:UIAlertControllerStyleAlert];
+        }
+        else if ([self.turnNotificationForPoput isEqualToString:LEFT]){
+            popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TURN_LEFT message:@"" preferredStyle:UIAlertControllerStyleAlert];
+        }
+        else if ([self.turnNotificationForPoput isEqualToString:FRONT_RIGHT]){
+            popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TURN_FRONT_RIGHT message:@"" preferredStyle:UIAlertControllerStyleAlert];
+        }
+        else if ([self.turnNotificationForPoput isEqualToString:REAR_RIGHT]){
+            popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TURN_REAR_RIGHT message:@"" preferredStyle:UIAlertControllerStyleAlert];
+        }
+        else if ([self.turnNotificationForPoput isEqualToString:FRONT_LEFT]){
+            popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TURN_FRONT_LEFT message:@"" preferredStyle:UIAlertControllerStyleAlert];
+        }
+        else if ([self.turnNotificationForPoput isEqualToString:REAR_LEFT]){
+            popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TURN_REAR_LEFT message:@"" preferredStyle:UIAlertControllerStyleAlert];
+        }
+        else if ([self.turnNotificationForPoput isEqualToString:FRONT]){
+            popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_GO_STRAIGHT message:@"" preferredStyle:UIAlertControllerStyleAlert];
+        }
+        else if ([self.turnNotificationForPoput isEqualToString:ELEVATOR]){
+            popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_TAKE_ELEVATOR message:@"" preferredStyle:UIAlertControllerStyleAlert];
+        }
+        else if ([self.turnNotificationForPoput isEqualToString:ELEVATORING]){
+            popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_OUT_OF_ELEVATOR message:@"" preferredStyle:UIAlertControllerStyleAlert];
+        }
+        else if ([self.turnNotificationForPoput isEqualToString:STAIR]){
+            popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_WALK_UP_STAIR message:@"" preferredStyle:UIAlertControllerStyleAlert];
+        }
+        else if ([self.turnNotificationForPoput isEqualToString:STAIRING]){
+            popupWindow = [UIAlertController alertControllerWithTitle:PLEASE_WALK_UP_STAIR message:@"" preferredStyle:UIAlertControllerStyleAlert];
+        }
+        else if ([self.turnNotificationForPoput isEqualToString:ARRIVED]){
+            popupWindow = [UIAlertController alertControllerWithTitle:YOU_HAVE_ARRIVE message:@"" preferredStyle:UIAlertControllerStyleAlert];
+        }
+        currentAction = self.turnNotificationForPoput;
        
 //      the speech manager start when button on alert click
         okAlertButton = [UIAlertAction actionWithTitle:@"確認" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){

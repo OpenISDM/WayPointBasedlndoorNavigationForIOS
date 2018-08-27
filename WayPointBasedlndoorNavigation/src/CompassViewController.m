@@ -104,7 +104,8 @@
 /*
 #pragma mark - Navigation
 
-// In a storyboard-based application, you will often want to do a little preparation before navigation
+// In a storyboard-based application, you will often want to do a little
+// preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
@@ -141,7 +142,8 @@
     // set up the present of the user rotate
     self.tvHeading.text = [NSString stringWithFormat:@"%.1f degrees",degree];
     
-    // the storyboard go back to previous page when the present degree and the degree of the target are same value
+    // the storyboard go back to previous page when the present degree and the
+    // degree of the target are same value
     if ((int)degree == degreeHeader) {
         AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
         [self.navigationController popViewControllerAnimated:YES];
