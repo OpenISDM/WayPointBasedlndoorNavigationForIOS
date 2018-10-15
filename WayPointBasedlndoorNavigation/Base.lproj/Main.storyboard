@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14295.6" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="QaA-V5-61D">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="QaA-V5-61D">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14270.1"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -103,13 +104,20 @@
                                                 </subviews>
                                             </stackView>
                                         </subviews>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="273.5" id="yvI-c2-lFr"/>
+                                        </constraints>
                                     </stackView>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
+                                    <constraint firstItem="gkD-ni-1JP" firstAttribute="leading" secondItem="Ky1-Jm-B6R" secondAttribute="leading" constant="10" id="JE6-Us-GJE"/>
                                     <constraint firstAttribute="trailing" secondItem="gkD-ni-1JP" secondAttribute="trailing" constant="10" id="Lag-XS-Dbn"/>
+                                    <constraint firstAttribute="trailing" secondItem="gkD-ni-1JP" secondAttribute="trailing" constant="10" id="Mvs-Wu-eAJ"/>
+                                    <constraint firstItem="gkD-ni-1JP" firstAttribute="leading" secondItem="Ky1-Jm-B6R" secondAttribute="leading" constant="10" id="SuD-Kn-hdZ"/>
                                     <constraint firstItem="gkD-ni-1JP" firstAttribute="leading" secondItem="Ky1-Jm-B6R" secondAttribute="leading" constant="10" id="UH6-QM-IFB"/>
                                     <constraint firstAttribute="bottom" secondItem="gkD-ni-1JP" secondAttribute="bottom" constant="10" id="gYo-dK-2qS"/>
+                                    <constraint firstItem="gkD-ni-1JP" firstAttribute="top" secondItem="Ky1-Jm-B6R" secondAttribute="top" constant="10" id="q0J-dp-0xR"/>
                                     <constraint firstItem="gkD-ni-1JP" firstAttribute="top" secondItem="Ky1-Jm-B6R" secondAttribute="top" constant="10" id="xMA-CJ-vs1"/>
                                 </constraints>
                             </view>
@@ -123,7 +131,7 @@
                                 </connections>
                             </button>
                         </subviews>
-                        <color key="backgroundColor" red="0.94440269470214844" green="0.9644743800163269" blue="0.98521453142166138" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <gestureRecognizers/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="uMh-cG-vmL" secondAttribute="trailing" id="CEd-FT-j4x"/>

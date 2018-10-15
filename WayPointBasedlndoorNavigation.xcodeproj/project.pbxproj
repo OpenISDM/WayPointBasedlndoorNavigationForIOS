@@ -27,7 +27,6 @@
 		B17A89602085DCFF00BAD1F9 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B17A895F2085DCFF00BAD1F9 /* AVFoundation.framework */; };
 		B184E19C20917605009169C8 /* buildingA in Resources */ = {isa = PBXBuildFile; fileRef = B184E19A20917605009169C8 /* buildingA */; };
 		B1938EBE2088734D001E0777 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B1938EBD2088734D001E0777 /* CoreLocation.framework */; };
-		B198010B20C532DF00FF3074 /* buildingTEST in Resources */ = {isa = PBXBuildFile; fileRef = B198010A20C532DF00FF3074 /* buildingTEST */; };
 		B1988FFD207CB02C00F08F35 /* CompassViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B1988FFC207CB02B00F08F35 /* CompassViewController.m */; };
 		B1A2DD0520DCA20E002AA94D /* DeveloperListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B1A2DD0420DCA20E002AA94D /* DeveloperListViewController.m */; };
 		B1AACDE320A4211A00E913D7 /* Region.m in Sources */ = {isa = PBXBuildFile; fileRef = B1AACDE220A4211A00E913D7 /* Region.m */; };
@@ -321,7 +320,6 @@
 				A263B1192021A14A00991C5B /* LaunchScreen.storyboard in Resources */,
 				B184E19C20917605009169C8 /* buildingA in Resources */,
 				A263B1162021A14A00991C5B /* Assets.xcassets in Resources */,
-				B198010B20C532DF00FF3074 /* buildingTEST in Resources */,
 				B1DE015E20FC4D0B007B2805 /* SettingPList.plist in Resources */,
 				A263B1142021A14A00991C5B /* Main.storyboard in Resources */,
 				B1DD3967209708F10027C4ED /* buildingD in Resources */,
@@ -516,11 +514,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = YD7R3HWEP8;
+				DEVELOPMENT_TEAM = 9GPWG42WT2;
 				INFOPLIST_FILE = WayPointBasedlndoorNavigation/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = OSSE.WayPointBasedlndoorNavigation;
+				PRODUCT_BUNDLE_IDENTIFIER = BEDIPS.WayPointBasedlndoorNavigation;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -532,11 +530,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = YD7R3HWEP8;
+				DEVELOPMENT_TEAM = 9GPWG42WT2;
 				INFOPLIST_FILE = WayPointBasedlndoorNavigation/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = OSSE.WayPointBasedlndoorNavigation;
+				PRODUCT_BUNDLE_IDENTIFIER = BEDIPS.WayPointBasedlndoorNavigation;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

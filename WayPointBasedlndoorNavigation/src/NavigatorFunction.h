@@ -59,8 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 // Dictionary for storing region data
 @property (strong, nonatomic) NSMutableDictionary *regionData;
 
-// An array of Region object storing the information of region that will be
-// traveled through
+// An array of Region object storing the information of region that will be traveled through
 @property (strong, nonatomic) NSMutableArray *regionPath;
 
 // An array of NavigationSubgraph object representing a Navigation Graph
@@ -75,8 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
 // A string of LBeacon ID object representing current site.
 @property (strong, nonatomic) NSString *currentLBeaconID;
 
-// The strings of message recode the instruction, current position, and
-// walkedpoint.
+// The strings of message recode the instruction, current position, and walkedpoint.
 @property (strong, nonatomic) NSString *messageFromInstructionHandler;
 @property (strong, nonatomic) NSString *messageFromCurrentPositionHandler;
 @property (strong, nonatomic) NSString *messageFromWalkedPointHandle;

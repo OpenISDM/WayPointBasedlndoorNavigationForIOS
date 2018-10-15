@@ -19,23 +19,23 @@
 		<key>2M</key>
 		<dict>
 			<key>Max</key>
-			<integer>-52</integer>
+			<integer>-53</integer>
 			<key>Min</key>
 			<integer>-57</integer>
 		</dict>
 		<key>1M</key>
 		<dict>
 			<key>Max</key>
-			<integer>-50</integer>
+			<integer>-48</integer>
 			<key>Min</key>
-			<integer>-51</integer>
+			<integer>-52</integer>
 		</dict>
 		<key>0M</key>
 		<dict>
 			<key>Max</key>
 			<integer>-40</integer>
 			<key>Min</key>
-			<integer>-49</integer>
+			<integer>-47</integer>
 		</dict>
 	</dict>
 </dict>

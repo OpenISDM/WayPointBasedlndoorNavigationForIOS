@@ -120,7 +120,7 @@
 #define IMAGE_ARRIVAL @"arrival"
 
 
-@interface NavigationViewController ()<NSXMLParserDelegate,UITextFieldDelegate,CLLocationManagerDelegate>{
+@interface NavigationViewController ()<NSXMLParserDelegate, UITextFieldDelegate, CLLocationManagerDelegate, CBCentralManagerDelegate>{
 //  xml Parser method
     XMLDataParser *xml;
 
@@ -142,7 +142,6 @@
     
     BOOL resetFlag;
     
-    CBCentralManager *blueboothCentralManager;
     double keyboardDuration;
     BOOL startFlag;
     
@@ -192,7 +191,7 @@
 // end----objects used to provide voice and test navigation guidance------------
 
 
-// start----objects of Lbeacon--------------------------------------------------
+// start -------------------objects of Lbeacon-------------------
 // sring for storing currently received Lbeacon ID
 @property (strong, nonatomic) NSString *currentLBeaconID;
 
@@ -202,12 +201,15 @@
 // to store beacon data at array
 @property (strong, nonatomic) NSMutableArray<CLBeacon *> *beaconList;
 
+// to store beacon region
+@property (strong, nonatomic) NSMutableArray<CLBeaconRegion *> *beaconRegions;
+
 // to stor beacon data and beacon identifier at dictionary
 @property (strong, nonatomic) NSMutableDictionary<CLBeacon *,CLBeaconRegion *> *regionForBeacon;
 
 // record time of timer
 @property int second;
-// end----objects of Lbeacon----------------------------------------------------
+// end -------------------objects of Lbeacon-------------------
 
 
 // view for display navigation progress bar
@@ -222,6 +224,9 @@
 @property (weak, nonatomic) IBOutlet UIStackView *simulationTestStackView;
 // end----variables created for demo purpose------------------------------------
 
+// new created - Paul
+@property (strong, nonatomic) CBCentralManager *blueboothCentralManager;
+
 @end
 
 @implementation NavigationViewController{
@@ -233,7 +238,7 @@
     NavigatorFunction *getPath;
 }
 
-// when view load
+// When view load
 #pragma mark - Main Code
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -241,7 +246,7 @@
     // display the name of distination point
     self.destinationLabel.text = self.destinationText;
     
-    // start initialization variable--------------------------------------------
+    // -------------------------------------------- start initialization variable --------------------------------------------
     // self.setting = [Setting new];
     walkedWaypoint = 0;
     self.turnNotificationForPoput = nil;
@@ -257,17 +262,20 @@
     startFlag = YES;
     currentAction = FRONT;
     self.beaconList = [NSMutableArray array];
+    self.beaconRegions = [NSMutableArray new];
     self.regionForBeacon = [NSMutableDictionary dictionary];
     self.locationData = [NSMutableArray new];
     resetFlag = NO;
     navigatorFunction = [NavigatorFunction new];
     getPath = [[NavigatorFunction alloc] initForNavigationPathWithPreferenceSetting:self.setting];
-    // end initialization variable----------------------------------------------
+    // -------------------------------------------- end initialization variable ----------------------------------------------
     
-    // control keyboard display and hidden--------------------------------------
+    
+    // ------------------------- control keyboard display and hidden -------------------------
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
-    // control keyboard display and hidden--------------------------------------
+    // ------------------------- control keyboard display and hidden -------------------------
+    
     
     // control simulationtest stack view display
     [self.simulationTestStackView setHidden:![[NSUserDefaults standardUserDefaults] boolForKey:@"simulationTest"]];
@@ -277,10 +285,14 @@
         pathSpeaker.delegate = self;
         self.testTextField.delegate = self;
         
-        // Read the region data
+        NSLog(@"self.startID is %@", self.startID);
+        if ([self.starRegion isEqual:@""]){
+            self.starRegion = [getPath resetNavigationPathWithFileName:FILENAME SourceID:self.startID];
+            NSLog(@"self.starRegion self.starRegion is %@", self.starRegion);
+        }
         [getPath readBuildingWaypointDataForBuildingName:@"buildingA" SourceRegion:self.starRegion DestinationRegion:self.destinationRegion];
         
-        // start navigat
+        // start navigate
         [getPath computeNavigationPathForSourceID:self.startID DestinationID:self.DestinationID];
         self.regionData = getPath.regionData;
         self.regionPath = getPath.regionPath;
@@ -305,13 +317,13 @@
         [self drawNavGraph];
         
         // navigation thread start
-//        [self navThread];
+        // [self navThread];
         [self threadNavigator];
     }
     
 }
 
-// when view distory
+// When view distory
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
@@ -333,35 +345,56 @@
 -(void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:YES];
 
-    // to check if beacon ranging is available on user device.
+    // check if beacon ranging is available on user device.
     if ([CLLocationManager isRangingAvailable]) {
         
-        // to initialize CLLocationManager and make ourselves the delegate of it
+        // initialize CLLocationManager and make ourselves the delegate of it
         self.beaconManager = [CLLocationManager new];
         self.beaconManager.delegate = self;
         
-        // Requests permission to use location services while the app is in the
-        // foreground.
-        [self.beaconManager requestWhenInUseAuthorization];
+        // request Permission
+        [self startBluetoothStatusMonitoring];
+        // requests permission to use location services while the app is in the foreground.
+//        [self.beaconManager requestWhenInUseAuthorization];
+        [self.beaconManager requestAlwaysAuthorization];
+        self.beaconManager.desiredAccuracy = kCLLocationAccuracyBest;
+        self.beaconManager.distanceFilter = kCLDistanceFilterNone;
+        self.beaconManager.allowsBackgroundLocationUpdates = YES;
+        self.beaconManager.pausesLocationUpdatesAutomatically = NO;
         
         xml = [XMLDataParser new];
         [xml startXMLParserForUUID:@"buildingA"];
         
         NSMutableDictionary *uuidData = [xml returnUUIDData];
-        NSMutableArray<CLBeaconRegion *> *beaconRegions = [NSMutableArray new];
+//        NSMutableArray<CLBeaconRegion *> *beaconRegions = [NSMutableArray new];
         
         for(id key in uuidData){
-            [beaconRegions addObject:[[CLBeaconRegion alloc] initWithProximityUUID:[[NSUUID alloc] initWithUUIDString:[uuidData objectForKey:key]] identifier:key]];
+            [self.beaconRegions addObject:[[CLBeaconRegion alloc] initWithProximityUUID:[[NSUUID alloc] initWithUUIDString:[uuidData objectForKey:key]] identifier:key]];
+            self.beaconRegions[self.beaconRegions.count - 1].notifyEntryStateOnDisplay = YES;
+            self.beaconRegions[self.beaconRegions.count - 1].notifyOnEntry = YES;
+            self.beaconRegions[self.beaconRegions.count - 1].notifyOnExit = YES;
         }
         
-
-        for (CLBeaconRegion *beaconRegion in beaconRegions) {
+        [[NSNotificationCenter defaultCenter]
+         addObserverForName:UIApplicationBackgroundRefreshStatusDidChangeNotification
+         object: [UIApplication sharedApplication]
+         queue:nil
+         usingBlock:^(NSNotification* notification) {
+             NSLog(@"Just changed background refresh status because of this notification:%@", notification);
+             if( [self isMonitoringSupported]) {
+                 [self startMonitoringAndRanging];
+             }
+         }];
+        
+        for (CLBeaconRegion *beaconRegion in self.beaconRegions) {
+            NSLog(@"start monitoring and ranging ..... \n");
+//            [self.beaconManager startMonitoringForRegion:beaconRegion];
             [self.beaconManager startRangingBeaconsInRegion:beaconRegion];
+            [self.beaconManager startUpdatingLocation];
         }
         
     }
     else{
-        
         // if ranging was unavailable, to let the user know and we go back.
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Unsupported" message:@"Beacon ranging unavailable on this device." preferredStyle:UIAlertControllerStyleAlert];
         [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action){
@@ -372,18 +405,20 @@
     }
 }
 
-// when view disapper do
+// When view disapper do
 -(void)viewWillDisappear:(BOOL)animated{
     [super viewWillDisappear:YES];
     
-    for (CLBeaconRegion *region in self.beaconManager.rangedRegions) {
+    for (CLBeaconRegion *region in self.beaconRegions) {
+        [self.beaconManager stopMonitoringForRegion:region];
         [self.beaconManager stopRangingBeaconsInRegion:region];
+        [self.beaconManager stopUpdatingLocation];
     }
 }
 
 
 #pragma mark - Test Operational
-// when nextStep button click
+// When nextStep button click
 - (IBAction)nextStepBtnAction:(id)sender {
     
     self.currentLBeaconID = self.testTextField.text;
@@ -414,36 +449,36 @@
     }];
 }
 
-// view  moves down when keyboard hidden
+// View  moves down when keyboard hidden
 - (void)keyboardWillHide:(NSNotification*)notification {
     [UIView animateWithDuration:keyboardDuration animations:^{
         self.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
     }];
 }
 
-
-#pragma mark - LBeacon
-
--(void)locationManager:(CLLocationManager *)manager didRangeBeacons:(NSArray<CLBeacon *> *)beacons inRegion:(CLBeaconRegion *)region{
-    
+#pragma mark - LBeacon, CLLocationManager Delegate
+/* Tells the delegate that one or more beacons are in range. */
+-(void)locationManager:(CLLocationManager *)manager didRangeBeacons:(NSArray<CLBeacon *> *)beacons inRegion:(CLBeaconRegion *)region {
     // to test beacon
-    NSMutableString *outputText = [NSMutableString stringWithFormat:@"Ranged beacons count:%i\n\n",(int)beacons.count];
+    NSMutableString *outputText = [NSMutableString stringWithFormat:@"Ranged beacons count:%i\n",(int)beacons.count];
     for (CLBeacon *beacon in beacons) {
+        NSLog(@"\n\naccuracy is %f\n", beacon.accuracy);  // show accuracy
         [outputText appendString:beacon.proximityUUID.UUIDString];
         [outputText appendString:[beacon.description substringFromIndex:[beacon.description rangeOfString:@"major:"].location]];
         [outputText appendString:@"\n\n"];
-        
     }
+    
     if (beacons.count != 0) {
         NSLog(@"%@",outputText);
         NSLog(@"startflag2:%d",startFlag);
     }
     
-    
-    // to find same data in data of scanering
+    // to find same data in data of scanning
     for (CLBeacon *beacon in beacons) {
         NSUInteger index = [self.beaconList indexOfObjectPassingTest:^BOOL(CLBeacon * _Nonnull obj, NSUInteger idx,BOOL * _Nonnull stop){
-            BOOL match = [obj.proximityUUID.UUIDString isEqualToString:beacon.proximityUUID.UUIDString] && (obj.major.integerValue == beacon.major.integerValue) && obj.minor.integerValue == beacon.minor.integerValue;
+            BOOL match = [obj.proximityUUID.UUIDString isEqualToString:beacon.proximityUUID.UUIDString] &&
+                            (obj.major.integerValue == beacon.major.integerValue) &&
+                            (obj.minor.integerValue == beacon.minor.integerValue);
             
             if (match) {
                 *stop = YES;
@@ -451,22 +486,23 @@
             return match;
         }];
         
-        // when have same date to update array and disctionary
+        // when have same data to update array and disctionary
         if (index != NSNotFound) {
             self.regionForBeacon[self.beaconList[index]] = nil;
             self.beaconList[index] = beacon;
             self.regionForBeacon[beacon] = region;
         }
         // when have no same data to add in array and dictionary
-        else{
+        else {
             [self.beaconList addObject:beacon];
             self.regionForBeacon[beacon] = region;
         }
         NSInteger distance = [navigatorFunction RSSIJudgment:beacon];
         
         // when user at the 1st waypoint
+        // NSLog(@"\nStartCurrentLBeaconID is %@\nbeacon.proximityUUID.UUIDString is %@", self.currentLBeaconID, beacon.proximityUUID.UUIDString);
         if (startFlag) {
-            if (![self.currentLBeaconID isEqualToString:beacon.proximityUUID.UUIDString] && (distance == 1 || distance == 0)){
+            if (![self.currentLBeaconID isEqualToString:beacon.proximityUUID.UUIDString] && (distance == 1 || distance == 0)) {
                 NSLog(@"t14");
                 currentDisplayFlag = YES;
                 self.currentLBeaconID = beacon.proximityUUID.UUIDString;
@@ -476,7 +512,7 @@
                 dispatch_semaphore_signal(semaphore);
             }
         }
-        else{
+        else {
             if (distance == 1 && ![self.currentLBeaconID isEqualToString:beacon.proximityUUID.UUIDString]) {
                 NSLog(@"t10");
                 self.currentLBeaconID = beacon.proximityUUID.UUIDString;
@@ -488,7 +524,7 @@
                 pathValue++;
                 dispatch_semaphore_signal(semaphore);
             }
-            else if (distance == 0 ){
+            else if (distance == 0) {
                 if (!currentDisplayFlag && [self.currentLBeaconID isEqualToString:beacon.proximityUUID.UUIDString]) {
                     NSLog(@"t10:%i",(int)distance);
                     currentDisplayFlag = YES;
@@ -497,7 +533,7 @@
                     if (self.navigationPath.count == 0) {
                         [self showPopupWindow:ARRIVED_NOTIFIER];
                     }
-                    else{
+                    else {
                         self.imageCurrentIndicator.image = [UIImage imageNamed:IMAGE_STRAIGHT];
                         self.currentMovement.text = [NSString stringWithFormat:@"%@%@",self.firstMovement.text,self.howFarToMove.text];
                     }
@@ -510,14 +546,167 @@
     
 }
 
+/* Tells the delegate that the user enter  specified region. */
+-(void)locationManager:(CLLocationManager *)manager didEnterRegion:(CLRegion *)region {
+    NSLog(@"did enter the region ...\n");
+    if([region isKindOfClass:[CLBeaconRegion class]]){
+        [self.beaconManager startRangingBeaconsInRegion:(CLBeaconRegion *) region];
+    }
+}
 
+/* Tells the delegate that the user left the specified region. */
+-(void)locationManager:(CLLocationManager *)manager didExitRegion:(CLRegion *)region {
+    NSLog(@"did exit the region ...\n");
+    if([region isKindOfClass:[CLBeaconRegion class]]){
+//        [self.beaconManager stopRangingBeaconsInRegion:(CLBeaconRegion *)region];
+    }
+}
 
+/* Tells the delegate about the state of the specified region. (required) */
+-(void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region {
+    
+    //check if the region is beacon region
+    if([region isKindOfClass:[CLBeaconRegion class]]) {
+        if(state == CLRegionStateInside) {
+            [self.beaconManager startRangingBeaconsInRegion:(CLBeaconRegion *) region];
+            [self locationManager:self.beaconManager didEnterRegion:region];
+            
+        }
+        else if(state == CLRegionStateOutside) {
+            //stop ranging beacons
+            [self.beaconManager stopRangingBeaconsInRegion:(CLBeaconRegion *) region];
+            [self locationManager:self.beaconManager didExitRegion:region];
+        }
+    }
+}
 
-//set text and image instruction
+/* Tells the delegate that a new region is being monitored. */
+-(void)locationManager:(CLLocationManager *)manager didStartMonitoringForRegion:(CLRegion *)region{
+    [self.beaconManager requestStateForRegion:region];
+}
+
+-(void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
+{
+    // Delegate of the location manager, when you have an error
+    NSLog(@"didFailWithError: %@", error);    
+}
+
+-(void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
+    if (status == kCLAuthorizationStatusAuthorizedAlways || status == kCLAuthorizationStatusAuthorizedWhenInUse) {
+        [manager startUpdatingLocation];  // manager == self.beaconManagerman
+    }
+    
+    if (status == kCLAuthorizationStatusDenied) {
+        NSLog(@"The user denied authorization");
+    }
+    else if (status == kCLAuthorizationStatusAuthorizedAlways) {
+        NSLog(@"The user accepted authorization");
+    }
+    
+    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorizedAlways) {
+        // user allowed
+        if ([self isMonitoringSupported]) {
+            [self startMonitoringAndRanging];
+        }
+        else {
+            NSLog(@"Monitoring is not supported ......\n");
+        }
+    }
+}
+
+#pragma mark - CBCentralManagerDelegate
+-(void)centralManagerDidUpdateState:(CBCentralManager *)central {
+    
+    switch ([central state]) {
+        case CBManagerStateUnsupported:
+            NSLog(@"This app is not supported.\n");
+            break;
+        case CBManagerStateUnauthorized:
+            NSLog(@"This app is not authorised to use Bluetooth low energy.\n");
+            break;
+        case CBManagerStatePoweredOff:
+            NSLog(@"Bluetooth is currently powered off.\n");
+            break;
+        case CBManagerStatePoweredOn:
+            NSLog(@"Bluetooth is currently powered on and available to use.\n");
+            // user allowed
+            if ([self isMonitoringSupported]) {
+                [self startMonitoringAndRanging];
+            }
+            else {
+                NSLog(@"Monitoring is not supported ......\n");
+            }
+            
+            break;
+        default:
+            NSLog(@"Break!!!!\n");
+            break;
+    }
+    
+}
+
+- (void)startBluetoothStatusMonitoring {
+    self.blueboothCentralManager = [[CBCentralManager alloc]
+                                 initWithDelegate:self
+                                 queue:dispatch_get_main_queue()
+                                 options:@{CBCentralManagerOptionShowPowerAlertKey: @(NO)}];
+}
+
+// Checks if iBeacon monitoring is supported
+-(BOOL)isMonitoringSupported {
+    NSMutableString*message =  [[NSMutableString alloc]initWithCapacity:0];
+    BOOL enabled = NO;
+    
+    if([CLLocationManager isMonitoringAvailableForClass:[CLRegion class]]) {
+        enabled = YES;
+    }
+    else {
+        enabled = NO;
+        NSLog(@"Region Monitoring is not available on this device");
+    }
+    
+    
+    if([CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorizedAlways) {
+        enabled = YES && enabled;
+    }
+    else {
+        enabled = NO;
+        NSLog(@"Applications must be explicitly authorized to use location services by the user and location services must themselves currently be enabled for the system.");
+    }
+    
+    //background refreshing
+    if ([[UIApplication sharedApplication] backgroundRefreshStatus] == UIBackgroundRefreshStatusAvailable) {
+        enabled = YES && enabled;
+        
+    }
+    else if([[UIApplication sharedApplication] backgroundRefreshStatus] == UIBackgroundRefreshStatusDenied) {
+        NSLog(@"The user explicitly disabled background behavior for this app or for the whole system.");
+        enabled = NO;
+    }
+    else if([[UIApplication sharedApplication] backgroundRefreshStatus] == UIBackgroundRefreshStatusRestricted) {
+        [message appendFormat:@"%@ /n %@ ",message, @"unavailable on this system due to device configuration; the user cannot enable the feature."];
+        enabled = NO;
+    }
+    
+    return enabled;
+}
+
+// Start monitoring and ranging regions
+-(void)startMonitoringAndRanging {
+    for (CLBeaconRegion *region in self.beaconRegions) {
+        NSLog(@"start monitoring and ranging ..... \n");
+        [self.beaconManager startMonitoringForRegion:region];
+        [self.beaconManager startRangingBeaconsInRegion:region];
+        [self.beaconManager startUpdatingLocation];  // catch lat & lng
+        [self.beaconManager performSelector:@selector(requestStateForRegion:) withObject:region afterDelay:1];
+    }
+}
+
+// Set text and image instruction
 #pragma mark - InstructionHandler
 -(void)instructionHandler:(NSString *)message{
     
-//  distance to the next waypoint
+    // distance to the next waypoint
     int distance = 0;
     UIImage *image = [UIImage new];
     
@@ -646,7 +835,7 @@
         self.startID = [[self.navigationPath objectAtIndex:1] ID];
     }
     
-    else if ([s isEqualToString:ELEVATOR]){
+    else if ([s isEqualToString:ELEVATOR]) {
         if (self.turnNotificationForPoput != nil) {
             [self showPopupWindow:MAKETURN_NOTIFIER];
         }
@@ -660,7 +849,7 @@
         self.startID = [[self.navigationPath objectAtIndex:1] ID];
     }
     
-    else if ([s isEqualToString:ELEVATORING]){
+    else if ([s isEqualToString:ELEVATORING]) {
         if (self.turnNotificationForPoput != nil) {
             [self showPopupWindow:MAKETURN_NOTIFIER];
         }
@@ -675,13 +864,15 @@
         self.startID = [[self.navigationPath objectAtIndex:1] ID];
     }
     
-    else if ([s isEqualToString:ARRIVED] ){
+    else if ([s isEqualToString:ARRIVED]) {
         walkedWaypoint = 0;
     }
     
-    else if ([s isEqualToString:WRONG]){
+    else if ([s isEqualToString:WRONG]) {
         self.turnNotificationForPoput = nil;
-        self.startID = self.currentLBeaconID;
+        NSLog(@"currentLBeaconID is %@\n", [self.currentLBeaconID lowercaseStringWithLocale:[NSLocale currentLocale]]);
+        // self.startID = self.currentLBeaconID;
+        self.startID = [self.currentLBeaconID lowercaseStringWithLocale:[NSLocale currentLocale]];
         self.starRegion = [getPath resetNavigationPathWithFileName:FILENAME SourceID:self.startID];
         resetFlag = YES;
         dispatch_semaphore_signal(self->semaphore);
@@ -793,7 +984,7 @@
     self.nowatLabel.text = currentLocation;
 }
 
-//Set number of waypoint traveled in this navigation tour
+// Set number of waypoint traveled in this navigation tour
 -(void)walkedPointHandler:(NSString *)message{
     int numberOfWaypointTraveled = (int)[message integerValue];
     
@@ -806,7 +997,7 @@
         UIStoryboard *storyBoard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
         CompassViewController *compassPage = [storyBoard instantiateViewControllerWithIdentifier:@"CompassPage"];
         compassPage.passedDegree = [geoCalculation getBearingFromCoordinate:[self.navigationPath objectAtIndex:0] :[self.navigationPath objectAtIndex:1]];
-//        [self.navigationController pushViewController:compassPage animated:YES];
+        //[self.navigationController pushViewController:compassPage animated:YES];
         
     }
 }
@@ -821,10 +1012,12 @@
             dispatch_semaphore_wait(self->semaphore, DISPATCH_TIME_FOREVER);
             self->speakerOfNextStep = NO;
             NSLog(@"current:%@vs%@",self.currentLBeaconID,[[self.navigationPath objectAtIndex:0] ID]);
+            
             // when resetFlag is "YES",the thread ends
             if (self->resetFlag) {
                 break;
             }
+            
             [self->getPath navigation];
             self->walkedWaypoint = [self->getPath walkWaypoint];
             if (![[self->getPath messageFromWalkedPointHandle] isEqualToString:@""] && ![[self->getPath messageFromCurrentPositionHandler] isEqualToString:@""]) {
@@ -836,11 +1029,12 @@
                 dispatch_sync(dispatch_get_main_queue(), ^{
                     [self instructionHandler:[self->getPath messageFromInstructionHandler]];
                 });
+                
                 dispatch_sync(dispatch_get_main_queue(), ^{
                     [self currentPointHandler:[self->getPath messageFromCurrentPositionHandler]];
                 });
             }
-            else{
+            else {
                 dispatch_sync(dispatch_get_main_queue(), ^{
                     [self instructionHandler:[self->getPath messageFromInstructionHandler]];
                 });
@@ -852,11 +1046,10 @@
 
 
 #pragma mark - Notifiction Alert
-// popup window for turn direction notification
+// Popup window for turn direction notification
 - (void) showPopupWindow :(const int) flag{
     UIAlertController *popupWindow = [UIAlertController new];
     UIAlertAction *okAlertButton = [UIAlertAction new];
-
 
     AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
 
@@ -876,9 +1069,6 @@
         popupWindow = [UIAlertController alertControllerWithTitle:GET_LOST message:@"" preferredStyle:UIAlertControllerStyleAlert];
         // View back to home page when button on alert click
         okAlertButton = [UIAlertAction actionWithTitle:@"重新導航" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){
-
-           
-            
             [self.navigationController dismissViewControllerAnimated:YES completion:NULL];
             NSLog(@"reSTART=>Start:%@,Destination:%@",self.startID,self.DestinationID);
             [self viewDidLoad];
@@ -924,7 +1114,7 @@
         }
         currentAction = self.turnNotificationForPoput;
        
-//      the speech manager start when button on alert click
+        // the speech manager start when button on alert click
         okAlertButton = [UIAlertAction actionWithTitle:@"確認" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){
             if (self->speakerOfNextStep == NO) {
                 NSString *navtxt = [NSString stringWithFormat:@"%@%@%@",self.firstMovement.text,self.howFarToMove.text,self.nextTurnMovement.text];
@@ -958,9 +1148,7 @@
         [self.navigationController dismissViewControllerAnimated:YES completion:NULL];
         [self.navigationController popToRootViewControllerAnimated:YES];
     }
-    else if (stateFlag == WRONGWAY_NOTIFIER){
-        
-
+    else if (stateFlag == WRONGWAY_NOTIFIER) {
         self.startID = self.currentLBeaconID;
         self.starRegion = [getPath resetNavigationPathWithFileName:FILENAME SourceID:self.startID];
         resetFlag = YES;
@@ -970,7 +1158,7 @@
         [self viewDidLoad];
         
     }
-    else if (stateFlag == MAKETURN_NOTIFIER){
+    else if (stateFlag == MAKETURN_NOTIFIER) {
         
         if (speakerOfNextStep == NO) {
             NSString *navtxt = [NSString stringWithFormat:@"%@%@%@",self.firstMovement.text,self.howFarToMove.text,self.nextTurnMovement.text];

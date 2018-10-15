@@ -125,7 +125,7 @@
 // -----------------------------------------------------------------------------
 
 // load the infomation data from building map file
--(void)readBuildingWaypointDataForBuildingName:(NSString*) buildingName SourceRegion:(NSString*) sourceRegion DestinationRegion:(NSString*) destinationRegion{
+-(void)readBuildingWaypointDataForBuildingName:(NSString*) buildingName SourceRegion:(NSString*) sourceRegion DestinationRegion:(NSString*) destinationRegion {
     // read the xml file
     [xmlDataPerser startXMLParser:buildingName];
     
@@ -134,8 +134,7 @@
     // load location data from region graph
     self.locationData = [xmlDataPerser returnLocalData];
     
-    // regionPath for storing Region objects represent the regions that the
-    //user passes by from source to destination
+    // regionPath for storing Region objects represent the regions that the user passes by from source to destination
     self.regionPath = [self getRegionPathWithSourceRegion:sourceRegion DestinationRegion:destinationRegion];
     // an array of string of region name in regionPath
     NSMutableArray *regionPathID = [NSMutableArray new];
@@ -144,22 +143,21 @@
         [regionPathID addObject:[[self.regionPath objectAtIndex:i] Name]];
     }
     
-    // load waypoint  data from the  navigation subgraphs according to the
+    // load waypoint data from the navigation subgraphs according to the
     // regionPathID
     [xmlDataPerser startXMLParserForPoint:regionPathID fileName:nil];
     self.navigationGraph = [xmlDataPerser returnRoutingData];
 }
 
-// compute navigation path with the IDs of source point and destination point
+// Compute navigation path with the IDs of source point and destination point
 -(void)computeNavigationPathForSourceID:(NSString*) sourceID DestinationID:(NSString*) destinationID{
-    // obtain the Vertex objects that represent source point and destination
-    // point
+    // obtain the Vertex objects that represent source point and destination point
     Vertex *sourceVertex = [[[self.navigationGraph objectAtIndex:0] verticesInSubgraph] objectForKey:sourceID];
     Vertex *destinationVertex = [[[self.navigationGraph objectAtIndex:self.navigationGraph.count-1] verticesInSubgraph] objectForKey:destinationID];
-    //  temporary variable to record connectPointID
+    // temporary variable to record connectPointID
     int connectPointID;
     
-    //  if navigation in the same region
+    // if navigation in the same region
     if (self.navigationGraph.count == 1) {
         // preform typical dijkstra's algorithm with two given Vertex objects
         self.navigationPath = [self computeDijkstraShortestPathWithSourceVertex:sourceVertex DestinaitonVertex:destinationVertex];
@@ -167,26 +165,24 @@
     // navigation between several regions
     else{
         // compute N-1 navigation paths for each regioni,where N is the number
-        // of  region to travel
+        // of region to travel
         for (int i = 0; i < self.navigationGraph.count-1; i++) {
             // a destination vertex for each region
             Vertex *destinationOfARegion = nil;
             
             // the source vertex becomes a normal waypoint
             [[[[self.navigationGraph objectAtIndex:i] verticesInSubgraph] objectForKey:sourceID] NodeType:NORMAL_WAYPOINT];
-            // if the elevation of the next region to travel is same as current
-            // region
+            // if the elevation of the next region to travel is same as current region
             if ([[self.regionPath objectAtIndex:i] Elevation] == [[self.regionPath objectAtIndex:i+1] Elevation]) {
                 // compute a path to a transfer point of current region return
                 // the transfer point
                 destinationOfARegion = [self computePathToTraversePointWithSourceVertex:[[[self.navigationGraph objectAtIndex:i] verticesInSubgraph] objectForKey:sourceID] SameElevator:YES NextRegion:i+1];
               
-                // sourceID is updated with the ID of transfer node for the next
-                //computation since the transfer point
+                // sourceID is updated with the ID of transfer node for the
+                // next computation since the transfer point
                 sourceID = destinationOfARegion.ID;
             }
-            // if the elevation of the next region to travel is different from
-            // the current region
+            // if the elevation of the next region to travel is different from the current region
             else if ([[self.regionPath objectAtIndex:i] Elevation] != [[self.regionPath objectAtIndex:i+1] Elevation]){
                 // compute a path to a transfer point (elevator or stairwell)
                 // of current region return the transfer point
@@ -195,8 +191,7 @@
                 connectPointID = destinationOfARegion.ConnectPointID;
                 
                 // find the transfer node with the same connectPointID in the
-                // next region where elevation is different from the current
-                // region
+                // next region where elevation is different from the current region
                 for (id key in [[self.navigationGraph objectAtIndex:i+1] verticesInSubgraph]) {
                     Vertex *v = [[[self.navigationGraph objectAtIndex:i+1] verticesInSubgraph] objectForKey:key];
                     
@@ -214,8 +209,7 @@
         // complete the navigation path
         [self.navigationPath addObjectsFromArray:pathInLastRegion];
         
-        // remove duplicated waypoints which are used connecting points in same
-        // elevation
+        // remove duplicated waypoints which are used connecting points in same elevation
         for (int i =1; i < self.navigationPath.count; i++) {
             if ([[[self.navigationPath objectAtIndex:i] ID] isEqualToString:[[self.navigationPath objectAtIndex:i-1] ID]]) {
                 [self.navigationPath removeObjectAtIndex:i];
@@ -224,7 +218,7 @@
     }
 }
 
-// reset navigation path
+// Reset navigation path
 -(NSString*)resetNavigationPathWithFileName:(NSString*) fileName SourceID:(NSString*) sourceID{
     xmlDataPerser = [XMLDataParser new];
     [xmlDataPerser startXMLParserForPoint:nil fileName:fileName];
@@ -232,7 +226,7 @@
     allData = [xmlDataPerser returnRoutingData];
     
     for (Vertex *v in allData) {
-        if ([sourceID isEqualToString:v.ID]) {
+        if ([sourceID caseInsensitiveCompare:v.ID] == NSOrderedSame) {
             resetFlag = YES;
             NSString *sourceRegion = v.Region;
             return sourceRegion;
@@ -242,14 +236,11 @@
     return @"";
 }
 
-// navigation thread
--(void)navigation{
-            
-    // if the received ID matches the ID of the next waypoint in the navigation
-    // path
+// Navigation thread
+-(void)navigation {
+    // if the received ID matches the ID of the next waypoint in the navigation path
     if ([[[self.navigationPath objectAtIndex:0] ID] caseInsensitiveCompare:self.currentLBeaconID] == NSOrderedSame) {
-        // CurrentPositionHandler get the message of currently matched waypoint
-        // name
+        // currentPositionHandler get the message of currently matched waypoint name
         self.messageFromCurrentPositionHandler = [[self.navigationPath objectAtIndex:0] Name];
         
         // if the navigation path has more than three waypoints to travel
@@ -263,52 +254,50 @@
             }
             // if the next two waypoints are not in the same regioin means that
             // the next waypoint is the last waypoint of the region travel
-            else if (![[[self.navigationPath objectAtIndex:1] Region] isEqualToString:[[self.navigationPath objectAtIndex:2] Region]]){
+            else if (![[[self.navigationPath objectAtIndex:1] Region] isEqualToString:[[self.navigationPath objectAtIndex:2] Region]]) {
                 NSLog(@"testtoelevator2");
                 if ([[self.navigationPath objectAtIndex:1] NodeType] == ELEVATOR_WAYPOINT && [[self.navigationPath objectAtIndex:2] NodeType] == ELEVATOR_WAYPOINT) {
                     self.messageFromInstructionHandler = ELEVATOR;
                 }
-                else if ([[self.navigationPath objectAtIndex:1] NodeType] == STAIRWELL_WAYPOINT && [[self.navigationPath objectAtIndex:2] NodeType] == STAIRWELL_WAYPOINT){
+                else if ([[self.navigationPath objectAtIndex:1] NodeType] == STAIRWELL_WAYPOINT && [[self.navigationPath objectAtIndex:2] NodeType] == STAIRWELL_WAYPOINT) {
                     self.messageFromInstructionHandler = STAIR;
                 }
-                else{
+                else {
                     self.messageFromInstructionHandler = FRONT;
                 }
             }
-            // if the current waypoint and the next waypoint are not in the
-            // same region transfeer through elevator or stairwell
+            // if the current waypoint and the next waypoint are not in the same region transfeer through elevator or stairwell
             else if (![[[self.navigationPath objectAtIndex:0] Region] isEqualToString:[[self.navigationPath objectAtIndex:1] Region]]){
                 NSLog(@"testtoelevator3");
                 if ([[self.navigationPath objectAtIndex:0] NodeType] == ELEVATOR_WAYPOINT) {
                      NSLog(@"elevator comming2");
                     self.messageFromInstructionHandler = ELEVATORING;
                 }
-                else if ([[self.navigationPath objectAtIndex:0] NodeType] == STAIRWELL_WAYPOINT){
+                else if ([[self.navigationPath objectAtIndex:0] NodeType] == STAIRWELL_WAYPOINT) {
                     self.messageFromInstructionHandler = STAIRING;
                 }
-                else if ([[self.navigationPath objectAtIndex:0] NodeType] == CONNECTPOINT){
+                else if ([[self.navigationPath objectAtIndex:0] NodeType] == CONNECTPOINT) {
                     self.messageFromInstructionHandler = [self->geoCalculation getDirectionFromBearing:[self.navigationPath objectAtIndex:0] :[self.navigationPath objectAtIndex:1] :[self.navigationPath objectAtIndex:2]];
                 }
             }
         }
         // if there are two waypoints left in the navigation path
-        else if (self.navigationPath.count == 2){
-            // if the current waypoint and the next waypoint are not in the
-            // same region
+        else if (self.navigationPath.count == 2) {
+            // if the current waypoint and the next waypoint are not in the same region
             if (![[[self.navigationPath objectAtIndex:0] Region] isEqualToString:[[self.navigationPath objectAtIndex:1] Region]]) {
                 if ([[self.navigationPath objectAtIndex:0] NodeType] == ELEVATOR_WAYPOINT) {
                     self.messageFromInstructionHandler = ELEVATOR;
                 }
-                else if ([[self.navigationPath objectAtIndex:0] NodeType] == STAIRWELL_WAYPOINT){
+                else if ([[self.navigationPath objectAtIndex:0] NodeType] == STAIRWELL_WAYPOINT) {
                     self.messageFromInstructionHandler = STAIR;
                 }
             }
             // if go strainght to final waypoint
-            else{
+            else {
                 self.messageFromInstructionHandler = FRONT;
             }
         }
-        // if there is only one  waypoint left, the user arrived
+        // if there is only one waypoint left, the user arrived
         else if (self.navigationPath.count == 1){
             self.messageFromInstructionHandler = ARRIVED;
         }
@@ -320,24 +309,23 @@
         // been travel in a region
         self.messageFromWalkedPointHandle = [NSString stringWithFormat:@"%i",self.walkWaypoint];
     }
-    // if the received ID does not match the ID of waypoint in the navigation
-    // path
+    // if the received ID does not match the ID of waypoint in the navigation path
     else if ([[[self.navigationPath objectAtIndex:0] ID] caseInsensitiveCompare:self.currentLBeaconID] != NSOrderedSame){
+        NSLog(@"current LBeacon ID is %@\n", self.currentLBeaconID);
         // set "wrong" to the "messageFromInstructionHandler" object
         self.messageFromInstructionHandler = WRONG;
     }
 }
 
-// private function-------------------------------------------------------------
-
-// get the region path, which means the travels order of region,
+// ----------------------- private function -----------------------
+// Get the region path, which means the travels order of region,
 // by performing shortest path algorithm on an unweighted connected graph
 // (Region Graph)
--(NSMutableArray*)getRegionPathWithSourceRegion:(NSString*) sourceRegion DestinationRegion:(NSString*) destinationRegion{
+-(NSMutableArray*)getRegionPathWithSourceRegion:(NSString*) sourceRegion DestinationRegion:(NSString*) destinationRegion {
     
-    // to def and initialize a object for queue
+    // define and initialize a object for queue
     NQueue *queue = [NQueue new];
-    // to def and initialize a dictionary object for storing region
+    // define and initialize a dictionary object for storing region
     NSMutableDictionary *path = [NSMutableDictionary new];
     
     [queue add:[self.regionData objectForKey:sourceRegion]];
@@ -364,13 +352,15 @@
         if (![[[self.regionData objectForKey:destinationRegion] Name] isEqualToString:sourceRegion]) {
             destinationRegion = [[path objectForKey:[[self.regionData objectForKey:destinationRegion] Name]] Name];
         }
-        else{break;}
+        else {
+            break;
+        }
     }
     shortestRegionPath = [NSMutableArray arrayWithArray:[[shortestRegionPath reverseObjectEnumerator] allObjects]];
     return shortestRegionPath;
 }
 
-//compute a shortest path with given starting point  and destination
+// Compute a shortest path with given starting point  and destination
 -(NSMutableArray*) computeDijkstraShortestPathWithSourceVertex:(Vertex*) sourceVertex DestinaitonVertex:(Vertex*) destinationVertex{
     [sourceVertex MinDistance:0];
     NQueue *queue = [NQueue new];
@@ -400,7 +390,7 @@
     return [self getShortertPathWithDestination:destinationVertex];
 }
 
-// compute a shortest path from a given source point to a transfer node(e.g.
+// Compute a shortest path from a given source point to a transfer node(e.g.
 // elevator, stairwell)
 -(Vertex*) computePathToTraversePointWithSourceVertex:(Vertex*) sourceVertex SameElevator:(BOOL) sameElevatorFlag NextRegion:(int) nextRegion{
     [sourceVertex MinDistance:0];
@@ -456,9 +446,9 @@
 // Preprocessor-----------------------------------------------------------------
 /* Store the thresholds of RSSI from "SettingPList.plist" file
    The distance from beacon to user phone:
-    0m = -40 ~ -49
-    1m = -50 ~ -51
-    2m = -52 ~ -57
+    0m = -40 ~ -47
+    1m = -48 ~ -52
+    2m = -53 ~ -57
     3m = -58 ~ -60
     4m = -61 ~
    Developer can reset the thresholds of RSSI to "SettingPList.plist" file
@@ -474,8 +464,8 @@
 #define RSSI_4 [[[[settingPList objectForKey:@"RSSIValue"] objectForKey:@"4M"] objectForKey:@"Max"] intValue]
 // -----------------------------------------------------------------------------
 
-// use RSSI value to judgment distance
--(NSInteger)RSSIJudgment:(CLBeacon *)beacon{
+// Use RSSI value to judgment distance
+-(NSInteger)RSSIJudgment:(CLBeacon *)beacon {
     NSInteger rssi = [beacon rssi];
     NSInteger distance = 4;
     
@@ -485,7 +475,7 @@
         distance = 0;
     }
     // if rssi > the 1M rssi minimum thresholds
-    else if (rssi >= (int)RSSI_1_MIN && rssi != 0){
+    else if (rssi >= (int)RSSI_1_MIN && rssi != 0) {
         NSLog(@"t12");
         distance = 1;
     }

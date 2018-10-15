@@ -1,25 +1,43 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <BuildingA>
     <region1>
-        <nodeuuid UUID='E2C56DB5-DFFB-48D2-B060-D0F5344DC841' Identifier='A'/>
+        <!-- Lab test -->
+        <nodeuuid UUID='640464f4-4402-fe4c-c841-d0f530000000' Identifier='Y'/>
+        <nodeuuid UUID='640464f4-4402-d34c-c841-d0f530000000' Identifier='Z'/>
+        
+        <!-- OpenHouse -->
+        <nodeuuid UUID='40200000-0000-6E4C-C841-00000A21F342' Identifier='K'/>
+        <nodeuuid UUID='40200000-0000-264D-C841-00000A21F342' Identifier='A'/>
+        <nodeuuid UUID='40200000-0000-FE4C-C841-00000A21F342' Identifier='C'/>
+        
+        <nodeuuid UUID='40200000-0000-D34C-C841-00000A21F342' Identifier='E'/>
+        <nodeuuid UUID='40200000-0000-A94C-C841-00000821F342' Identifier='H'/>
+        <nodeuuid UUID='40200000-0000-8B4C-C841-00000A21F342' Identifier='I'/>
+        
+        <nodeuuid UUID='40200000-0000-FE4C-C841-00000821F342' Identifier='D'/>
+        <nodeuuid UUID='40200000-0000-264D-C841-00000821F342' Identifier='B'/>
+        <nodeuuid UUID='40200000-0000-8B4C-C841-00000821F342' Identifier='J'/>
+        <nodeuuid UUID='40200000-0000-A94C-C841-00000A21F342' Identifier='G'/>
+        
+       <!--nodeuuid UUID='E2C56DB5-DFFB-48D2-B060-D0F5344DC841' Identifier='A'/>
         <nodeuuid UUID='E2C56DB5-DFFB-48D2-B060-D0F5354DC841' Identifier='B'/>
         <nodeuuid UUID='E2C56DB5-DFFB-48D2-B060-D0F51D4DC841' Identifier='C'/>
         <nodeuuid UUID='E2C56DB5-DFFB-48D2-B060-D0F5778AC841' Identifier='D'/>
         <nodeuuid UUID='E2C56DB5-DFFB-48D2-B060-D0F5ED4CC841' Identifier='E'/>
         <nodeuuid UUID='E2C56DB5-DFFB-48D2-B060-D0F5EE4CC841' Identifier='F'/>
         <nodeuuid UUID='E2C56DB5-DFFB-48D2-B060-D0F5EF4CC841' Identifier='G'/>
-        <nodeuuid UUID='E2C56DB5-DFFB-48D2-B060-D0F5D54CC841' Identifier='H'/>
+        <nodeuuid UUID='E2C56DB5-DFFB-48D2-B060-D0F5D54CC841' Identifier='H'/-->
     </region1>
     
     <region2>
-        <nodeuuid UUID='6f8ed10c-c44a-4e8f-b1ba-bdfda881241b' Identifier='I'/>
+        <!--nodeuuid UUID='6f8ed10c-c44a-4e8f-b1ba-bdfda881241b' Identifier='I'/>
         <nodeuuid UUID='39d86638-8fad-46b6-8171-3be5b4b37883' Identifier='J'/>
         <nodeuuid UUID='755c187a-f668-4487-85fe-b0c5e4d89f7d' Identifier='K'/>
         <nodeuuid UUID='3e254a6e-8b1d-4d8d-937b-b4fbde844d92' Identifier='L'/>
         <nodeuuid UUID='a5779db5-cb23-4daa-8e31-40352fe1c693' Identifier='M'/>
         <nodeuuid UUID='1f8c1d96-52f4-41d9-912e-857a17b051d9' Identifier='N'/>
         <nodeuuid UUID='59cab20d-92c7-4759-b965-f8ec797d9a05' Identifier='O'/>
-        <nodeuuid UUID='04248653-f62b-47c4-967b-92a1a12a4505' Identifier='P'/>
+        <nodeuuid UUID='04248653-f62b-47c4-967b-92a1a12a4505' Identifier='P'/-->
     </region2>
     
     <region3>

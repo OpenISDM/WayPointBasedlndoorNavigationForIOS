@@ -60,18 +60,18 @@
         self.categoryList = [NSMutableArray new];
         self.categoryData = [NSMutableDictionary new];
     }
+    
     return self;
 }
 
-#pragma mark -Do XML Parser
+#pragma mark - Do XML Parser
 - (void)startXMLParser: (NSString*) filename{
     
     self.localArray = [[NSMutableArray alloc] init];
     self.fileDirName = filename;
     fileflag = YES;
+    
     //open indoorpoint data file & save data & close file
-    
-    
     NSString *path = [[NSBundle mainBundle] pathForResource:filename ofType:@"xml" inDirectory:filename];
     NSFileHandle *file = [NSFileHandle fileHandleForReadingAtPath:path];
     NSData *data = [file readDataToEndOfFile];
@@ -197,7 +197,7 @@
     
 }
 
-// get the attributeDict content
+// Ｇet the attributeDict content
 - (void) parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary<NSString *,NSString *> *)attributeDict{
     
     // save attribute in array
@@ -330,7 +330,8 @@
 
 -(NSMutableDictionary *)returnCategoryData{
     NSLog(@"qt:%@",self.categoryData);
-    return self.categoryData;}
+    return self.categoryData;
+}
 
 -(NSMutableDictionary *)returnUUIDData{
     return self.uuidData;
