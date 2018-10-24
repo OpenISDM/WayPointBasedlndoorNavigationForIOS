@@ -5,7 +5,7 @@
 
 
     <region3>
-        <node id='1' name='1' region='region3' lat='25.04052874756' lon='121.51913970642' neighbor1='3' neighbor2='' neighbor3='' neighbor4='' category='Category3' nodeType='' connectPointID='' elevation='1'/>
+        <!--node id='1' name='1' region='region3' lat='25.04052874756' lon='121.51913970642' neighbor1='3' neighbor2='' neighbor3='' neighbor4='' category='Category3' nodeType='' connectPointID='' elevation='1'/>
         <node id='2' name='2' region='region3' lat='25.04050383899' lon='121.51911288433' neighbor1='3' neighbor2='' neighbor3='' neighbor4='' category='' nodeType='1' connectPointID='1' elevation='1'/>
         <node id='3' name='3' region='region3' lat='25.04050444652' lon='121.51914171807' neighbor1='1' neighbor2='2' neighbor3='4' neighbor4='7' category='' nodeType='' connectPointID='' elevation='1'/>
         <node id='4' name='4' region='region3' lat='25.04050505404' lon='121.51916585796' neighbor1='3' neighbor2='5' neighbor3='8' neighbor4='' category='' nodeType='' connectPointID='' elevation='1'/>
@@ -15,7 +15,7 @@
         <node id='8' name='8' region='region3' lat='25.0404831831' lon='121.51916585796' neighbor1='4' neighbor2='7' neighbor3='9' neighbor4='11' category='' nodeType='' connectPointID='' elevation='1'/>
         <node id='9' name='9' region='region3' lat='25.04048379062' lon='121.51918999784' neighbor1='8' neighbor2='' neighbor3='' neighbor4='' category='' nodeType='3'  connectPointID='' elevation='1'/>
         <node id='10' name='10' region='region3' lat='25.04046313472' lon='121.51914104752' neighbor1='7' neighbor2='' neighbor3='' neighbor4='' category='Category3' nodeType='' connectPointID='' elevation='1'/>
-        <node id='11' name='11' region='region3' lat='25.04046374225' lon='121.51916652851' neighbor1='8' neighbor2='' neighbor3='' neighbor4='' category='Category3' nodeType='' connectPointID='' elevation='1'/>
+        <node id='11' name='11' region='region3' lat='25.04046374225' lon='121.51916652851' neighbor1='8' neighbor2='' neighbor3='' neighbor4='' category='Category3' nodeType='' connectPointID='' elevation='1'/-->
     </region3>
 
 

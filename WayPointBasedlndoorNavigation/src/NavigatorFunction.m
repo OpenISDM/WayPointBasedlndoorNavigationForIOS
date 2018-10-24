@@ -28,6 +28,7 @@
    Authors:
  
         Wendy Lu, wendylu@iis.sinica.edu.tw
+        Paul Chang, paulchang@iis.sinica.edu.tw
  
 */
 
@@ -92,6 +93,7 @@
         self.regionPath = [NSMutableArray new];
         self.locationData = [NSMutableArray new];
         self.navigationPath = [NSMutableArray new];
+        self.UUIDtoNameDict = [NSMutableDictionary new];
         self.messageFromInstructionHandler = @"";
         self.messageFromCurrentPositionHandler = @"";
         self.messageFromWalkedPointHandle = @"";
@@ -131,8 +133,13 @@
     
     // load region data from region graph
     self.regionData = [xmlDataPerser returnRegionData];
-    // load location data from region graph
+    // load location data(Vertex) from region graph
     self.locationData = [xmlDataPerser returnLocalData];
+    
+    // switch vertex_array to dict for store all data which in graph
+    for (int i=0; i<self.locationData.count; i++) {
+        [self.UUIDtoNameDict setObject:[[self.locationData objectAtIndex:i] Name] forKey:[[self.locationData objectAtIndex:i] ID]];
+    }
     
     // regionPath for storing Region objects represent the regions that the user passes by from source to destination
     self.regionPath = [self getRegionPathWithSourceRegion:sourceRegion DestinationRegion:destinationRegion];
@@ -236,10 +243,12 @@
     return @"";
 }
 
-// Navigation thread
+// Navigation thread to compare with current beacon's Name whether match to navigationPath's Name
 -(void)navigation {
     // if the received ID matches the ID of the next waypoint in the navigation path
-    if ([[[self.navigationPath objectAtIndex:0] ID] caseInsensitiveCompare:self.currentLBeaconID] == NSOrderedSame) {
+    BOOL isBeaconNameSame = [[[self.navigationPath objectAtIndex:0] Name] isEqualToString:[self.UUIDtoNameDict objectForKey:[self.currentLBeaconID uppercaseStringWithLocale:[NSLocale currentLocale]]]];
+    //if ([[[self.navigationPath objectAtIndex:0] ID] caseInsensitiveCompare:self.currentLBeaconID] == NSOrderedSame) {
+    if (isBeaconNameSame) {
         // currentPositionHandler get the message of currently matched waypoint name
         self.messageFromCurrentPositionHandler = [[self.navigationPath objectAtIndex:0] Name];
         
@@ -310,7 +319,8 @@
         self.messageFromWalkedPointHandle = [NSString stringWithFormat:@"%i",self.walkWaypoint];
     }
     // if the received ID does not match the ID of waypoint in the navigation path
-    else if ([[[self.navigationPath objectAtIndex:0] ID] caseInsensitiveCompare:self.currentLBeaconID] != NSOrderedSame){
+    // else if ([[[self.navigationPath objectAtIndex:0] ID] caseInsensitiveCompare:self.currentLBeaconID] != NSOrderedSame) {
+    else {
         NSLog(@"current LBeacon ID is %@\n", self.currentLBeaconID);
         // set "wrong" to the "messageFromInstructionHandler" object
         self.messageFromInstructionHandler = WRONG;
@@ -367,23 +377,23 @@
     [queue add:sourceVertex];
     
     while (!queue.isEmpty) {
-        Vertex *v = [queue poll];
+        Vertex *vertex = [queue poll];
         
         // stop searching when reach the destination node
-        if ([[v ID] isEqualToString:[destinationVertex ID]]) {
+        if ([[vertex ID] isEqualToString:[destinationVertex ID]]) {
             break;
         }
         // visit each edge that is adjacent to v
-        for (Edge *e in v.Adjacencies) {
-            Vertex *a = [e Target];
-            double weight = e.Weight;
-            double distanceThroughU = v.MinDistance + weight;
+        for (Edge *_e in vertex.Adjacencies) {
+            Vertex *target = [_e Target];
+            double weight = _e.Weight;
+            double distanceThroughU = vertex.MinDistance + weight;
             
-            if (distanceThroughU < a.MinDistance) {
-                [queue remove:a];
-                [a MinDistance:distanceThroughU];
-                [a Previous:v];
-                [queue add:a];
+            if (distanceThroughU < target.MinDistance) {
+                [queue remove:target];
+                [target MinDistance:distanceThroughU];
+                [target Previous:vertex];
+                [queue add:target];
             }
         }
     }
@@ -438,7 +448,7 @@
 }
 
 
-#pragma mark - Navigator thread
+// #pragma mark - Navigator thread
 
 
 #pragma mark - RSSI

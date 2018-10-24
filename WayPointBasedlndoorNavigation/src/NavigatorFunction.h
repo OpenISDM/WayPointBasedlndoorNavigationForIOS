@@ -28,6 +28,7 @@
    Authors:
  
         Wendy Lu, wendylu@iis.sinica.edu.tw
+        Paul Chang, paulchang@iis.sinica.edu.tw
  
 */
 
@@ -67,6 +68,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 // An array of Vertex object representing a navigation path
 @property (strong, nonatomic) NSMutableArray *navigationPath;
+// A dictionary to save UUID & Name
+@property (strong, nonatomic) NSMutableDictionary *UUIDtoNameDict;
 
 // An array of Location object representing a location data
 @property (strong, nonatomic) NSMutableArray *locationData;

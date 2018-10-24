@@ -13,22 +13,24 @@
         <node id='45' name='45' region='region1' lat='25.04046556483' lon='121.51927649908' neighbor1='3e254a6e-8b1d-4d8d-937b-b4fbde844d92' neighbor2='' neighbor3='' neighbor4='' category='Category1' nodeType='' connectPointID='' elevation='3'/-->
         
         <!-- Lab test -->
-        <node id='640464f4-4402-fe4c-c841-d0f530000000' name='22' region='region1' lat='25.03759422073' lon='121.5645286273' neighbor1='640464f4-4402-d34c-c841-d0f530000000' neighbor2='' neighbor3='' neighbor4='' category='Category1' nodeType='' connectPointID='' elevation='3'/>
-        <node id='640464f4-4402-d34c-c841-d0f530000000' name='24' region='region1' lat='25.03751256483' lon='121.56452849908' neighbor1='640464f4-4402-fe4c-c841-d0f530000000' neighbor2='' neighbor3='' neighbor4='' category='Category1' nodeType='' connectPointID='' elevation='3'/>
+        <node id='640464f4-4402-fe4c-c841-d0f530000000' name='22' region='region1' lat='25.03759422073' lon='121.5645286273' neighbor1='640464f4-4402-d34c-c841-d0f530000000' neighbor2='' neighbor3='' neighbor4='' category='Lab 1F' nodeType='' connectPointID='' elevation='3'/>
+        <node id='640464f4-4402-d34c-c841-d0f530000000' name='24' region='region1' lat='25.03751256483' lon='121.56452849908' neighbor1='640464f4-4402-fe4c-c841-d0f530000000' neighbor2='' neighbor3='' neighbor4='' category='Lab 1F' nodeType='' connectPointID='' elevation='3'/>
         
-        <!-- OpenHouse >
-        <node id='40200000-0000-6E4C-C841-00000A21F342' name='K' region='region1' lat='25.041814' lon='121.615069' neighbor1='40200000-0000-264D-C841-00000A21F342' neighbor2='' neighbor3='' neighbor4='' category='Category1' nodeType='0' connectPointID='' elevation='3'/>
-        <node id='40200000-0000-264D-C841-00000A21F342' name='A' region='region1' lat='25.041751' lon='121.615069' neighbor1='40200000-0000-6E4C-C841-00000A21F342' neighbor2='40200000-0000-FE4C-C841-00000A21F342' neighbor3='' neighbor4='' category='Category1' nodeType='0' connectPointID='' elevation='3'/>
-        <node id='40200000-0000-FE4C-C841-00000A21F342' name='C' region='region1' lat='25.041701' lon='121.614988' neighbor1='40200000-0000-264D-C841-00000A21F342' neighbor2='40200000-0000-D34C-C841-00000A21F342' neighbor3='' neighbor4='' category='Category1' nodeType='0' connectPointID='' elevation='3'/>
+        <!-- OpenHouse -->
+        <!--node id='40200000-0000-6E4C-C841-00000A21F342' name='K' region='region1' lat='25.041814' lon='121.615069' neighbor1='40200000-0000-264D-C841-00000A21F342' neighbor2='' neighbor3='' neighbor4='' category='OpenHouse' nodeType='0' connectPointID='' elevation='3'/-->
+        <node id='40200000-0000-264D-C841-00000A21F342' name='A' region='region1' lat='25.041751' lon='121.615069' neighbor1='40200000-0000-FE4C-C841-00000A21F342' neighbor2='' neighbor3='' neighbor4='' category='OpenHouse' nodeType='0' connectPointID='' elevation='3'/>
+        <node id='40200000-0000-FE4C-C841-00000A21F342' name='C' region='region1' lat='25.041701' lon='121.614988' neighbor1='40200000-0000-264D-C841-00000A21F342' neighbor2='40200000-0000-D34C-C841-00000A21F342' neighbor3='' neighbor4='' category='OpenHouse' nodeType='0' connectPointID='' elevation='3'/>
         
-        <node id='40200000-0000-D34C-C841-00000A21F342' name='E' region='region1' lat='25.041640' lon='121.614988' neighbor1='40200000-0000-FE4C-C841-00000A21F342' neighbor2='40200000-0000-A94C-C841-00000821F342' neighbor3='40200000-0000-8B4C-C841-00000A21F342' neighbor4='40200000-0000-FE4C-C841-00000821F342' category='Category1' nodeType='0' connectPointID='2' elevation='3'/>
-        <node id='40200000-0000-A94C-C841-00000821F342' name='H' region='region1' lat='25.041615' lon='121.614933' neighbor1='40200000-0000-D34C-C841-00000A21F342' neighbor2='' neighbor3='' neighbor4='' category='Category1' nodeType='0' connectPointID='' elevation='3'/>
-        <node id='40200000-0000-8B4C-C841-00000A21F342' name='I' region='region1' lat='25.041586' lon='121.614988' neighbor1='40200000-0000-D34C-C841-00000A21F342' neighbor2='' neighbor3='' neighbor4='' category='Category1' nodeType='0' connectPointID='' elevation='3'/>
+        <node id='40200000-0000-D34C-C841-00000A21F342' name='E' region='region1' lat='25.041640' lon='121.614988' neighbor1='40200000-0000-FE4C-C841-00000A21F342' neighbor2='40200000-0000-A94C-C841-00000821F342' neighbor3='40200000-0000-8B4C-C841-00000A21F342' neighbor4='40200000-0000-D34C-C841-00000821F342' category='OpenHouse' nodeType='0' connectPointID='2' elevation='3'/>
+        <node id='40200000-0000-A94C-C841-00000821F342' name='H' region='region1' lat='25.041615' lon='121.614933' neighbor1='40200000-0000-D34C-C841-00000A21F342' neighbor2='' neighbor3='' neighbor4='' category='OpenHouse' nodeType='0' connectPointID='' elevation='3'/>
+        <node id='40200000-0000-8B4C-C841-00000A21F342' name='I' region='region1' lat='25.041586' lon='121.614988' neighbor1='40200000-0000-D34C-C841-00000A21F342' neighbor2='' neighbor3='' neighbor4='' category='OpenHouse' nodeType='0' connectPointID='' elevation='3'/>
         
-        <node id='40200000-0000-FE4C-C841-00000821F342' name='D' region='region1' lat='25.041640' lon='121.615030' neighbor1='40200000-0000-D34C-C841-00000A21F342' neighbor2='40200000-0000-264D-C841-00000821F342' neighbor3='40200000-0000-8B4C-C841-00000821F342' neighbor4='40200000-0000-A94C-C841-00000A21F342' category='Category1' nodeType='2' connectPointID='2' elevation='3'/>
-        <node id='40200000-0000-264D-C841-00000821F342' name='B' region='region1' lat='25.041690' lon='121.615086' neighbor1='40200000-0000-FE4C-C841-00000821F342' neighbor2='' neighbor3='' neighbor4='' category='Category1' nodeType='0' connectPointID='' elevation='3'/>
-        <node id='40200000-0000-8B4C-C841-00000821F342' name='J' region='region1' lat='25.041640' lon='121.615107' neighbor1='40200000-0000-FE4C-C841-00000821F342' neighbor2='' neighbor3='' neighbor4='' category='Category1' nodeType='0' connectPointID='' elevation='3'/>
-        <node id='40200000-0000-A94C-C841-00000A21F342' name='G' region='region1' lat='25.041605' lon='121.615030' neighbor1='40200000-0000-FE4C-C841-00000821F342' neighbor2='' neighbor3='' neighbor4='' category='Category1' nodeType='0' connectPointID='' elevation='3'/-->
+        <node id='40200000-0000-D34C-C841-00000821F342' name='F' region='region1' lat='25.041645' lon='121.615030' neighbor1='40200000-0000-D34C-C841-00000A21F342' neighbor2='40200000-0000-264D-C841-00000821F342' neighbor3='40200000-0000-8B4C-C841-00000821F342' neighbor4='' category='OpenHouse' nodeType='2' connectPointID='2' elevation='3'/>
+        <node id='40200000-0000-6E4C-C841-00000821F342' name='F' region='region1' lat='25.041645' lon='121.615030' neighbor1='' neighbor2='' neighbor3='' neighbor4='' category='OpenHouse' nodeType='2' connectPointID='2' elevation='3'/>
+        
+        
+        <node id='40200000-0000-264D-C841-00000821F342' name='B' region='region1' lat='25.041690' lon='121.615086' neighbor1='40200000-0000-D34C-C841-00000821F342' neighbor2='' neighbor3='' neighbor4='' category='OpenHouse' nodeType='0' connectPointID='' elevation='3'/>
+        <node id='40200000-0000-8B4C-C841-00000821F342' name='J' region='region1' lat='25.041640' lon='121.615107' neighbor1='40200000-0000-D34C-C841-00000821F342' neighbor2='' neighbor3='' neighbor4='' category='OpenHouse' nodeType='0' connectPointID='' elevation='3'/>
         
     </region1>
 

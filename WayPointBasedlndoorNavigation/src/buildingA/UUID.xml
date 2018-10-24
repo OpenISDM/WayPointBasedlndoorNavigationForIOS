@@ -6,7 +6,7 @@
         <nodeuuid UUID='640464f4-4402-d34c-c841-d0f530000000' Identifier='Z'/>
         
         <!-- OpenHouse -->
-        <nodeuuid UUID='40200000-0000-6E4C-C841-00000A21F342' Identifier='K'/>
+        <!--nodeuuid UUID='40200000-0000-6E4C-C841-00000A21F342' Identifier='K'/-->
         <nodeuuid UUID='40200000-0000-264D-C841-00000A21F342' Identifier='A'/>
         <nodeuuid UUID='40200000-0000-FE4C-C841-00000A21F342' Identifier='C'/>
         
@@ -14,19 +14,12 @@
         <nodeuuid UUID='40200000-0000-A94C-C841-00000821F342' Identifier='H'/>
         <nodeuuid UUID='40200000-0000-8B4C-C841-00000A21F342' Identifier='I'/>
         
-        <nodeuuid UUID='40200000-0000-FE4C-C841-00000821F342' Identifier='D'/>
+        <nodeuuid UUID='40200000-0000-D34C-C841-00000821F342' Identifier='F'/>
+        <nodeuuid UUID='40200000-0000-6E4C-C841-00000821F342' Identifier='D'/>
+        
         <nodeuuid UUID='40200000-0000-264D-C841-00000821F342' Identifier='B'/>
         <nodeuuid UUID='40200000-0000-8B4C-C841-00000821F342' Identifier='J'/>
-        <nodeuuid UUID='40200000-0000-A94C-C841-00000A21F342' Identifier='G'/>
         
-       <!--nodeuuid UUID='E2C56DB5-DFFB-48D2-B060-D0F5344DC841' Identifier='A'/>
-        <nodeuuid UUID='E2C56DB5-DFFB-48D2-B060-D0F5354DC841' Identifier='B'/>
-        <nodeuuid UUID='E2C56DB5-DFFB-48D2-B060-D0F51D4DC841' Identifier='C'/>
-        <nodeuuid UUID='E2C56DB5-DFFB-48D2-B060-D0F5778AC841' Identifier='D'/>
-        <nodeuuid UUID='E2C56DB5-DFFB-48D2-B060-D0F5ED4CC841' Identifier='E'/>
-        <nodeuuid UUID='E2C56DB5-DFFB-48D2-B060-D0F5EE4CC841' Identifier='F'/>
-        <nodeuuid UUID='E2C56DB5-DFFB-48D2-B060-D0F5EF4CC841' Identifier='G'/>
-        <nodeuuid UUID='E2C56DB5-DFFB-48D2-B060-D0F5D54CC841' Identifier='H'/-->
     </region1>
     
     <region2>
@@ -41,6 +34,7 @@
     </region2>
     
     <region3>
+        <!--nodeuuid UUID='' Identifier=''/>
         <nodeuuid UUID='' Identifier=''/>
         <nodeuuid UUID='' Identifier=''/>
         <nodeuuid UUID='' Identifier=''/>
@@ -50,11 +44,11 @@
         <nodeuuid UUID='' Identifier=''/>
         <nodeuuid UUID='' Identifier=''/>
         <nodeuuid UUID='' Identifier=''/>
-        <nodeuuid UUID='' Identifier=''/>
-        <nodeuuid UUID='' Identifier=''/>
+        <nodeuuid UUID='' Identifier=''/-->
     </region3>
     
     <region4>
+        <!--nodeuuid UUID='' Identifier=''/>
         <nodeuuid UUID='' Identifier=''/>
         <nodeuuid UUID='' Identifier=''/>
         <nodeuuid UUID='' Identifier=''/>
@@ -63,8 +57,7 @@
         <nodeuuid UUID='' Identifier=''/>
         <nodeuuid UUID='' Identifier=''/>
         <nodeuuid UUID='' Identifier=''/>
-        <nodeuuid UUID='' Identifier=''/>
-        <nodeuuid UUID='' Identifier=''/>
+        <nodeuuid UUID='' Identifier=''/-->
     </region4>
     
     <region5>

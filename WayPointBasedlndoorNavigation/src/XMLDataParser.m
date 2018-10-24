@@ -26,6 +26,7 @@
    Authors:
  
         Wendy Lu, wendylu@iis.sinica.edu.tw
+        Paul Chang, paulchang@iis.sinica.edu.tw
  
  */
 
@@ -233,7 +234,18 @@
         }
         
         vlocation = [[Vertex alloc] initForUIDisplay:_ID Name:_name Region:_region Category:_category];
-        [self.localArray addObject:vlocation];
+        BOOL isGroupBeacon = NO;
+        //check whether is group beacon
+        for (Vertex *_v in self.localArray) {
+            if ([vlocation.Name isEqualToString:_v.Name]) {
+                isGroupBeacon = YES;
+                break;
+            }
+        }
+        
+        if (!isGroupBeacon) {
+            [self.localArray addObject:vlocation];
+        }
         
     }
     else if ([elementName isEqualToString:@"node"]){
@@ -269,8 +281,9 @@
         }
         
     }
-    else if ([elementName isEqualToString:@"nodeuuid"]){
-        NSString *_uuid = [attributeDict objectForKey:@"UUID"];
+    else if ([elementName isEqualToString:@"nodeuuid"]) {
+        // convert all uuid to uppercase
+        NSString *_uuid = [[attributeDict objectForKey:@"UUID"] uppercaseStringWithLocale:[NSLocale currentLocale]];
         NSString *_identifier = [attributeDict objectForKey:@"Identifier"];
         
         if (![_uuid isEqualToString:@""] && ![_identifier isEqualToString:@""]) {

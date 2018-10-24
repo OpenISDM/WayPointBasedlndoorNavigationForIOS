@@ -28,6 +28,7 @@
    Authors:
  
         Wendy Lu, wendylu@iis.sinica.edu.tw
+        Paul Chang, paulchang@iis.sinica.edu.tw
  
  */
 
@@ -161,6 +162,8 @@
 
 // An array of Vertex object representing a navigation path
 @property (strong, nonatomic) NSMutableArray *navigationPath;
+// A dictionary to save UUID & Name
+@property (strong, nonatomic) NSMutableDictionary *UUIDtoNameDict;
 
 // An array of Location object representing a location data
 @property (strong, nonatomic) NSMutableArray *locationData;
@@ -255,6 +258,7 @@
     self.regionData = [NSMutableDictionary new];
     self.navigationGraph = [NSMutableArray new];
     self.navigationPath = [NSMutableArray new];
+    self.UUIDtoNameDict = [NSMutableDictionary new];
     geoCalculation = [GeoCalculation new];
     pathSpeaker = [AVSpeechSynthesizer new];
     speakerOfNextStep = NO;
@@ -298,6 +302,7 @@
         self.regionPath = getPath.regionPath;
         self.navigationGraph = getPath.navigationGraph;
         self.navigationPath = getPath.navigationPath;
+        self.UUIDtoNameDict = getPath.UUIDtoNameDict;
         self.locationData = getPath.locationData;
         NSLog(@"startflag:%d",startFlag);
         NSLog(@"NavPath2:%@",self.navigationPath);
@@ -501,19 +506,22 @@
         
         // when user at the 1st waypoint
         // NSLog(@"\nStartCurrentLBeaconID is %@\nbeacon.proximityUUID.UUIDString is %@", self.currentLBeaconID, beacon.proximityUUID.UUIDString);
+        BOOL isBeaconNameSame = [[self.UUIDtoNameDict objectForKey:[self.currentLBeaconID uppercaseStringWithLocale:[NSLocale currentLocale]]] isEqualToString:
+                                 [self.UUIDtoNameDict objectForKey:[beacon.proximityUUID.UUIDString uppercaseStringWithLocale:[NSLocale currentLocale]]]];
+        
         if (startFlag) {
-            if (![self.currentLBeaconID isEqualToString:beacon.proximityUUID.UUIDString] && (distance == 1 || distance == 0)) {
+            if (!isBeaconNameSame && (distance == 1 || distance == 0)) {
                 NSLog(@"t14");
                 currentDisplayFlag = YES;
                 self.currentLBeaconID = beacon.proximityUUID.UUIDString;
                 [getPath setCurrentLBeaconID:self.currentLBeaconID];
                 [self drawNowPointGraph:pathValue];
                 pathValue++;
-                dispatch_semaphore_signal(semaphore);
+                dispatch_semaphore_signal(semaphore);  // lanuch function(threadNavigator) and compare the UUID whether correct
             }
         }
         else {
-            if (distance == 1 && ![self.currentLBeaconID isEqualToString:beacon.proximityUUID.UUIDString]) {
+            if (distance == 1 && !isBeaconNameSame) {
                 NSLog(@"t10");
                 self.currentLBeaconID = beacon.proximityUUID.UUIDString;
                 [getPath setCurrentLBeaconID:self.currentLBeaconID];
@@ -522,10 +530,10 @@
                 self.howFarToMove.hidden = NO;
                 [self drawNowPointGraph:pathValue];
                 pathValue++;
-                dispatch_semaphore_signal(semaphore);
+                dispatch_semaphore_signal(semaphore);  // lanuch function(threadNavigator) and compare the UUID whether correct
             }
             else if (distance == 0) {
-                if (!currentDisplayFlag && [self.currentLBeaconID isEqualToString:beacon.proximityUUID.UUIDString]) {
+                if (!currentDisplayFlag && isBeaconNameSame) {
                     NSLog(@"t10:%i",(int)distance);
                     currentDisplayFlag = YES;
                     AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
@@ -870,9 +878,9 @@
     
     else if ([s isEqualToString:WRONG]) {
         self.turnNotificationForPoput = nil;
-        NSLog(@"currentLBeaconID is %@\n", [self.currentLBeaconID lowercaseStringWithLocale:[NSLocale currentLocale]]);
+        NSLog(@"currentLBeaconID is %@\n", [self.currentLBeaconID uppercaseStringWithLocale:[NSLocale currentLocale]]);
         // self.startID = self.currentLBeaconID;
-        self.startID = [self.currentLBeaconID lowercaseStringWithLocale:[NSLocale currentLocale]];
+        self.startID = [self.currentLBeaconID uppercaseStringWithLocale:[NSLocale currentLocale]];
         self.starRegion = [getPath resetNavigationPathWithFileName:FILENAME SourceID:self.startID];
         resetFlag = YES;
         dispatch_semaphore_signal(self->semaphore);
@@ -1008,7 +1016,7 @@
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         while (self.navigationPath.count != 0) {
             // the thread waits for beacon manager to notify it when a new
-            // Lbeacon ID is reseived
+            // Lbeacon ID is received
             dispatch_semaphore_wait(self->semaphore, DISPATCH_TIME_FOREVER);
             self->speakerOfNextStep = NO;
             NSLog(@"current:%@vs%@",self.currentLBeaconID,[[self.navigationPath objectAtIndex:0] ID]);
@@ -1018,7 +1026,9 @@
                 break;
             }
             
+            // compare the received ID whether match in the path
             [self->getPath navigation];
+            
             self->walkedWaypoint = [self->getPath walkWaypoint];
             if (![[self->getPath messageFromWalkedPointHandle] isEqualToString:@""] && ![[self->getPath messageFromCurrentPositionHandler] isEqualToString:@""]) {
                 // send the newly updated message to three thread method
