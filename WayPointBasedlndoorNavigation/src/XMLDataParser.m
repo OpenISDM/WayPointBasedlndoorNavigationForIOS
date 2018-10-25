@@ -69,6 +69,7 @@
 - (void)startXMLParser: (NSString*) filename{
     
     self.localArray = [[NSMutableArray alloc] init];
+    self.groupBeaconArray = [[NSMutableArray alloc] init];
     self.fileDirName = filename;
     fileflag = YES;
     
@@ -232,12 +233,13 @@
         if (![self categoryExist:self.categoryList Target:_category]) {
             [self.categoryList addObject:_category];
         }
-        
-        vlocation = [[Vertex alloc] initForUIDisplay:_ID Name:_name Region:_region Category:_category];
+        // use uppercaseString method to convert all UUID to upper case
+        vlocation = [[Vertex alloc] initForUIDisplay:[_ID uppercaseString] Name:_name Region:_region Category:_category];
         BOOL isGroupBeacon = NO;
         //check whether is group beacon
         for (Vertex *_v in self.localArray) {
             if ([vlocation.Name isEqualToString:_v.Name]) {
+                [self.groupBeaconArray addObject:vlocation];  // add group beacon
                 isGroupBeacon = YES;
                 break;
             }
@@ -331,6 +333,10 @@
 
 -(NSMutableArray *)returnLocalData{
     return self.localArray;
+}
+
+-(NSMutableArray *)returnGroupBeaconArray {
+    return self.groupBeaconArray;
 }
 
 -(NSMutableArray *)returnRoutingData{

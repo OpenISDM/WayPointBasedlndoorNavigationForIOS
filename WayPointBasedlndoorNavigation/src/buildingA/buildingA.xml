@@ -7,8 +7,8 @@
         <location id='6f8ed10c-c44a-4e8f-b1ba-bdfda881241b' name='44' region='region1' category='Category1'/-->
         
         <!-- Lab test -->
-        <location id='640464f4-4402-fe4c-c841-d0f530000000' name='22' region='region1' category='Lab 1F'/>
-        <location id='640464f4-4402-d34c-c841-d0f530000000' name='24' region='region1' category='Lab 1F'/>
+        <location id='640464F4-4402-FE4C-C841-D0F530000000' name='22' region='region1' category='Lab 1F'/>
+        <location id='640464F4-4402-D34C-C841-D0F530000000' name='24' region='region1' category='Lab 1F'/>
         
         <!-- OpenHouse -->
         <!--location id='40200000-0000-6E4C-C841-00000A21F342' name='K' region='region1' category='OpenHouse'/-->

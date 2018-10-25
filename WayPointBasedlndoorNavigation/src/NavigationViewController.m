@@ -322,7 +322,6 @@
         [self drawNavGraph];
         
         // navigation thread start
-        // [self navThread];
         [self threadNavigator];
     }
     
@@ -1082,6 +1081,7 @@
             [self.navigationController dismissViewControllerAnimated:YES completion:NULL];
             NSLog(@"reSTART=>Start:%@,Destination:%@",self.startID,self.DestinationID);
             [self viewDidLoad];
+            self.currentLBeaconID = @"";  // clear it to resart navigation correct
         }];
     }
     else if (flag == MAKETURN_NOTIFIER){

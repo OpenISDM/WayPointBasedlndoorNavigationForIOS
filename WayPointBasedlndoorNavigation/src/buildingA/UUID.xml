@@ -2,8 +2,8 @@
 <BuildingA>
     <region1>
         <!-- Lab test -->
-        <nodeuuid UUID='640464f4-4402-fe4c-c841-d0f530000000' Identifier='Y'/>
-        <nodeuuid UUID='640464f4-4402-d34c-c841-d0f530000000' Identifier='Z'/>
+        <nodeuuid UUID='640464F4-4402-FE4C-C841-D0F530000000' Identifier='Y'/>
+        <nodeuuid UUID='640464F4-4402-D34C-C841-D0F530000000' Identifier='Z'/>
         
         <!-- OpenHouse -->
         <!--nodeuuid UUID='40200000-0000-6E4C-C841-00000A21F342' Identifier='K'/-->

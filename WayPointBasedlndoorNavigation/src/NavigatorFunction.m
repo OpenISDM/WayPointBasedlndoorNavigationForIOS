@@ -92,6 +92,7 @@
         self.regionData = [NSMutableDictionary new];
         self.regionPath = [NSMutableArray new];
         self.locationData = [NSMutableArray new];
+        self.groupBeaconArray = [NSMutableArray new];
         self.navigationPath = [NSMutableArray new];
         self.UUIDtoNameDict = [NSMutableDictionary new];
         self.messageFromInstructionHandler = @"";
@@ -135,12 +136,18 @@
     self.regionData = [xmlDataPerser returnRegionData];
     // load location data(Vertex) from region graph
     self.locationData = [xmlDataPerser returnLocalData];
+    // load Group Beacon Array
+    self.groupBeaconArray = [xmlDataPerser returnGroupBeaconArray];
     
     // switch vertex_array to dict for store all data which in graph
     for (int i=0; i<self.locationData.count; i++) {
         [self.UUIDtoNameDict setObject:[[self.locationData objectAtIndex:i] Name] forKey:[[self.locationData objectAtIndex:i] ID]];
     }
-    
+    // add group beacon in dict
+    for (int i=0; i<self.groupBeaconArray.count; i++) {
+        [self.UUIDtoNameDict setObject:[[self.groupBeaconArray objectAtIndex:i] Name] forKey:[[self.groupBeaconArray objectAtIndex:i] ID]];
+    }
+        
     // regionPath for storing Region objects represent the regions that the user passes by from source to destination
     self.regionPath = [self getRegionPathWithSourceRegion:sourceRegion DestinationRegion:destinationRegion];
     // an array of string of region name in regionPath

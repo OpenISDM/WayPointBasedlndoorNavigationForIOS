@@ -13,8 +13,8 @@
         <node id='45' name='45' region='region1' lat='25.04046556483' lon='121.51927649908' neighbor1='3e254a6e-8b1d-4d8d-937b-b4fbde844d92' neighbor2='' neighbor3='' neighbor4='' category='Category1' nodeType='' connectPointID='' elevation='3'/-->
         
         <!-- Lab test -->
-        <node id='640464f4-4402-fe4c-c841-d0f530000000' name='22' region='region1' lat='25.03759422073' lon='121.5645286273' neighbor1='640464f4-4402-d34c-c841-d0f530000000' neighbor2='' neighbor3='' neighbor4='' category='Lab 1F' nodeType='' connectPointID='' elevation='3'/>
-        <node id='640464f4-4402-d34c-c841-d0f530000000' name='24' region='region1' lat='25.03751256483' lon='121.56452849908' neighbor1='640464f4-4402-fe4c-c841-d0f530000000' neighbor2='' neighbor3='' neighbor4='' category='Lab 1F' nodeType='' connectPointID='' elevation='3'/>
+        <node id='640464F4-4402-FE4C-C841-D0F530000000' name='22' region='region1' lat='25.03759422073' lon='121.5645286273' neighbor1='640464f4-4402-d34c-c841-d0f530000000' neighbor2='' neighbor3='' neighbor4='' category='Lab 1F' nodeType='' connectPointID='' elevation='3'/>
+        <node id='640464F4-4402-D34C-C841-D0F530000000' name='24' region='region1' lat='25.03751256483' lon='121.56452849908' neighbor1='640464f4-4402-fe4c-c841-d0f530000000' neighbor2='' neighbor3='' neighbor4='' category='Lab 1F' nodeType='' connectPointID='' elevation='3'/>
         
         <!-- OpenHouse -->
         <!--node id='40200000-0000-6E4C-C841-00000A21F342' name='K' region='region1' lat='25.041814' lon='121.615069' neighbor1='40200000-0000-264D-C841-00000A21F342' neighbor2='' neighbor3='' neighbor4='' category='OpenHouse' nodeType='0' connectPointID='' elevation='3'/-->

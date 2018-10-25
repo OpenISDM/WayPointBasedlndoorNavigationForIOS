@@ -73,6 +73,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 // An array of Location object representing a location data
 @property (strong, nonatomic) NSMutableArray *locationData;
+// An array of Group Beacons
+@property (strong, nonatomic) NSMutableArray *groupBeaconArray;
 
 // A string of LBeacon ID object representing current site.
 @property (strong, nonatomic) NSString *currentLBeaconID;

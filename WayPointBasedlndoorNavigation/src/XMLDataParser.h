@@ -52,6 +52,7 @@
 @property (strong, nonatomic) NSMutableArray *categoryList;
 @property (strong, nonatomic) NSMutableDictionary *categoryData;
 @property (strong, nonatomic) NSMutableArray *localArray;
+@property (strong, nonatomic) NSMutableArray *groupBeaconArray;
 @property (strong, nonatomic) NSString *fileName;
 @property (strong, nonatomic) NSMutableArray *routingData;
 @property (strong, nonatomic) NSMutableArray *Adjacencies;
@@ -67,6 +68,7 @@
 - (NSMutableDictionary *)returnRegionData;
 
 - (NSMutableArray *)returnLocalData;
+- (NSMutableArray *)returnGroupBeaconArray;
 
 - (NSMutableArray *) returnRoutingData;
 
