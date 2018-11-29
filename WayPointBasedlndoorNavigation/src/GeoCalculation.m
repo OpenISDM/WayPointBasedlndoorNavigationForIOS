@@ -97,15 +97,15 @@
     
     // Difference interval to determine the true direction
     if (angle >=FRONT_DIRECTION_SMALL_LOWER_BOUND && angle <= FRONT_DIRECTION_SMALL_UPPER_BOUND) {direction = @"front";}
-    else if (angle >= FRONT_DIRECTION_SMALL_UPPER_BOUND && angle <= RIGHT_DIRECTION_LOWER_BOUND){direction = @"frontRight";}
-    else if (angle >= RIGHT_DIRECTION_LOWER_BOUND && angle <=RIGHT_DIRECTION_UPPER_BOUND){direction = @"right";}
-    else if (angle >= RIGHT_DIRECTION_UPPER_BOUND && angle <= BACK_DIRECTION_LOWER_BOUND){direction = @"rearRight";}
-    else if (angle >= BACK_DIRECTION_LOWER_BOUND && angle <= BACK_DIRECTION_UPPER_BOUND){direction = @"rear";}
-    else if (angle >= BACK_DIRECTION_UPPER_BOUND && angle <= LEFT_DIRECTION_LOWER_BOUND){direction = @"rearLeft";}
-    else if (angle >= LEFT_DIRECTION_LOWER_BOUND && angle <= LEFT_DIRECTION_UPPER_BOUND){direction = @"left";}
-    else if (angle >= LEFT_DIRECTION_UPPER_BOUND && angle <= FRONT_DIRECTION_BIG_LOWER_BOUND){direction = @"frontLeft";}
-    else if (angle >= FRONT_DIRECTION_BIG_LOWER_BOUND && angle <= FRONT_DIRECTION_BIG_UPPER_BOUND){direction = @"front";}
-    NSLog(@"%i-%i=%i    %@",bearingFromAToB,bearingFromBToC,angle,direction);
+    else if (angle >= FRONT_DIRECTION_SMALL_UPPER_BOUND && angle <= RIGHT_DIRECTION_LOWER_BOUND) {direction = @"frontRight";}
+    else if (angle >= RIGHT_DIRECTION_LOWER_BOUND && angle <=RIGHT_DIRECTION_UPPER_BOUND) {direction = @"right";}
+    else if (angle >= RIGHT_DIRECTION_UPPER_BOUND && angle <= BACK_DIRECTION_LOWER_BOUND) {direction = @"rearRight";}
+    else if (angle >= BACK_DIRECTION_LOWER_BOUND && angle <= BACK_DIRECTION_UPPER_BOUND) {direction = @"rear";}
+    else if (angle >= BACK_DIRECTION_UPPER_BOUND && angle <= LEFT_DIRECTION_LOWER_BOUND) {direction = @"rearLeft";}
+    else if (angle >= LEFT_DIRECTION_LOWER_BOUND && angle <= LEFT_DIRECTION_UPPER_BOUND) {direction = @"left";}
+    else if (angle >= LEFT_DIRECTION_UPPER_BOUND && angle <= FRONT_DIRECTION_BIG_LOWER_BOUND) {direction = @"frontLeft";}
+    else if (angle >= FRONT_DIRECTION_BIG_LOWER_BOUND && angle <= FRONT_DIRECTION_BIG_UPPER_BOUND) {direction = @"front";}
+    NSLog(@"bearingFromAToB(%i) - bearingFromBToC(%i) = angle(%i), direction is %@", bearingFromAToB, bearingFromBToC, angle, direction);
     return direction;
 }
 

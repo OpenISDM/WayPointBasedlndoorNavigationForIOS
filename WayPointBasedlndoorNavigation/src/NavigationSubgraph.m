@@ -64,7 +64,6 @@
             [listOfEdge addObject:e];
         }
         [[self.verticesInSubgraph objectForKey:key] Adjacencies:listOfEdge];
-         NSLog(@"RRR:%@",vertex.ID);
 
     }
 }

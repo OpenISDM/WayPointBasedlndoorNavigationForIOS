@@ -70,6 +70,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) NSMutableArray *navigationPath;
 // A dictionary to save UUID & Name
 @property (strong, nonatomic) NSMutableDictionary *UUIDtoNameDict;
+// A array to save all beacons information
+@property (strong, nonatomic) NSMutableArray *VertexArray;
 
 // An array of Location object representing a location data
 @property (strong, nonatomic) NSMutableArray *locationData;
@@ -98,6 +100,9 @@ NS_ASSUME_NONNULL_BEGIN
 -(NSString*)resetNavigationPathWithFileName:(NSString*) fileName SourceID:(NSString*) sourceID;
 // match the current point and the waypoint of navigation path
 -(void)navigation;
+
+// compute the direction for restart navigation
+-(NSString*)computeDirectionForReNavigation:(Vertex*) previousVLocation andCurrentVLocation:(Vertex*) currentVLocation andNextVLocation:(Vertex*) nextVLocation;
 
 #pragma mark - RSSI
 -(NSInteger)RSSIJudgment :(CLBeacon *) beacon;

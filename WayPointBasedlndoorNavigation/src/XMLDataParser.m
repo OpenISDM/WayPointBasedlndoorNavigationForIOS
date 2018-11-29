@@ -56,6 +56,7 @@
 -(instancetype)init{
     if (self = [super init]) {
         self.regionData = [NSMutableDictionary new];
+        self.vertexArray = [NSMutableArray new];
         self.routingData = [NSMutableArray new];
         navigationSubgraph = [NavigationSubgraph new];
         self.categoryList = [NSMutableArray new];
@@ -273,6 +274,9 @@
         if (![[attributeDict objectForKey:@"connectPointID"] isEqualToString:@""]){_connectPointID = [[attributeDict objectForKey:@"connectPointID"] intValue];}
         if (![[attributeDict objectForKey:@"elevation"] isEqualToString:@""]){_elevation = [[attributeDict objectForKey:@"elevation"] intValue];}
         
+        Vertex *_vnode = [[Vertex alloc] initForRouteComputation:_ID Name:_name Lat:_lat Lon:_lon Neighbors:_neighbors Region:_region Category:_category NodeType:_nodetype ConnectPoint:_connectPointID];
+        [self.vertexArray addObject:_vnode];
+        
         if (allDataFlag) {
             Vertex *vnode = [[Vertex alloc] initForUIDisplay:_ID Name:_name Region:_region Category:_category];
             [self.routingData addObject:vnode];
@@ -337,6 +341,10 @@
 
 -(NSMutableArray *)returnGroupBeaconArray {
     return self.groupBeaconArray;
+}
+
+-(NSMutableArray *)returnVertexArray {
+    return self.vertexArray;
 }
 
 -(NSMutableArray *)returnRoutingData{

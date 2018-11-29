@@ -27,6 +27,7 @@
    Authors:
  
         Wendy Lu, wendylu@iis.sinica.edu.tw
+        Paul Chang, paulchang@iis.sinica.edu.tw
  
  */
 
@@ -53,6 +54,7 @@
 @property (strong, nonatomic) NSMutableDictionary *categoryData;
 @property (strong, nonatomic) NSMutableArray *localArray;
 @property (strong, nonatomic) NSMutableArray *groupBeaconArray;
+@property (strong, nonatomic) NSMutableArray *vertexArray;
 @property (strong, nonatomic) NSString *fileName;
 @property (strong, nonatomic) NSMutableArray *routingData;
 @property (strong, nonatomic) NSMutableArray *Adjacencies;
@@ -70,9 +72,11 @@
 - (NSMutableArray *)returnLocalData;
 - (NSMutableArray *)returnGroupBeaconArray;
 
+- (NSMutableArray *)returnVertexArray;
+
 - (NSMutableArray *) returnRoutingData;
 
--(NSMutableArray *)CategoryList;
+- (NSMutableArray *)CategoryList;
 
 - (NSMutableDictionary*) returnCategoryData;
 

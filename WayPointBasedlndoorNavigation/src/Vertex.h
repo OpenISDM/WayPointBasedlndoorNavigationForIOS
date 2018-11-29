@@ -27,6 +27,7 @@
    Authors:
  
         Wendy Lu, wendylu@iis.sinica.edu.tw
+        Paul Chang, paulchang@iis.sinica.edu.tw
  
  */
 
@@ -46,7 +47,8 @@
 
 - (instancetype) init;
 - (instancetype) initForRouteComputation :(NSString*) ID Name:(NSString*) name Lat:(double) lat Lon:(double) lon Neighbors:(NSMutableArray*) neighbors Region:(NSString*) region Category:(NSString*) category NodeType:(int) nodeType ConnectPoint:(int) connectPointId;
--(instancetype) initForUIDisplay :(NSString*) ID Name:(NSString*) name Region:(NSString*) region Category:(NSString*) category;
+- (instancetype) initForUIDisplay :(NSString*) ID Name:(NSString*) name Region:(NSString*) region Category:(NSString*) category;
+- (instancetype) initForReNavigation :(NSString*) ID Name:(NSString*) name Lat:(double) lat Lon:(double) lon;
 
 #pragma ID Method
 - (void) ID :(NSString *) _id;

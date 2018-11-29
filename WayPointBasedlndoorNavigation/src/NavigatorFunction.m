@@ -41,6 +41,8 @@
 //
 
 #import "NavigatorFunction.h"
+#import "Vertex.h"
+#import <CoreLocation/CoreLocation.h>
 
 @interface NavigatorFunction (){
     
@@ -125,6 +127,14 @@
 #define STAIRING @"stairing"
 #define ARRIVED @"arrived"
 #define WRONG @"wrong"
+
+#define IMAGE_LEFT @"left-arrow"
+#define IMAGE_FRONT_LEFT @"frontleft-arrow"
+#define IMAGE_REAR_LEFT @"rearleft-arrow"
+#define IMAGE_RIGHT @"right-arrow.png"
+#define IMAGE_FRONT_RIGHT @"frontright-arrow"
+#define IMAGE_REAR_RIGHT @"rearright-arrow"
+#define IMAGE_STRAIGHT @"up-arrow"
 // -----------------------------------------------------------------------------
 
 // load the infomation data from building map file
@@ -157,10 +167,11 @@
         [regionPathID addObject:[[self.regionPath objectAtIndex:i] Name]];
     }
     
-    // load waypoint data from the navigation subgraphs according to the
-    // regionPathID
+    // load waypoint data from the navigation subgraphs according to the regionPathID
     [xmlDataPerser startXMLParserForPoint:regionPathID fileName:nil];
     self.navigationGraph = [xmlDataPerser returnRoutingData];
+    // load Vertex Array(all beacons information)
+    self.VertexArray = [xmlDataPerser returnVertexArray];
 }
 
 // Compute navigation path with the IDs of source point and destination point
@@ -452,6 +463,78 @@
     // reverse path to get correct order
     path = [NSMutableArray arrayWithArray:[[path reverseObjectEnumerator] allObjects]];
     return path;
+}
+
+// compute the direction for restart navigation
+-(NSString*) computeDirectionForReNavigation:(Vertex*) previousVLocation andCurrentVLocation:(Vertex*) currentVLocation andNextVLocation:(Vertex*) nextVLocation {
+    NSString *returnedDirection;
+    int turnedAngle = 1;
+    
+    double cosineAngle = [self computeAngle:previousVLocation andCurrentVLocation:currentVLocation andNextVLocation:nextVLocation];
+    double turnRightorLeft = [self computeTurnRorL:previousVLocation andCurrentVLocation:currentVLocation andNextVLocation:nextVLocation];
+    turnRightorLeft = (int)(turnRightorLeft) / abs((int)turnRightorLeft);
+    
+    switch ((int)turnRightorLeft) {
+        case -1:  // turn right
+            turnedAngle = (int)(180 - (cosineAngle*180/M_PI));
+            break;
+        case 1:  // turn left
+            turnedAngle = -1 * (int)(180 - (cosineAngle*180/M_PI));
+            break;
+            
+        default:
+            break;
+    }
+    
+    return returnedDirection;
+}
+
+// compute the Angle of three geo coordinate (use Law of cosines)
+-(double) computeAngle:(Vertex*) previousVLocation andCurrentVLocation:(Vertex*) currentVLocation andNextVLocation:(Vertex*) nextVLocation {
+    double returnedAngle;
+    
+    CLLocation *startLocation;
+    CLLocation *endLocation;
+    CLLocationDistance currentToNextDist;
+    CLLocationDistance currentToPrevDist;
+    CLLocationDistance PrevToNextDist;
+    
+    // current coordinate to next coordinate distance
+    startLocation = [[CLLocation alloc] initWithLatitude:currentVLocation.Lat longitude:currentVLocation.Lon];
+    endLocation = [[CLLocation alloc] initWithLatitude:nextVLocation.Lat longitude:nextVLocation.Lon];
+    currentToNextDist = [startLocation distanceFromLocation:endLocation]; // aka double
+    // current coordinate to previous coordinate distance
+    endLocation = [[CLLocation alloc] initWithLatitude:previousVLocation.Lat longitude:previousVLocation.Lon];
+    currentToPrevDist = [startLocation distanceFromLocation:endLocation]; // aka double
+    // previous coordinate to next coordinate distance
+    startLocation = [[CLLocation alloc] initWithLatitude:previousVLocation.Lat longitude:previousVLocation.Lon];
+    endLocation = [[CLLocation alloc] initWithLatitude:nextVLocation.Lat longitude:nextVLocation.Lon];
+    PrevToNextDist = [startLocation distanceFromLocation:endLocation]; // aka double
+    
+    returnedAngle = acos((pow(currentToNextDist, 2.0) + pow(currentToPrevDist, 2.0) - pow(PrevToNextDist, 2.0)) /
+                         (2 * currentToNextDist * currentToPrevDist));
+
+    return returnedAngle;
+}
+
+// compute turn right or left(use Outer product) A x B = x1*y2 - y1*x2 = |A||B|Sin(θ)
+-(double) computeTurnRorL:(Vertex*) previousVLocation andCurrentVLocation:(Vertex*) currentVLocation andNextVLocation:(Vertex*) nextVLocation {
+    double returnedRorL;
+    
+    double xPrevToCurrent, xNextToCurrent;
+    double yPrevToCurrent, yNextToCurrent;
+    
+    xPrevToCurrent = previousVLocation.Lon - currentVLocation.Lon;
+    yPrevToCurrent = previousVLocation.Lat - currentVLocation.Lat;
+    
+    xNextToCurrent = nextVLocation.Lon - currentVLocation.Lon;
+    yNextToCurrent = nextVLocation.Lat - currentVLocation.Lat;
+    
+    double _sine = (xPrevToCurrent*yNextToCurrent - xNextToCurrent*yPrevToCurrent /
+                    sqrt(pow(xPrevToCurrent, 2)+pow(yPrevToCurrent, 2)) * sqrt(pow(xNextToCurrent, 2)+pow(yNextToCurrent, 2)));
+    returnedRorL = asin(_sine);
+    
+    return returnedRorL;
 }
 
 

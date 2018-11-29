@@ -82,9 +82,13 @@
 -(NSMutableArray *)Neighbors{return self.neighbors;}
 
 // Get Location Of Region
--(NSMutableArray *)LocationOfRegion{return self.locationOfRegion;}
+-(NSMutableArray *)LocationOfRegion {
+    return self.locationOfRegion;
+}
 // Set Location Of Region
--(void)LocationOfRegion:(NSMutableArray *)locationOfRegion{self.locationOfRegion = locationOfRegion;}
+-(void)LocationOfRegion:(NSMutableArray *)locationOfRegion {
+    self.locationOfRegion = locationOfRegion;
+}
 
 // Get Elevation
 -(int)Elevation{return self.elevation;}

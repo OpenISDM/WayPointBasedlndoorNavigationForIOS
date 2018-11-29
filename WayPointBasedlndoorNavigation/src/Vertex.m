@@ -27,6 +27,7 @@
    Authors:
  
         Wendy Lu, wendylu@iis.sinica.edu.tw
+        Paul Chang, paulchang@iis.sinica.edu.tw
  
  */
 
@@ -75,7 +76,7 @@
 }
 
 // Initialize the object with the point information of Route
--(instancetype)initForRouteComputation:(NSString *)ID Name:(NSString *)name Lat:(double)lat Lon:(double)lon Neighbors:(NSMutableArray *)neighbors Region:(NSString *)region Category:(NSString *)category NodeType:(int)nodeType ConnectPoint:(int)connectPointId{
+- (instancetype)initForRouteComputation:(NSString *)ID Name:(NSString *)name Lat:(double)lat Lon:(double)lon Neighbors:(NSMutableArray *)neighbors Region:(NSString *)region Category:(NSString *)category NodeType:(int)nodeType ConnectPoint:(int)connectPointId{
     if (self = [super init]) {
         self.ID = ID;
         self.name = name;
@@ -93,12 +94,23 @@
 }
 
 // Initialize the object with UUID information
--(instancetype) initForUIDisplay :(NSString*) ID Name:(NSString*) name Region:(NSString*) region Category:(NSString*) category{
+- (instancetype) initForUIDisplay :(NSString*) ID Name:(NSString*) name Region:(NSString*) region Category:(NSString*) category{
     if (self = [super init]) {
         self.ID = ID;
         self.name = name;
         self.region = region;
         self.category = category;
+    }
+    return self;
+}
+
+// Initialize the object for Restart Navigatopm
+- (instancetype) initForReNavigation:(NSString *)ID Name:(NSString *)name Lat:(double)lat Lon:(double)lon {
+    if (self = [self init]) {
+        self.ID = ID;
+        self.name = name;
+        self.lat = lat;
+        self.lon = lon;
     }
     return self;
 }

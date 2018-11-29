@@ -50,6 +50,7 @@
 #import "CompassViewController.h"
 #import "ViewController.h"
 #import "NavigatorFunction.h"
+#import <CoreLocation/CoreLocation.h>
 
 #pragma mark - Arg,Txt and Image Define
 #define NORMAL_WAYPOINT 0
@@ -65,6 +66,7 @@
 #define RSSI_THRESHOLD -65
 
 #define FRONT @"front"
+#define REAR @"rear"
 #define LEFT @"left"
 #define FRONT_LEFT @"frontLeft"
 #define REAR_LEFT @"rearLeft"
@@ -112,44 +114,49 @@
 #define IMAGE_LEFT @"left-arrow"
 #define IMAGE_FRONT_LEFT @"frontleft-arrow"
 #define IMAGE_REAR_LEFT @"rearleft-arrow"
-#define IMAGE_RIGHT @"right-arrow.png"
+#define IMAGE_RIGHT @"right-arrow"
 #define IMAGE_FRONT_RIGHT @"frontright-arrow"
 #define IMAGE_REAR_RIGHT @"rearright-arrow"
 #define IMAGE_STRAIGHT @"up-arrow"
+#define IMAGE_BACK @"down-arrow"
 #define IMAGE_ELEVATOR @"elevator.png"
 #define IMAGE_STAIR @"walking-up-stair-sign"
 #define IMAGE_ARRIVAL @"arrival"
 
 
 @interface NavigationViewController ()<NSXMLParserDelegate, UITextFieldDelegate, CLLocationManagerDelegate, CBCentralManagerDelegate>{
-//  xml Parser method
+    // xml Parser method
     XMLDataParser *xml;
 
-//  conpute distance method
+    // conpute distance method
     GeoCalculation *geoCalculation;
     
-//  integer to record how many waypoints have traveld
+    // integer to record how many waypoints have traveld
     int walkedWaypoint;
     dispatch_semaphore_t semaphore;
     
-//  count current site
+    // count current site
     int pathValue;
 
-//  record array size of navigation path
+    // record array size of navigation path
     int navpathCount;
     
-//  siri speaker
+    // siri speaker
     AVSpeechSynthesizer *pathSpeaker;
     
     BOOL resetFlag;
+    BOOL isRestartDirection;
     
     double keyboardDuration;
     BOOL startFlag;
     
+    // record current minimum Accuracy(dist) of beacons
+    double minAccuracy;
+    
 }
 
 
-// start----Variables used to store routing data--------------------------------
+// --------------- start----Variables used to store routing data ---------------
 // Dictionary for storing region data
 @property (strong, nonatomic) NSMutableDictionary *regionData;
 
@@ -167,7 +174,10 @@
 
 // An array of Location object representing a location data
 @property (strong, nonatomic) NSMutableArray *locationData;
-// end----Variables used to store routing data----------------------------------
+
+// An array to save all beacons information(Vertex)
+@property (strong, nonatomic) NSMutableArray *vertexArray;
+// --------------- end----Variables used to store routing data ---------------
 
 
 // start----objects used to provide voice and test navigation guidance----------
@@ -239,6 +249,13 @@
     NSString *currentAction;
     NavigatorFunction *navigatorFunction;
     NavigatorFunction *getPath;
+    
+    // used by Restart Navigation function
+    Vertex *previousVLocation;
+    Vertex *currentVLocation;
+    Vertex *nextVLocation;
+    NSString *previousID;
+    NSString *currentID;
 }
 
 // When view load
@@ -251,6 +268,10 @@
     
     // -------------------------------------------- start initialization variable --------------------------------------------
     // self.setting = [Setting new];
+    previousVLocation = [[Vertex alloc] initForReNavigation:@"" Name:@"" Lat:0.0 Lon:0.0];
+    currentVLocation = [[Vertex alloc] initForReNavigation:@"" Name:@"" Lat:0.0 Lon:0.0];
+    nextVLocation = [[Vertex alloc] initForReNavigation:@"" Name:@"" Lat:0.0 Lon:0.0];
+    
     walkedWaypoint = 0;
     self.turnNotificationForPoput = nil;
     pathValue = 0;
@@ -269,7 +290,10 @@
     self.beaconRegions = [NSMutableArray new];
     self.regionForBeacon = [NSMutableDictionary dictionary];
     self.locationData = [NSMutableArray new];
+    self.vertexArray = [NSMutableArray new];
+    minAccuracy = 10.0;
     resetFlag = NO;
+    // isRestartDirection = YES;
     navigatorFunction = [NavigatorFunction new];
     getPath = [[NavigatorFunction alloc] initForNavigationPathWithPreferenceSetting:self.setting];
     // -------------------------------------------- end initialization variable ----------------------------------------------
@@ -292,7 +316,6 @@
         NSLog(@"self.startID is %@", self.startID);
         if ([self.starRegion isEqual:@""]){
             self.starRegion = [getPath resetNavigationPathWithFileName:FILENAME SourceID:self.startID];
-            NSLog(@"self.starRegion self.starRegion is %@", self.starRegion);
         }
         [getPath readBuildingWaypointDataForBuildingName:@"buildingA" SourceRegion:self.starRegion DestinationRegion:self.destinationRegion];
         
@@ -304,12 +327,14 @@
         self.navigationPath = getPath.navigationPath;
         self.UUIDtoNameDict = getPath.UUIDtoNameDict;
         self.locationData = getPath.locationData;
+        self.vertexArray = getPath.VertexArray;
+        
         NSLog(@"startflag:%d",startFlag);
         NSLog(@"NavPath2:%@",self.navigationPath);
         // display waypoint ID when demo
         NSString *testDisplay=[NSString new];
         for (int i = 0; i<self.navigationPath.count; i++) {
-            testDisplay= [NSString stringWithFormat:@"%@%@   ",testDisplay,[[self.navigationPath objectAtIndex:i] Name]];
+            testDisplay= [NSString stringWithFormat:@"%@%@ ",testDisplay,[[self.navigationPath objectAtIndex:i] Name]];
         }
         self.pointDisplay.text = testDisplay;
         NSLog(@"path line:%@",testDisplay);
@@ -466,7 +491,7 @@
     // to test beacon
     NSMutableString *outputText = [NSMutableString stringWithFormat:@"Ranged beacons count:%i\n",(int)beacons.count];
     for (CLBeacon *beacon in beacons) {
-        NSLog(@"\n\naccuracy is %f\n", beacon.accuracy);  // show accuracy
+        NSLog(@"\ncurrent beacon's accuracy is %f\n", beacon.accuracy);  // show accuracy
         [outputText appendString:beacon.proximityUUID.UUIDString];
         [outputText appendString:[beacon.description substringFromIndex:[beacon.description rangeOfString:@"major:"].location]];
         [outputText appendString:@"\n\n"];
@@ -490,6 +515,13 @@
             return match;
         }];
         
+        // check user close to which beacon
+        if ((beacon.accuracy < minAccuracy) && ([previousVLocation.ID length] == 0)) {
+            minAccuracy = beacon.accuracy;
+            currentVLocation = [self convertIDtoVertex:beacon.proximityUUID.UUIDString withAllBeacons:self.vertexArray];
+            currentID = currentVLocation.ID;
+        }
+        
         // when have same data to update array and disctionary
         if (index != NSNotFound) {
             self.regionForBeacon[self.beaconList[index]] = nil;
@@ -503,11 +535,11 @@
         }
         NSInteger distance = [navigatorFunction RSSIJudgment:beacon];
         
-        // when user at the 1st waypoint
         // NSLog(@"\nStartCurrentLBeaconID is %@\nbeacon.proximityUUID.UUIDString is %@", self.currentLBeaconID, beacon.proximityUUID.UUIDString);
         BOOL isBeaconNameSame = [[self.UUIDtoNameDict objectForKey:[self.currentLBeaconID uppercaseStringWithLocale:[NSLocale currentLocale]]] isEqualToString:
                                  [self.UUIDtoNameDict objectForKey:[beacon.proximityUUID.UUIDString uppercaseStringWithLocale:[NSLocale currentLocale]]]];
         
+        // when user at the start waypoint
         if (startFlag) {
             if (!isBeaconNameSame && (distance == 1 || distance == 0)) {
                 NSLog(@"t14");
@@ -516,6 +548,8 @@
                 [getPath setCurrentLBeaconID:self.currentLBeaconID];
                 [self drawNowPointGraph:pathValue];
                 pathValue++;
+                currentVLocation = [self convertIDtoVertex:beacon.proximityUUID.UUIDString withAllBeacons:self.vertexArray];
+                currentID = currentVLocation.ID;
                 dispatch_semaphore_signal(semaphore);  // lanuch function(threadNavigator) and compare the UUID whether correct
             }
         }
@@ -529,6 +563,10 @@
                 self.howFarToMove.hidden = NO;
                 [self drawNowPointGraph:pathValue];
                 pathValue++;
+                previousVLocation = currentVLocation;
+                previousID = previousVLocation.ID;
+                currentVLocation = [self convertIDtoVertex:beacon.proximityUUID.UUIDString withAllBeacons:self.vertexArray];
+                currentID = currentVLocation.ID;
                 dispatch_semaphore_signal(semaphore);  // lanuch function(threadNavigator) and compare the UUID whether correct
             }
             else if (distance == 0) {
@@ -896,6 +934,65 @@
     if (startFlag) {
         startFlag = NO;
         self.imageCurrentIndicator.image = [UIImage imageNamed:IMAGE_STRAIGHT];
+        
+        // restart navigation direction expect for first time
+        if (isRestartDirection && ([previousID length] > 0)) {
+            previousVLocation = [self convertIDtoVertex:previousID withAllBeacons:self.vertexArray];
+            currentVLocation = [self convertIDtoVertex:currentID withAllBeacons:self.vertexArray];
+            nextVLocation = [self convertIDtoVertex:[[self.navigationPath objectAtIndex:1] ID] withAllBeacons:self.vertexArray];
+            
+            NSLog(@"\nprevious loc ID is %@\ncurrent loc ID is %@\nnext loc ID is %@", previousVLocation.ID, currentVLocation.ID, nextVLocation.ID);
+            NSString *reNaviDirection = [geoCalculation getDirectionFromBearing:previousVLocation :currentVLocation :nextVLocation];
+            //convert to image name
+            if ([reNaviDirection caseInsensitiveCompare:FRONT] == NSOrderedSame) {
+                self.imageCurrentIndicator.image = [UIImage imageNamed:IMAGE_STRAIGHT];
+                self.firstMovement.text = GO_STRAIGHT_ABOUT;
+            }
+            else if ([reNaviDirection caseInsensitiveCompare:REAR] == NSOrderedSame) {
+                self.imageCurrentIndicator.image = [UIImage imageNamed:IMAGE_BACK];
+                self.firstMovement.text = @"請向後轉 並直走約";
+            }
+            else {
+                reNaviDirection = [[reNaviDirection lowercaseString] stringByAppendingString:@"-arrow"];
+                self.imageCurrentIndicator.image = [UIImage imageNamed:reNaviDirection];
+                
+                // judge the direction
+                if ([reNaviDirection caseInsensitiveCompare:IMAGE_LEFT] == NSOrderedSame)
+                    self.firstMovement.text = @"請向左轉 並直走約";
+                else if ([reNaviDirection caseInsensitiveCompare:IMAGE_RIGHT] == NSOrderedSame)
+                    self.firstMovement.text = @"請向右轉 並直走約";
+                else if ([reNaviDirection caseInsensitiveCompare:IMAGE_FRONT_LEFT] == NSOrderedSame)
+                    self.firstMovement.text = @"請向左前方轉 並直走約";
+                else if ([reNaviDirection caseInsensitiveCompare:IMAGE_FRONT_RIGHT] == NSOrderedSame)
+                    self.firstMovement.text = @"請向右前方轉 並直走約";
+                else if ([reNaviDirection caseInsensitiveCompare:IMAGE_REAR_LEFT] == NSOrderedSame)
+                    self.firstMovement.text = @"請向左後方轉 並直走約";
+                else if ([reNaviDirection caseInsensitiveCompare:IMAGE_REAR_RIGHT] == NSOrderedSame)
+                    self.firstMovement.text = @"請向右後方轉 並直走約";
+                else
+                    self.firstMovement.text = @"XXXXX error XXXXX";
+                
+            }
+            
+            NSLog(@"\nthe reNavigation direction is %@", reNaviDirection);
+            
+            isRestartDirection = NO;
+        }
+        
+        if (resetFlag) {
+            isRestartDirection = YES;
+        }
+        else {
+            isRestartDirection = NO;
+        }
+        
+        NSString *testDisplay = [NSString new];
+        for (int i = 0; i<self.navigationPath.count; i++) {
+            testDisplay = [NSString stringWithFormat:@"%@%@ ",testDisplay,[[self.navigationPath objectAtIndex:i] Name]];
+        }
+        self.pointDisplay.text = testDisplay;
+        NSLog(@"test path line:%@",testDisplay);
+        
         self.currentMovement.text = [NSString stringWithFormat:@"%@%@",self.firstMovement.text,self.howFarToMove.text];
         NSLog(@"%@",self.currentMovement.text);
         self.firstMovement.hidden = YES;
@@ -903,6 +1000,14 @@
     }
     
     else{
+        
+        if (resetFlag) {
+            isRestartDirection = YES;
+        }
+        else {
+            isRestartDirection = NO;
+        }
+        
         // display current step
         [self currentStepInfor];
     }
@@ -1053,10 +1158,23 @@
     });
 }
 
+#pragma mark - Beacon ID to Coordinate
+- (Vertex*) convertIDtoVertex:(NSString*) currentID withAllBeacons:(NSMutableArray*) vertexArray {
+    Vertex *_returnedVertex;
+    
+    for (Vertex *_vertex in vertexArray) {
+        if ([_vertex.ID caseInsensitiveCompare:currentID] == NSOrderedSame) {
+            _returnedVertex = _vertex;
+            break;
+        }
+    }
+    
+    return _returnedVertex;
+}
 
 #pragma mark - Notifiction Alert
 // Popup window for turn direction notification
-- (void) showPopupWindow :(const int) flag{
+- (void) showPopupWindow:(const int) flag{
     UIAlertController *popupWindow = [UIAlertController new];
     UIAlertAction *okAlertButton = [UIAlertAction new];
 
