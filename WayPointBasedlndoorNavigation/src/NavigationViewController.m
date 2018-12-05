@@ -1105,12 +1105,6 @@
     if (numberOfWaypointTraveled == 1 && self.navigationPath.count>=1) {
         self.turnNotificationForPoput = nil;
         
-        //Start CompassActivity
-        UIStoryboard *storyBoard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
-        CompassViewController *compassPage = [storyBoard instantiateViewControllerWithIdentifier:@"CompassPage"];
-        compassPage.passedDegree = [geoCalculation getBearingFromCoordinate:[self.navigationPath objectAtIndex:0] :[self.navigationPath objectAtIndex:1]];
-        //[self.navigationController pushViewController:compassPage animated:YES];
-        
     }
 }
 
